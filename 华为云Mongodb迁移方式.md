@@ -5,6 +5,7 @@
 ## MongDump导入导出
 
 ### 华为云导出数据
+![image-20240313144850803](C:\Users\lmp\AppData\Roaming\Typora\typora-user-images\image-20240313144850803.png)
 
 > 如果源端是阿里云获取其他云厂商不支持导出备份文件，那么可以采用如下方式进行导出
 >
