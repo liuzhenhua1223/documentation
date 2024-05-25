@@ -8,17 +8,17 @@
 
 ### 进入购买页面
 
-![image-20240311142636455](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311142636455.png?raw=true)
+![image-20240311142636455](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311142636455.png?raw=true)
 
 ### 选择资源配置
 
-![image-20240311142810936](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311142810936.png?raw=true)
+![image-20240311142810936](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311142810936.png?raw=true)
 
 ### 插件选择
 
-![image-20240311142935877](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311142935877.png?raw=true)
+![image-20240311142935877](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311142935877.png?raw=true)
 
-![image-20240311142959291](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311142959291.png?raw=true)
+![image-20240311142959291](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311142959291.png?raw=true)
 
 
 
@@ -26,21 +26,21 @@
 
 ### 创建节点
 
-![image-20240311144050955](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311144050955.png?raw=true)
+![image-20240311144050955](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311144050955.png?raw=true)
 
 
 
-![image-20240311144159674](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311144159674.png?raw=true)
+![image-20240311144159674](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311144159674.png?raw=true)
 
 ### 选择节点资源
 
 
 
-![image-20240311144642721](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311144642721.png?raw=true)
+![image-20240311144642721](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311144642721.png?raw=true)
 
 ### 查看节点(节点创建成功后自动创建ecs)
 
-![image-20240311145909818](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311145909818.png?raw=true)
+![image-20240311145909818](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311145909818.png?raw=true)
 
 ### 部署kubectl
 
@@ -48,9 +48,9 @@
 
 https://console.huaweicloud.com/cce2.0/?agencyId=509c01f0db694366b8e8a8a74847bbdd&region=cn-north-4&locale=zh-cn#/cce/cluster/c39f6842-df70-11ee-be77-0255ac10026e/detail?category=Turbo
 
-![image-20240311151047388](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311151047388.png?raw=true)
+![image-20240311151047388](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311151047388.png?raw=true)
 
-![image-20240311151658470](https://github.com/liuzhenhua1223/Image/blob/master//%E5%8D%8E%E4%B8%BA%E4%BA%91CCE%E5%AE%B9%E5%99%A8%E6%9C%8D%E5%8A%A1%E8%BF%81%E7%A7%BB%E5%88%B0%E8%81%94%E9%80%9A%E4%BA%91CSK/image-20240311151658470.png?raw=true)
+![image-20240311151658470](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240311151658470.png?raw=true)
 
 ## 安装velero
 
@@ -150,11 +150,11 @@ kubectl rollout restart deployment -n velero velero
 velero backup-location get
 ```
 
-![image-20240313095534967](assets/image-20240313095534967.png?raw=true)
+![image-20240313095534967](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313095534967.png?raw=true)
 
 ### 创建Pod资源
 
-![image-20240313093444048](assets/image-20240313093444048.png?raw=true)
+![image-20240313093444048](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313093444048.png?raw=true)
 
 ### Velero备份资源
 
@@ -167,17 +167,17 @@ velero backup create 2024-3-25-no-kubesystem-storage --include-namespaces="*" --
 
 ```
 
-![image-20240313093530335](assets/image-20240313093530335.png?raw=true)
+![image-20240313093530335](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313093530335.png?raw=true)
 
 ### 查看OBS对象存储
 
 **查看备份是否成功**
 
-![image-20240313095641078](assets/image-20240313095641078.png?raw=true)
+![image-20240313095641078](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313095641078.png?raw=true)
 
 ## 联通云CKS恢复
 
-![image-20240313095822666](assets/image-20240313095822666.png?raw=true)
+![image-20240313095822666](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313095822666.png?raw=true)
 
 ### 安装velero
 
@@ -284,7 +284,7 @@ velero backup get
 velero backup-location get
 ```
 
-![image-20240313100202414](assets/image-20240313100202414.png?raw=true)
+![image-20240313100202414](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313100202414.png?raw=true)
 
 ```apl
 velero restore create --from-backup lzh-velero-test 
@@ -292,12 +292,12 @@ velero restore create --from-backup lzh-velero-test
 
 ### 查看资源是否恢复
 
-![image-20240313100650862](assets/image-20240313100650862.png?raw=true)
+![image-20240313100650862](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240313100650862.png?raw=true)
 
 
 
 - 刘振华  lzh_888888_1223@163.com
 
-![image-20240325232354706](assets/image-20240325232354706.png?raw=true)
+![image-20240325232354706](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240325232354706.png?raw=true)
 
-![image-20240325232846453](assets/image-20240325232846453.png?raw=true)
+![image-20240325232846453](https://github.com/liuzhenhua1223/Image/blob/master/img/001image-20240325232846453.png?raw=true)
