@@ -11,22 +11,22 @@
 > 1. 在源端开通一台ECS，通过内部进行导出到本地，然后再通过公网传输到目标端
 > 2. 在目标端开通一台ECS，通过公网进行导出到本地，然后再通过公网传输到目标端
 
-![image-20240521103306571](华为云—联通云Mongodb/\image-20240521103306571.png)
+![image-20240521103306571](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103306571.png?raw=true)
 
-![image-20240521103340792](华为云—联通云Mongodb/\image-20240521103340792.png)
+![image-20240521103340792](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103340792.png?raw=true)
 
-![image-20240521103359752](华为云—联通云Mongodb/\image-20240521103359752.png)
+![image-20240521103359752](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103359752.png?raw=true)
 
-![image-20240521103440468](华为云—联通云Mongodb/\image-20240521103440468.png)
+![image-20240521103440468](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103440468.png?raw=true)
 
-![image-20240521103541119](华为云—联通云Mongodb/\image-20240521103541119.png)
+![image-20240521103541119](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103541119.png?raw=true)
 
 安装网页进行挂载外部桶
-![image-20240521103604312](华为云—联通云Mongodb/\image-20240521103604312.png)
+![image-20240521103604312](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103604312.png?raw=true)
 
-![image-20240521103700900](华为云—联通云Mongodb/\image-20240521103700900.png)
+![image-20240521103700900](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103700900.png?raw=true)
 
-![image-20240521103715147](华为云—联通云Mongodb/\image-20240521103715147.png)
+![image-20240521103715147](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521103715147.png?raw=true)
 
 ### 目标端部署中转Mongodb
 
@@ -82,7 +82,7 @@ mongod -f data1/mongodb.cnf
 
 通过winscp
 
-![image-20240521104744006](华为云—联通云Mongodb/\image-20240521104744006.png)
+![image-20240521104744006](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521104744006.png?raw=true)
 
 ### 自建Mongodb导出数据
 
@@ -99,9 +99,11 @@ mongorestore -h 10.10.1.237:27017 -u admin --authenticationDatabase admin --gzip
 mongorestore -h 10.10.1.237:27017 -u admin --authenticationDatabase admin  /data/a/
 ```
 
-![image-20240521112843413](华为云—联通云Mongodb/image-20240521112843413.png)
+![image-20240521112843413](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521112843413.png?raw=true)
 
-![image-20240521112857736](华为云—联通云Mongodb/image-20240521112857736.png)
+![image-20240521112857736](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521112857736.png?raw=true)
+
+
 
 ### 查看数据
 
@@ -153,7 +155,7 @@ MongoShake从源库抓取oplog数据，然后发送到各个不同的tunnel通�
 
 消费者可以通过对接tunnel通道获取关注的数据，例如对接Direct通道直接写入目的MongoDB，或者对接RPC进行同步数据传输等。此外，用户还可以自己创建自己的API进行灵活接入。下面2张图给出了基本的架构和数据流。
 
-![pic1](华为云—联通云Mongodb/dataflow-1716271607263-15.png)
+![pic1](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/dataflow-1716271607263-15.png?raw=true)
 
 ### 从MongoDB从副本集同步到MongDB副本集
 
@@ -230,14 +232,14 @@ replayer.collection_drop: 如果目的库表存在，是否先删除目的库再
 
 ## 阿里云DTS迁移
 
-![image-20240521210945120](华为云—联通云Mongodb/image-20240521210945120.png)
+![image-20240521210945120](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521210945120.png?raw=true)
 
 ## Cloudcancal
 
 - 接入数据源
 
-![image-20240521211156147](华为云—联通云Mongodb/image-20240521211156147.png)
+![image-20240521211156147.png](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521211156147.png?raw=true)
 
 创建并启动任务
 
-![image-20240521211220676](华为云—联通云Mongodb/image-20240521211220676.png)
+![image-20240521211220676](https://github.com/liuzhenhua1223/Image/blob/master/MongoImage/image-20240521211220676.png?raw=true)
