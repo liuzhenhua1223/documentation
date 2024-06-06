@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 # 第一章 数据库系统概述
 
 - 数据库技术
@@ -915,266 +919,149 @@ Referential Integrity Constraint
 
    A、B两个实体型之间的联系可分为一对一、一对多、多对多
 
-   - 一对一联系(1:1)
-   - 如果对于实体集A中的每一个实体，实体集B中至多有一个(也可以没有)实体与之 联系，反之亦然，则称实体集A与实体集B具有一对一联系，记为1:1。例如，一个系只有一个系主任，且一个系主任只在一个系任职，则系与系主任两个实体之间具有一对-的联系。
+![image-20240605171526688](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605171526688.png?raw=true)
 
+![image-20240605171502551](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605171502551.png?raw=true)
 
+![image-20240605171657303](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605171657303.png?raw=true)
 
+![image-20240605171730879](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605171730879.png?raw=true)
 
+![image-20240605171823611](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605171823611.png?raw=true)
 
+![image-20240605172032569](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172032569.png?raw=true)
 
+![image-20240605172049977](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172049977.png?raw=true)
 
+![image-20240605172203841](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172203841.png?raw=true)
 
+![image-20240605172255432](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172255432.png?raw=true)
 
+![image-20240605172629553](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172629553.png?raw=true)
 
+## 逻辑结构设计方法
 
+![image-20240605172849060](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172849060.png?raw=true)
 
+![image-20240605172906725](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605172906725.png?raw=true)
 
+![image-20240605173011205](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605173011205.png?raw=true)
 
+![image-20240605173112293](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605173112293.png?raw=true)
 
+![image-20240605173218142](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605173218142.png?raw=true)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![image-20240605173237093](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240605173237093.png?raw=true)
 
 # Postgresql
 
-### 什么是数据库
+## 第一章 安装与配置基础
 
-数据库（Database，DB）是一个长期存储在计算机内的、有组织的、有共享的统一管理的数据集合
+## 1.1 初识Postgresql
 
-- 保管数据的“创库”
-- 数据管理的方法和技术
+- Postgresql源于UCBerkeley大学1977年的Ingress计划，由Michael Stonebraker领导的，随着2010年PostgreSQL 9.0的发行，正式进入了黄金发展阶段
+- PostgreSQL是目前可免费获取最高级的开源数据库，目前主流的云服务提供商如亚马逊、阿里云、腾讯云、都提供了PostgreSQL的RDS服务。
 
-### 数据表的概念
+### 1.1.1Postgresql特点
 
-- 数据库表：是一系列`二维数组的集合`
-- 横向的行(记录、行)
-- 纵向（字段、属性、列）
+- 支持各种操作系统：Linux、Windows、UNIX等。拥有丰富的接口，C、C++、GO、JAVA、Perl、Python和开放数据库连接（ODBC）的编程接口
 
-![image-20240529230301119](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240529230301119.png?raw=true)
+- 支持广泛的数据类型，数组，json，jsonb，还可以使用SQL命令CREATE TYPE创建自定义类型。
+- 复杂的SQL查询，子查询，函数和统计语法、支持主键、外键、触发器、视图、物化视图。
+- 支持并行计算和基于MVCC的多版本并发控制，支持同步、半同步、异步的主流复制，支持逻辑复制和订阅。
+- 可以将其他数据源当作自己的数据表使用，如Oracle、Mysql等等。
 
-### 数据类型的概念
+### 1.1.2 许可
 
-- 常用数据类型：
-  - 整数数据类型
-  - 浮点数据类型
-  - 日期/时间数据类型
-  - 字符串数据类型
-  - 二进制数据类型
+- PostgreSQL使用PostgreSQL的 License声明，类似于BSD或MIT的软件授权许可，由于这个经OSI认证的版本不受限制PostgreSQL在上衣环境和版权的应用程序中使用，公认是灵活和商业用用友好。
 
-![image-20240529230244329](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240529230244329.png?raw=true)
+## 1.2 安装PostgreSQL
 
-### 数据库系统的构成
+### 1.2.1 通过YUM源安装(互联网)
 
-- 数据库（以数据为载体进行保存的软件）
-- 数据库管理系统（面向数据库管理人员）
-- 数据库应用程序 (面向普通用户)
+- 通过YUN源安装是最便捷的方式，前提需要连接互联网
 
-![image-20240529230301119.png](https://github.com/liuzhenhua1223/Image/blob/master/PGSQL/image-20240529230301119.png?raw=true)
+1. **安装PostgreSQL的repository RPM**
 
-### SQL语言
+   访问PostgreSQL官方主页:[PostgreSQL：Linux 下载（Red Hat 系列）](https://www.postgresql.org/download/linux/redhat/)
 
-SQL是对数据库进行查询和修改操作语言。
+![image-20240606144353257](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606144353257.png?raw=true)
 
-SQL语言包含4个部分：
+```apl
+sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+sudo yum install -y epel-release
+sudo yum install -y libzstd
+sudo yum install -y postgresql15-server
+sudo /usr/pgsql-15/bin/postgresql-15-setup initdb
+sudo systemctl enable postgresql-15
+sudo systemctl start postgresql-15
+```
 
-- DDL 数据库定义语言：DROP CREATE ALTER
-- DML 数据库操作语言： INSET UPDATA DELETE
-- DQL 数据库查询语言： SELEDT
-- SCL 数据库控制余元： GRANT REVOKE COMMIT ROLLBACK
+![image-20240606150754056](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606150754056.png?raw=true)
 
-### 常用的数据库访问技术
+2. 安装PostgreSQL
 
-- ODBC (Open Database Connectivity)开放数据库连接
-- JDBC (Java Database Connctivity) Java数据库连接
+   安装完成，通过yum search postgresql15看到包
 
-- PDO：PHP语言访问技术
+   - postgresql15.x86_64：这个包只包含PostgreSQL的Client端程序和库文件，不会安装数据库服务器
+   - postgresql15-docs.x86_64：文档
+   - postgresql15-devel.x86_64：PostgreSQL的C和C++头文件，如果开发者libpq程序他是必须的
+   - postgresql15-contrib.x86_64：PostgreSQL的附加模块，包含常用的扩展
+   - postgresql15-server.x86_64：PostgreSQl server端程序，作为数据库服务器，他是最核心的包。
 
-## 
+- 如果网络状况好，大约几秒钟就可以完成安装，使用yum源安装的位置在/usr/pgsql-15目录，可执行文件位于/usr/pgsql-15/bin目录，并且会自动创建一个postgresql账户，他的home目录在/var/lib/pgsql。
 
+3. 卸载通过yum 源安装的PostgreSQL
+
+   执行如下命令查看已经安装的PostgreSQL软件包
+
+   ```apl
+   [root@02 ~]# rpm -qa | grep postgresql
+   postgresql15-15.7-1PGDG.rhel7.x86_64
+   postgresql15-libs-15.7-1PGDG.rhel7.x86_64
+   postgresql15-server-15.7-1PGDG.rhel7.x86_64=
+   ```
+
+   可以使用yum remove命令进行一个一个卸载，也可以直接卸载libs会将其他包一并卸载。
+
+   ```apl
+   [root@02 ~]# yum remove postgresql15-libs-15.7-1PGDG.rhel7.x86_64
+   ```
+
+   由于安装的时候已经间PostgreSQL作为服务安装，所以还需要删除服务管理脚本
+
+   ```apl
+   [root@02 ~]# rm -rf /etc/init.d/postgresql-15
+   ```
+
+### 1.2.2通过源码编译安装
+
+通过源码便于安装和便于其他的开源工具一样简单方便。
+
+1. 下载源码包
+
+   官方主页：[PostgreSQL: File Browser](https://www.postgresql.org/ftp/source/v15.5/)
+
+![image-20240606154315744](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606154315744.png?raw=true)
+
+​		下载后解压
+
+```apl
+[root@vm-1715569180 ~]# ls
+anaconda-ks.cfg  postgresql-15.5.tar.gz
+[root@vm-1715569180 ~]# tar -zxf postgresql-15.5.tar.gz
+[root@vm-1715569180 ~]# ls
+anaconda-ks.cfg  postgresql-15.5  postgresql-15.5.tar.gz
+```
+
+2. 运行Configure程序配置编译选项
+
+   运行configure程序之前，需要先准备好编译环境和安装必要的包
+
+   ```apl
+   yum groupinstall "Development tools"
+   yum install y bison flex readline-devel zlib-devel
+   ./configure --prefix=/data/pg-15 --with-pgport=1921
+   ```
+
+![image-20240606162518354](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606162518354.png?raw=true)
