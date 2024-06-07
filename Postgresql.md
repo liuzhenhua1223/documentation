@@ -48,13 +48,12 @@
 - 人工管理阶段
 
   - 20世纪50年代，主要通过手动的方式进行数据处理，一切靠人
-
     1. 数据不保存
        - 一组数据对应一个成勋，数据空间随着空间一切被释放
-
+    
     2. 应用成勋管理数据
        - 当时没有数据库管理软件，数据库的设计工作，有应用程序的编写人员来完成。
-
+    
     3. 数据面向应用
        - 一个数据只能对应一个程序，当多个应用程序 涉及某些数据时，必须各自定义，不能共享，因此程序与程序之间存在大量的冗余数据，数据的独立性差。
 
@@ -1065,3 +1064,408 @@ anaconda-ks.cfg  postgresql-15.5  postgresql-15.5.tar.gz
    ```
 
 ![image-20240606162518354](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606162518354.png?raw=true)
+
+![image-20240606233711109](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606233711109.png?raw=true)
+
+3. 编译安装
+
+   执行gmake或gmake world程序进行编译
+
+   ```apl
+   gmake
+   ```
+
+   执行gmake install或gmake install-world进行安装
+
+   ```apl
+   gmake install
+   ```
+
+   ![image-20240606233917360](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606233917360.png?raw=true)
+
+查看安装的PostgreSQL版本的命令如下所示
+
+```apl
+[root@pgsql postgresql-15.5]# /data/pg-15/bin/postgres --version
+postgres (PostgreSQL) 15.5
+```
+
+### 1.2.3设置一个软连接
+
+- 有时候为了方便工作，会自己写一些shell或Python脚本，经常会通过类似/data/pg15.x这样的全路径调用一些工具，如何尽可能避免麻烦，就需要通过软连接
+
+```apl
+[root@pgsql postgresql-15.5]# ln -s /data/pg-15/ /data/pgsql
+```
+
+- 当版本变更之后，不需要调整大量的脚本，只需要修改这个软连接即可。下文也会使用它。
+
+## 1.3 客户端程序和服务器程序
+
+- 目前已经成功安装了PostgreSQL数据库
+
+  ```apl
+  [root@pgsql postgresql-15.5]# tree -L 1 /data/pg-15/
+  /data/pg-15/
+  ├── bin //是PG应用程序
+  ├── include //是PG的C、C++的头文件
+  ├── lib 
+  └── share //存放文档、man、实列、以及扩展
+  4 directories, 0 files
+  ```
+
+---
+
+PG本身就是一个C/S架构的程序，这些程序分为两类，客户端程序和服务器程序。
+
+### 1.3.1 客户端程序
+
+- 客户端程序也可以分为
+
+1. 封装SQL命令的客户端程序
+
+   **clusterdb**
+
+   clusterdb 是 SQL CLUSTER命令的一个封装。PostgreSQL是 堆表存储的，clusterdb通过索引对数据库中基于堆表的物理文件进行重新排序，一定场景下可以`节省磁盘空间`、`加快查询速度`
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/clusterdb -h pghost1 -p1921 -d mydb
+     ```
+
+   **reindexdb**
+
+   reindexdb是 SQL REINDEX命令的一个封装。在索引物理文件发生损坏或索引膨胀情况方式时，可以使用reindex命令对指定的表或数据库进行重建索引并且删除旧的索引。
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/reindexdb -h pghost1 -p1921 -d mydb
+     ```
+
+   **vacuumdb**
+
+   vacuumdb 是 PostgreSQL数据库独有的VACUUM、VACUUM FREEZE和VACUUM FULL、VACUUM ANALYZE这几个SQL命令封装。主要是对数据的物理文件等垃圾回收。是PostgreSQL中非常重要的一些列命令
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/vacuumdb -h pghost1 -p 1921 mydb
+     ```
+
+   **vacuumlo**
+
+   vacuumlo 用来清理数据库中未引用的大对象。
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/vacuumlo -h pghost1 -p 1921 mydb
+     ```
+
+   **createdb和dropdb**
+
+   他们本别是SQL命令CREATE DATABASE和DEOP DATABASE的封装。
+
+   - 举例
+
+     ```apl
+     /data/pgsql/bin/createdb -h pghost1 -p 1921 newdb "New database."
+     
+     ```
+
+     ```apl
+     /data/pgsql/bin/drop -h pghost1 -p 1921 newdb "New database."
+     
+     ```
+
+   例如：创建一个名为newuser的非超级用户，newuser继承自pg_monitor系统角色，自由1个连接，没有创建数据库的权限，没有创建用户的权限，并且立即给他设置密码，如下：
+
+   ```apl
+   /data/pgsql/bin/createuser -h pghost1 -p 1921 -c 1 -g pg_monitor -D -R -S -P -e newuser
+   Enter password for new role:
+   Enter it again:
+   ```
+
+
+
+## 1.4 创建数据库实例
+
+- 在PostgreSQL中一台数据库服务器可以管理多个数据库实例，也可以通过目录的位置和这个数据的集合实例的端口引用它
+
+### 1.4.1 创建操作系统用户
+
+- 在创建数据库之前，要先创建按一个独立的操作系统用户，也可以称为本地用户。目的是为例防止因为软件的BUG被攻击者利用。
+
+```apl
+groupadd -g 1000 postgres
+useradd -g 1000 -u 1000 postgres
+mkdir /data/pgdata
+chown postgres.postgres /data/pgdata/
+chown 0700 /data/pgdata/
+su postgres
+```
+
+---
+
+注意事项：
+
+- 出于安全考虑，这个操作系统用户不能是root或具有系统管理员权限的用户如：sudo提权的用户。
+
+### 1.4.2 创建数据目录
+
+- 有时候可能会遇到多实例并存的情况，为例区分不同版本的数据，通常建立如/pgdata/9.x/xxx_data作为数据库实例的的目录，这样在进行大版本升级或多版本并存时，目录条理更清晰，同时可以减少出错。
+
+- 例子：创建/data/pgdata目录作为数据目录，在pgdata的同级目录创建backups、scripts、archive_wals目录
+
+  ```apl
+  [root@pgsql postgresql-15.5]# mkdir -p /data/{backups,scripts,archive_wals}
+  [root@pgsql postgresql-15.5]# chown postgres.postgres /data/ -R
+  [root@pgsql data]# chmod 0700 /data/pgdata/
+  
+  ```
+
+### 1.4.3初始化数据目录
+
+- 实例化数据目录使用initdb工具。initdb工具将创建一个新数据库目录(这个目录包括存放数据的目录)，创建template1和postgres数据库，默认区域和字符编码。
+
+  ![image-20240607132837989](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240607132837989.png?raw=true)
+
+  ```apl
+  [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/initdb -D /data/pgdata/ -W
+  
+  The files belonging to this database system will be owned by user "postgres".
+  This user must also own the server process.
+  
+  The database cluster will be initialized with locale "zh_CN.UTF-8".
+  The default database encoding has accordingly been set to "UTF8".
+  initdb: could not find suitable text search configuration for locale "zh_CN.UTF-8"
+  The default text search configuration will be set to "simple".
+  
+  Data page checksums are disabled.
+  
+  Enter new superuser password:
+  Enter it again:
+  
+  fixing permissions on existing directory /data/pgdata ... ok
+  creating subdirectories ... ok
+  selecting dynamic shared memory implementation ... posix
+  selecting default max_connections ... 100
+  selecting default shared_buffers ... 128MB
+  selecting default time zone ... Asia/Shanghai
+  creating configuration files ... ok
+  running bootstrap script ... ok
+  performing post-bootstrap initialization ... ok
+  syncing data to disk ... ok
+  
+  initdb: warning: enabling "trust" authentication for local connections
+  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+  
+  Success. You can now start the database server using:
+  
+      /data/pgsql/bin/pg_ctl -D /data/pgdata/ -l logfile start
+  ```
+
+- 因为使用了-W 参数，所以在初始化过程中，initdb工具要求为数据库超级用户创建密码
+
+- 需要注意除了使用initdb来初始化数据目录，`pg_ctl`工具进行数据库目录的初始化，自持，初始化完成。
+
+  ```apl
+  /data/pgsql/bin/initdb -D /data/pgdata/ -W
+  ```
+
+## 1.5 启动和停止数据库服务器
+
+- 在使用数据库服务器之前，必须先启动数据库服务器。可以通过service方式PostgreSQL的命令工具启动或停止数据库。
+
+### 1.5.1 使用service方式
+
+- 启动数据库服务的命令
+
+  ```apl
+  service postgresql start
+  ## 查看运行状态
+  service postgresql status
+  ##停止数据库
+  service postgresql stop
+  ```
+
+### 1.5.2 使用pg_ctl进行管理
+
+- pg_ctl是postgreSQL中初始化数据目录，启动、停止、重启、数据库或查看数据库服务状态的工具，相比service或systemctl，pg_ctl提供了丰富的控制选项，`执行pg_ctl命令`需要系统用户使用`su`命令切换到`postgres`用户。
+
+- 修改监听的主机
+
+  vim /data/pgdata/postgresql.conf
+
+  ```apl
+  listen_addresses = '*'          # what IP address(es) to listen on;
+  ```
+
+- 配置远程连接认证
+
+  vim /data/pgdata/pg_hba.conf
+
+  ```apl
+  host    all             postgres        192.168.71.10/32        md5
+  ```
+
+1. 启动数据库服务的命令
+
+   ```apl
+   su - postgres
+   
+   [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ start
+   waiting for server to start....2024-06-07 20:33:20.326 CST [38948] LOG:  starting PostgreSQL 15.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44), 64-bit
+   2024-06-07 20:33:20.330 CST [38948] LOG:  listening on IPv6 address "::1", port 1921
+   2024-06-07 20:33:20.330 CST [38948] LOG:  listening on IPv4 address "127.0.0.1", port 1921
+   2024-06-07 20:33:20.331 CST [38948] LOG:  listening on Unix socket "/tmp/.s.PGSQL.1921"
+   2024-06-07 20:33:20.333 CST [38951] LOG:  database system was shut down at 2024-06-07 19:25:12 CST
+   2024-06-07 20:33:20.335 CST [38948] LOG:  database system is ready to accept connections
+    done
+   server started
+   
+   #####查看启动状态
+   [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ status
+   
+   pg_ctl: server is running (PID: 38948)
+   /data/pg-15/bin/postgres "-D" "/data/pgdata"
+   
+   #####重启
+   /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w restart
+   #####重启
+   /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w stop
+   ```
+
+2. 停止数据库
+
+   使用pg_ctl停止数据库命令为：
+
+   支持三种停止数据库的模式：smart、fast、immediate，默认为fast模式。
+
+   - smart 模式会等待活动的事物提交结束，并等待客户端主动断开连接之后关闭数据库。
+   - fast 模式则会回滚所有活动的事物，并强制断开客户的连接之后关闭数据库。
+   - immediate模式立即终止所有服务器进程，当下次数据库启动时，他会首先进入恢复状态，一般不推荐使用
+   - 这三个值简写为：`-ms -mf -mi`，例如使用smart模式停止数据库
+
+   ```apl
+   [postgres@pgsql data]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ -ms stop
+   waiting for server to shut down....2024-06-07 23:32:32.411 CST [39561] LOG:  received smart shutdown request
+   2024-06-07 23:32:32.412 CST [39561] LOG:  background worker "logical replication launcher" (PID 39567) exited with exit code 1
+   2024-06-07 23:32:32.412 CST [39562] LOG:  shutting down
+   2024-06-07 23:32:32.412 CST [39562] LOG:  checkpoint starting: shutdown immediate
+   2024-06-07 23:32:32.413 CST [39562] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.002 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+   2024-06-07 23:32:32.415 CST [39561] LOG:  database system is shut down
+    done
+   server stopped
+   ```
+
+### 1.5.3 配置开机启动
+
+- 如果使用官方yum源安装，会自动配置服务脚本，如果通过源码编译安装，则需要手动配置
+
+1. 配置服务脚本
+
+   在源码包的contrib目录中有linux、FreeBSD、OSX使用的服务脚本
+
+   ```apl
+   [root@pgsql postgresql-15.5]# ls contrib/start-scripts/
+   freebsd  linux  macos
+   ```
+
+   我们将名称为linux的脚本拷贝到/etc/init.d/目录中，将脚本重命名为postgresql-15，并赋予可执行权限。
+
+   ```apl
+   root@pgsql postgresql-15.5]# chmod +x /etc/init.d/postgresql-15
+   [root@pgsql postgresql-15.5]# ls -lh /etc/init.d/postgresql-15
+   -rwxr-xr-x. 1 root root 3.5K 6月   7 23:41 /etc/init.d/postgresql-15
+   ```
+
+2. 设置开机启动
+
+   chkcinfig命令将启用或禁止PostgreSQL开机启动项目
+
+   chkconfig --list命令可以查看PostgreSQL是否开机启动
+
+   ```apl
+   [root@pgsql postgresql-15.5]# chkconfig postgresql-15 off
+   [root@pgsql postgresql-15.5]# chkconfig --list|grep postgresql
+   
+   注：该输出结果只显示 SysV 服务，并不包含
+   原生 systemd 服务。SysV 配置数据
+   可能被原生 systemd 配置覆盖。
+   
+         要列出 systemd 服务，请执行 'systemctl list-unit-files'。
+         查看在具体 target 启用的服务请执行
+         'systemctl list-dependencies [target]'。
+   
+   postgresql-15   0:关    1:关    2:关    3:关    4:关    5:关    6:关
+   ```
+
+## 1.6数据库配置基础
+
+- 在数据库实例中，有些配置会影响到整个实例，有些配置只对一个数据库实例中当个database生效，或支队当前会话数据库用户生效，称为非全局配置。
+- 两个重要的配置文件：postgresql.conf和pg_hba.conf。这些参数从不同层面影响数据库系统的行为，
+- postgresql.conf配置文件主要负责配置文件的位置、资源限制、集群复制等
+- pg_hba.conf文件负责客户端的连接和认证。
+  - 这两个文件都位于初始化数据目录中。
+
+### 1.6.1 配置文件的位置
+
+- 在实例化数据目录之后，在数据目录下会有postgresql.conf、postgresql.auto.conf、pg_hba.conf和pg_ident.conf这几个配置文件。除身份认证以外数据库系统行为都由postgresql.cnf文件配置
+
+### 1.6.2 pg_hba.conf
+
+pg_hba.conf是它所在数据库实例的”防火墙“文件格式如下
+
+```apl
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     trust
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            trust
+# IPv6 local connections:
+host    all             all             ::1/128                 trust
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     trust
+host    replication     all             127.0.0.1/32            trust
+host    replication     all             ::1/128                 trust
+host    all             postgres        192.168.71.10/32        md5
+```
+
+1. 连接方式
+
+   TYPE 可用的值有：local、host、hostssl、hostnossl
+
+   - local：匹配使用Unix，如果别有表示local的条目不允许通过Unix域套接字连接
+   - host：匹配使用TCP/IP建立的连接，同时匹配SSL和非SSL连接。默认安装只监听本地回环地址localhost的连接，其用`远程连接`需要修改`postgresql.conf`中的`listen_address`参数
+   - hostssl：匹配必须是使用ssl的TCP/IP连接。配置hostssl有三个前提条件
+     - 客户端和服务端都安装OpenSSL
+     - 编译PostgreSQL的时候指定configure参数--with-openssl打开SSL支持
+     - 在postgresql.conf中配置ssl=on
+   - hostnossl和hostssl相反，它只匹配使用非ssl的TCP/IP连接。
+
+2. 目标数据库
+
+   DATABSE 列表示该行设置对那个数据库生效；
+
+3. 目标用户
+
+   USER 列表示改行设置对哪个数据库用户生效
+
+4. 访问来源
+
+   ADDRESS 列标识该行设置对那个IP地址或IP地址段生效；
+
+5. 认证方法：
+
+   METHOD 列标识客户端认证方法，常见的认证方法有trust、reject、md5和password等。
+
+   - reject认证方式：允许某一网段的大多数主机访问数据库，但拒绝这一网段少数特定主机
+   - md5 和password 认证方式在于，md5认证方式为双重md5加密，password指明文密码，所以不要在非信任网络使用password认证方式。
+   - scram-sha-256是PostgreSQL10中新增的基于SASL的认证方式，是PostgreSQL目前提供最安全的认证方式。
+
+   
