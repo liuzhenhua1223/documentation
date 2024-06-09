@@ -3230,7 +3230,7 @@ CREATE TABLE
                 3
   ```
 
-### 3.7 范围类型
+## 3.7 范围类型
 
 - 范围类型包含一个范围内的数据，常见的范围数据类型有日期范围类型、整数范围类型等，对于日期安排、价格范围应用场景比较适用。
 
@@ -3395,4 +3395,306 @@ CREATE TABLE
   CREATE TABLE
   ```
 
+- 以上定义字段name为json，插入数据如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_json1 (name) values ('{"coll":1,"coll2":"francs","coll3":"male"}');
+  INSERT 0 1
   
+  mydb@192.168.71.11:1921=#insert into test_json1 (name) values ('{"coll":2,"coll2":"fp","coll3":"female"}');
+  INSERT 0 1
+  ```
+
+- 查询表test_json1数据
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_json1;
+   id |                           name
+  ----+-----------------------------------------------------------
+    1 | {"coll":1,"coll2":"francs","coll3":"male"}
+    2 | {"coll":2,"coll2":"fp","coll3":"female"}
+  ```
+
+### 3.8.2 查询json数据
+
+- 通过 ”->"操作符可以查询json数据的键值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name -> 'coll2' from test_json1 where id=1;
+   ?column?
+  ----------
+   "francs"
+  ```
+
+- 如果想以文本格式返回json字段，可以使用>>
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name ->> 'coll2' from test_json1 where id = 1;
+   ?column?
+  ----------
+   francs
+  ```
+
+### 3.8.3 jsonb于json差异
+
+- 几乎相同，json存储格式为文本，而jsonb存储格式为二进制，jsonb写入比jsonb快，但减少比jsonb慢
+
+- 输出顺序对比
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"bar":"baz","banlance":7.77,"active":false}'::jsonb;
+                         jsonb
+  ---------------------------------------------------
+   {"bar": "baz", "active": false, "banlance": 7.77}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"bar":"baz","banlance":7.77,"active":false}'::json;
+                       json
+  ----------------------------------------------
+   {"bar":"baz","banlance":7.77,"active":false}
+  (1 row)
+  ```
+
+- 另外jsonb类型会去掉输入数据中键值空格
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"id":1,          "name":"france"}'::jsonb;
+              jsonb
+  -----------------------------
+   {"id": 1, "name": "france"}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"id":1,          "name":"france"}'::json;
+                  json
+  ------------------------------------
+   {"id":1,          "name":"france"}
+  (1 row)
+  ```
+
+- 另外jsonb会删除重复的键，仅保留最后一个
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"id":1,"name":"france","remark":"a good guy!","name":"test"}'::jsonb;
+                         jsonb
+  ----------------------------------------------------
+   {"id": 1, "name": "test", "remark": "a good guy!"}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"id":1,"name":"france","remark":"a good guy!","name":"test"}'::json;
+                               json
+  ---------------------------------------------------------------
+   {"id":1,"name":"france","remark":"a good guy!","name":"test"}
+  (1 row)
+  ```
+
+- 大多场景建议使用jsonb，除非特殊需求，比如json的键顺序由特殊要求
+
+### 3.8.4 jsonb与json操作符
+
+- 以文本格式返回json类型的字段键值可以使用 "->>"
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name ->>  'coll2' from test_json1 where id =1 ;
+   ?column?
+  ----------
+   francs
+  ```
+
+- 字符串是否作为顶层键值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb ? 'a';
+   ?column?
+  ----------
+   t
+  ```
+
+- 删除json数据值的键 / 值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb - 'b';
+   ?column?
+  ----------
+   {"a": 1}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb - 'a';
+   ?column?
+  ----------
+   {"b": 2}
+  (1 row)
+  ```
+
+### 3.8.5 jsonb与json函数
+
+- 扩展主最外层的json对象成为一组键 /值结果集
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from json_each('{"a":"foo","b":"bar"}');
+   key | value
+  -----+-------
+   a   | "foo"
+   b   | "bar"
+  ```
+
+- 以文本形式返回结果
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from json_each_text('{"a":"foo","b":"bar"}');
+   key | value
+  -----+-------
+   a   | foo
+   b   | bar
+  ```
+
+- 一个非常重要的函数 row_to_json()，能够将行为作为json对象返回，此函数用来生产json测试数据，比如将一个普通表转为json类型表
+
+  ![image-20240610035559024](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610035559024.png?raw=true)
+
+  
+
+### 3.8.6 jsonb键/值的追加、删除、更新
+
+- jsonb键/值追加可通过“||”操作符，类如增加sex键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"france","age":31}'::jsonb || '{"sex":"male"}'::jsonb;
+                     ?column?
+  ----------------------------------------------
+   {"age": 31, "sex": "male", "name": "france"}
+  (1 row)
+  ```
+
+- jsonb键/值的删除有两种方法，一种是通过操作符“_"删除，另一种是通过操作符"#_"删除指定键/值
+
+- 通过操作符"_"删除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"james","email":"Lzh_888888_1223@163.com"}'::jsonb - 'email';
+       ?column?
+  -------------------
+   {"name": "james"}
+   
+   mydb@192.168.71.11:1921=#select '["red","green","bule"]'::jsonb -0;
+       ?column?
+  -------------------
+   ["green", "bule"]
+  (1 row)
+  ```
+
+- 第二种方法通过操作符"#-"删除嵌套contact中的fax键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#SELECT '{"name": "James", "contact": {"phone": "01234 567890", "fax": "01987 543210"}}'::jsonb #- '{contact,fax}'::text[];
+                          ?column?
+  ---------------------------------------------------------
+   {"name": "James", "contact": {"phone": "01234 567890"}}
+  (1 row)
+  ```
+
+- 删除嵌套aliases中位置为1的键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"James","aliases":["Jamie","The Jamester","J MAN"]}'::jsonb #- '{aliases,0}'::text[];
+                          ?column?
+  ---------------------------------------------------------
+   {"name": "James", "aliases": ["The Jamester", "J MAN"]}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"name":"James","aliases":["Jamie","The Jamester","J MAN"]}'::jsonb #- '{aliases,1}'::text[];
+                       ?column?
+  --------------------------------------------------
+   {"name": "James", "aliases": ["Jamie", "J MAN"]}
+  (1 row)
+  ```
+
+- 键/值的更新两种方式，第一种通过 “||"操作符，||操作符可以连接到json键，可以覆盖
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"franche","age":"31"}'::jsonb || '{"age":"21"}'::jsonb;
+               ?column?
+  ----------------------------------
+   {"age": "21", "name": "franche"}
+  ```
+
+- 第二种是通过jsonb_set函数
+
+  ```apl
+  jsonb set(target jsonb, path text[],new value jsonb[, create missing boolean])
+  ```
+
+- target指源jsonb数据，path指路径，new_value指更新后的键值，create_missing值为true表示如果键值不存在则添加，create_missing值为false表示如果键不存在则不添加
+
+  ```apl
+  mydb@192.168.71.11:1921=#select jsonb_set('{"name":"france","age":"31"}'::jsonb,'{age}','"21"'::jsonb,false);
+              jsonb_set
+  ---------------------------------
+   {"age": "21", "name": "france"}
+   
+  mydb@192.168.71.11:1921=#select jsonb_set('{"name":"france","age":"31"}'::jsonb,'{sex}','"male"'::jsonb,true);
+                     jsonb_set
+  ------------------------------------------------
+   {"age": "31", "sex": "male", "name": "france"}
+  ```
+
+## 3.9 数据类型转换
+
+- 前面几个小节介绍了PostgreSQL常规数据类型和非常规数据类型，本节将数据转换，转换有三种方式：
+  - 格式化函数
+  - CAST函数
+  - :: 操作符
+
+![image-20240610042430710](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610042430710.png?raw=true)
+
+### 3.9.2 通过CAST函数进行转换
+
+- 将varchar字符串转换成text类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#select CAST(varchar'123' as int4);
+   int4
+  ------
+    123
+  ```
+
+### 3.9.3 通过 ::操作符进行转换
+
+- 转换成int4或numeric类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 1::int4, 3/2::numeric;
+   int4 |      ?column?
+  ------+--------------------
+      1 | 1.5000000000000000
+  ```
+
+- 通过SQL查询给定表的字段名称，现根据表名在系统表pg_class找到表OID，其中OID为隐藏的系统字段
+
+  ```apl
+  mydb@192.168.71.11:1921=#select oid,relname from pg_class where relname='test_json1';
+    oid  |  relname
+  -------+------------
+   32795 | test_json1
+  ```
+
+- 之后根据test_json1表示的 OLD，在系统表pg_attribute中根据attrelid(即表的OID)找到表的字段
+
+  ```apl
+  mydb@192.168.71.11:1921=#select attname from pg_attribute where attrelid='32795' and attnum > 0;
+   attname
+  ---------
+   id
+   name
+  ```
+
+- 上述操作需通过两步完成，但通过类型转换一步即可
+
+  ```apl
+  mydb@192.168.71.11:1921=#select attname from pg_attribute where attrelid='test_json1'::regclass and attnum >0;
+   attname
+  ---------
+   id
+   name
+  ```
+
+  ![image-20240610043858289](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610043858289.png?raw=true)
