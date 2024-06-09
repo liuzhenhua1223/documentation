@@ -954,7 +954,7 @@ Referential Integrity Constraint
 
 # Postgresql
 
-## 第一章 安装与配置基础
+# 第一章 安装与配置基础
 
 ## 1.1 初识Postgresql
 
@@ -1467,5 +1467,1932 @@ host    all             postgres        192.168.71.10/32        md5
    - reject认证方式：允许某一网段的大多数主机访问数据库，但拒绝这一网段少数特定主机
    - md5 和password 认证方式在于，md5认证方式为双重md5加密，password指明文密码，所以不要在非信任网络使用password认证方式。
    - scram-sha-256是PostgreSQL10中新增的基于SASL的认证方式，是PostgreSQL目前提供最安全的认证方式。
+   - ```apl
+     [postgres@pgsql bin]$ /data/pgsql/bin/psql -h pghost1 -p 1921 -U postgres mydb
+     Password for user postgres:
+     psql (15.5)
+     Type "help" for help.
+     
+     mydb=#
+     ```
+   
+
+### 1.6.3 Postgresql.conf
+
+- postgresql.conf配置文件由多个configparameter = value形式的行组成，value支持的数据库类型由布尔、整数、浮点数、字符串、枚举，value的值还支持各种单位，MB、GB和ms、min、d。等还支持include和include_if_exists指令和嵌套
+
+1. 全局配置修改方法
+
+   修改全局配置方法由：
+
+   - 修改postgresql.conf配置文件
+
+   - 通过ALTER SYSTEM命令修改全局配置例如：
+
+     ```apl
+     mydb=# ALTER SYSTEM SET listen_addresses = '*';
+     ALTER SYSTEM
+     ```
+
+   - 通过ALTER SYSTEM SQL命令修改的全局配置参数，会自动编辑postgresql.auto.conf文件，并在数据库启动时自动加载postgresql.auto.conf文件，并用它覆盖postgresql.conf中已有的配置。这个文件不建议修改它。
+
+   - 启动数据库时进行设置，例如：
+
+     ```apl
+     [postgres@pgsql bin]$ /data/pgsql/bin/postgres -D /data/pgdata/ -c port=1922 &
+     
+     [1] 8473
+     [postgres@pgsql bin]$ 2024-06-09 01:44:05.282 CST [8473] LOG:  starting PostgreSQL 15.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44), 64-bit
+     2024-06-09 01:44:05.282 CST [8473] LOG:  listening on IPv4 address "0.0.0.0", port 1922
+     2024-06-09 01:44:05.282 CST [8473] LOG:  listening on IPv6 address "::", port 1922
+     2024-06-09 01:44:05.283 CST [8473] LOG:  listening on Unix socket "/tmp/.s.PGSQL.1922"
+     2024-06-09 01:44:05.284 CST [8476] LOG:  database system was shut down at 2024-06-09 01:43:36 CST
+     2024-06-09 01:44:05.285 CST [8473] LOG:  database system is ready to accept connections
+     
+     [postgres@pgsql bin]$ !ss
+     ss -anptlu | grep postgre
+     tcp    LISTEN     0      128       *:1922                  *:*                   users:(("postgres",pid=8473,fd=5))
+     tcp    LISTEN     0      128    [::]:1922               [::]:*                   users:(("postgres",pid=8473,fd=6))
+     ```
+
+### 1.6.4允许远程访问数据库
+
+- 默认情况PostgreSQL不允许通过远程访问数据库
+
+1. 修改监听地址
+
+   管理监听地址的配置项为postgresql.conf文件中的listen_addresses。默认localhost连接，不允许使用TCP/IP
+
+   ```apl
+   vim /data/pgdata/postgresql.conf
+   
+   找到监听项进行修改
+   listen_addresses = '*'         
+   ```
+
+   监听项解释：
+
+   - what IP address(es) to listen on; 
+     - 监听什么IP地址，允许那些IP地址方位，可用是一个IP，也可以是多个IP
+   - comma-separated list of addresses;
+     - 以逗号分隔地址列表
+   - defaults to 'localhost'; use '*' for all
+     - 默认localhost，使用“*”允许所有地址，大多数的高可用架构使用VIP方式访问时一般设置为“*”
+   - (change requires restart)
+     - 修改这个参数时需要重启数据库，去掉listen前面的#号，并把它的值修改为“*”
+
+   ```apl
+   重启
+   [postgres@pgsql bin]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w restart
+   ```
+
+# 第二章pgAdmin 4 
+
+- pgAdmin是最流行的PostgreSQL图形化客户端工具，由于pgAdmin4 工具简单这里简单介绍
+
+### 2.1.1 安装
+
+官网下载地址：[PostgreSQL: File Browser](https://www.postgresql.org/ftp/pgadmin/pgadmin4/v8.7/windows/)
+
+### 2.1.2 pgAdmin 4 使用
+
+- pgAdmin 4 的使用非常简单，这一小节将演示pgAdmin 4 连接PostgreSQL数据库以及日常数据库操作
+
+![image-20240608185616549](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185616549.png?raw=true)
+
+![image-20240608185637870](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185637870.png?raw=true)
+
+![image-20240608185702507](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185702507.png?raw=true)
+
+![image-20240608185710751](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185710751.png?raw=true)
+
+2. 查询工具使用
+
+- 在pgAdmin 4 面板上点击Tools菜单中的QuseryTool进行日常数据库DDL、DML操作
+
+![](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185710751.png?raw=true)
+
+![image-20240608190050553](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608190050553.png?raw=true)
+
+3. 使用pgAdmin 4 显示统计信息
+
+pgAdmin 4 具有丰富的监控功能，显示了数据库进程、每秒事物数、记录数据变化等相关信息。
+
+![image-20240608190237759](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608190237759.png?raw=true)
+
+## 2.2 psql功能及应用
+
+- psql是PostgreSQL自带的命令行客户端工具，具有非常丰富的功能，类似于Oracle命令行客户端工具sqlplus，这一节将介绍psql常用功能和特殊功能，熟练掌握psql处理日常维护工作
+
+### 2.2.1 使用psql连接数据库
+
+- 可以在数据接口服务端执行，可以远程连接数据库，在数据库服务端连接本地库
+
+  psql 后面第一个postgres表示库名，第二个为用户，端口为默认1921
+
+  ```apl
+  数据库服务端连接本地[root@pgsql ~]# psql postgres postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# 
+  ```
+
+- 创建用户pguser
+
+  ```apl
+  postgres=# create role pguser with encrypted password  'qianyi12!';
+  CREATE ROLE
+  ```
+
+- 创建表空间目录
+
+  ```apl
+  [postgres@pgsql ~]$ mkdir -p /data/pg-15/tbs_mydb
+  [postgres@pgsql ~]$ psql postgres postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# create tablespace tbs_mydb OWNER pguser LOCATION '/data/pg-15/tbs_mydb';
+  CREATE TABLESPACE
+  
+  ```
+
+- 创建数据库
+
+  ```apl
+  查看当前来连接
+  SELECT pid, usename, application_name, client_addr, client_port, backend_start, state
+  FROM pg_stat_activity
+  WHERE datname = 'mydb';
+  
+  创建数据库
+  postgres=# CREATE DATABASE mydb WITH OWNER = pguser TEMPLATE = template0 ENCODING = 'UTF8' TABLESPACE = tbs_mydb;
+  CREATE DATABASE
+  
+  ```
+
+- 赋权
+
+  ```apl
+  postgres=# grant all on database mydb TO pguser with grant option;
+  GRANT
+  postgres=# grant all on tablespace tbs_mydb TO pguser;
+  GRANT
+  ```
+
+CREATE DATABASE命令中的owner选项表示数据库属主，TEMPLATE表示数据库模板，默认有template0和templte1模板，也能自定义数据库模板，ENCODING表示数据库字符集，这里设置为UTF8，TABLESPACE表示数据库默认表空间。
+
+- 服务器pghost1的IP为192.168.71.10，pghost2IP为192.168.71.11，在pghost1连接pghost2上的mydb数据库命令如下：
+
+  ```apl
+  [root@pgsql ~]# psql -h 192.168.71.11 -p 1921 mydb  -U postgres
+  Password for user postgres:
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# 
+  ```
+
+### 2.2.2psql元命令介绍
+
+- psql中的元命令是指以反斜线开头给的命令，能够便捷的管理数据库，比如查看数据库对象定义、查看数据库占用空间大小、列出数据库各种对象名称、数据导入到出等。
+
+- 查看数据库列表
+
+  ```apl
+  [root@pgsql ~]# psql -h pghost1 -p 1921 mydb  -U postgres
+  Password for user postgres:
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# \l
+                                                   List of databases
+     Name    |  Owner   | Encoding |   Collate   |    Ctype    | ICU Locale | Locale Provider |   Access privileges
+  -----------+----------+----------+-------------+-------------+------------+-----------------+-----------------------
+   mydb      | pguser   | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =Tc/pguser           +
+             |          |          |             |             |            |                 | pguser=C*T*c*/pguser
+   postgres  | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            |
+   template0 | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =c/postgres          +
+             |          |          |             |             |            |                 | postgres=CTc/postgres
+   template1 | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =c/postgres          +
+             |          |          |             |             |            |                 | postgres=CTc/postgres
+  (4 rows)
+  
+  mydb=#
+  
+  ```
+
+  1. \db查看空间列表
+
+  ```apl
+  mydb=# d\db
+               List of tablespaces
+      Name    |  Owner   |       Location
+  ------------+----------+----------------------
+   pg_default | postgres |
+   pg_global  | postgres |
+   tbs_mydb   | pguser   | /data/pg-15/tbs_mydb
+  (3 rows)
+  ```
+
+  2. \dt查看表列表
+
+     ```apl
+     mydb=# \dt;
+                List of relations
+      Schema |   Name    | Type  |  Owner
+     --------+-----------+-------+----------
+      public | table_1   | table | postgres
+      public | test_1    | table | postgres
+      public | test_copy | table | postgres
+     (3 rows)
+     ```
+
+  3. \d查看表定义
+
+  - 先创建一张测试表：
+
+  ```apl
+  CREATE TABLE test_1 (
+      id int4,
+      name text,
+      create_time timestamp without time zone DEFAULT clock_timestamp()
+  );
+  ALTER TABLE test_1 ADD PRIMARY KEY (id);
+  ALTER TABLE
+  ```
+
+  `create_time` 是列名。
+
+  `timestamp without time zone` 是数据类型，表示不带时区的时间戳。它用于存储日期和时间。
+
+  `DEFAULT clock_timestamp()` 是默认值，指定如果插入行时未提供值，将使用当前的时间戳。
+
+  `clock_timestamp()` 是一个内置函数，返回当前的日期和时间。
+
+- generate_series函数产生连续的整数，使用这个函数能非常方便地产生测试数据，查看表test_1定义只需要执行\d后跟表名
+
+  ```apl
+  mydb=# \d test_1;
+                                  Table "public.test_1"
+     Column    |            Type             | Collation | Nullable |      Default
+  -------------+-----------------------------+-----------+----------+-------------------
+   id          | integer                     |           | not null |
+   name        | text                        |           |          |
+   create_time | timestamp without time zone |           |          | clock_timestamp()
+  Indexes:
+      "test_1_pkey" PRIMARY KEY, btree (id)
+  ```
+
+  4. 查看表、索引占用空间大小
+
+  ```apl
+  mydb=# INSERT INTO test_1(id, name)
+  SELECT n, n || '_francs'
+  FROM generate_series(1, 5000000) n;
+  INSERT 0 5000000
+  ```
+
+  查看表大小执行\dt+ 表名：
+
+  ```apl
+  mydb=# \dt+ test_1
+                                      List of relations
+   Schema |  Name  | Type  |  Owner   | Persistence | Access method |  Size  | Description
+  --------+--------+-------+----------+-------------+---------------+--------+-------------
+   public | test_1 | table | postgres | permanent   | heap          | 287 MB |
+  (1 row)
+  ```
+
+  查看索引大小执行\di+ 表名：
+
+  ```apl
+  mydb=# \di+ test_1_pkey;
+                                             List of relations
+   Schema |    Name     | Type  |  Owner   | Table  | Persistence | Access method |  Size  | Description
+  --------+-------------+-------+----------+--------+-------------+---------------+--------+-------------
+   public | test_1_pkey | index | postgres | test_1 | permanent   | btree         | 107 MB |
+  (1 row)
+  ```
+
+5. \sf查看函数代码
+
+```apl
+CREATE OR REPLACE FUNCTION random_range(integer, integer)
+RETURNS integer
+LANGUAGE sql
+AS $function$
+    SELECT ($1 + FLOOR(($2 - $1 + 1) * random()))::int4;
+$function$;
+```
+
+range(integer,integer),postgreSQL支持名称相同但输入参数类型不同的函数，如果有同名函数，\sf必须指定函数的参数类型。
+
+6. \x设置查询结果输出
+
+使用\x可用设置查询结果输出模式
+
+```apl
+mydb=# select * from test_1 limit 2;
+  id  |    name     |        create_time
+------+-------------+----------------------------
+ 7537 | 7537_francs | 2024-06-09 23:42:43.06093
+ 7538 | 7538_francs | 2024-06-09 23:42:43.060938
+(2 rows)
+```
+
+7. 获取元命令对应的SQL代码
+
+psql提供的元命令实质上向数据库发出相应的SQL查询，当使用psql连接数据库时，-E选项可用获取命令的SQL代码。
+
+```apl
+[root@pgsql ~]# psql -E mydb postgres
+psql (15.5)
+Type "help" for help.
+
+mydb=# \db;
+********* QUERY **********
+SELECT spcname AS "Name",
+  pg_catalog.pg_get_userbyid(spcowner) AS "Owner",
+  pg_catalog.pg_tablespace_location(oid) AS "Location"
+FROM pg_catalog.pg_tablespace
+ORDER BY 1;
+**************************
+
+             List of tablespaces
+    Name    |  Owner   |       Location
+------------+----------+----------------------
+ pg_default | postgres |
+ pg_global  | postgres |
+ tbs_mydb   | pguser   | /data/pg-15/tbs_mydb
+(3 rows)
+```
+
+8. \?元命令
+
+当忘记具体的命令名称可用查询手册
+
+```apl
+mydb=# \?
+General
+  \copyright             show PostgreSQL usage and distribution terms
+  \crosstabview [COLUMNS] execute query and display result in crosstab
+  \errverbose            show most recent error message at maximum verbosity
+  \g [(OPTIONS)] [FILE]  execute query (and send result to file or |pipe);
+                         \g with no arguments is equivalent to a semicolon
+  \gdesc                 describe result of query, without executing it
+  \gexec                 execute query, then execute each value in its result
+  \gset [PREFIX]         execute query and store result in psql variables
+  \gx [(OPTIONS)] [FILE] as \g, but forces expanded output mode
+  \q                     quit psql
+  \watch [SEC]           execute query every SEC seconds
+
+Help
+  \? [commands]          show help on backslash commands
+  \? options             show help on psql command-line options
+  \? variables           show help on special variables
+
+```
+
+9. 便捷的HELP命令
+
+使用元命令\h后接SQL命令关键字能将sql命令的语法列车，对日常的数据库管理带来方便。
+
+```apl
+mydb=# \h create tablespace
+Command:     CREATE TABLESPACE
+Description: define a new tablespace
+Syntax:
+CREATE TABLESPACE tablespace_name
+    [ OWNER { new_owner | CURRENT_ROLE | CURRENT_USER | SESSION_USER } ]
+    LOCATION 'directory'
+    [ WITH ( tablespace_option = value [, ... ] ) ]
+
+URL: https://www.postgresql.org/docs/15/sql-createtablespace.html
+```
+
+### 2.2.3 psql导入、导出表数据
+
+- psql支持文件数据导入到数据库，也支持数据库表数据导出到文件中。COPY命令和\copy命令都支持
+  - COPY命令是SQL命令，\copy是元命令
+  - COPY命令具有SUPERUSER超级权限(将数据通过stdin、stdout)方式导入导出情况除外),而 \copy元命令不是SUPERUSER权限
+  - COPY命令读取和写入数据库服务端主机上的文件，而\copy元命令是从psql客户端主机读取或写入文件。
+
+1. 使用COPY命令导入导出数据
+
+   先来看看COPY命令如何将文本文件数据导入到数据库表中，首先在mydb库中创建测试表test_copy
+
+   ```apl
+   mydb=# create table test_copy(id int4,name text);
+   CREATE TABLE
+   ```
+
+   编写数据文件test_copy_in.txt字段分隔符用TAB键，也可用设置其他分隔符，导入再指定已设置的字段分割符号
+
+   ```apl
+   [root@pgsql scripts]# ls
+   [root@pgsql scripts]# pwd
+   /data/scripts
+   [root@pgsql scripts]# vim test_copy_in.txt
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   sudo chown postgres:postgres /data/scripts/test_copy_in.txt
+   sudo chmod 644 /data/scripts/test_copy_in.txt
+   ```
+
+   之后根据postgres用户登录mydb数据库，并将test_copy_in.txt文件中的数据导入到test_copy表中。
+
+   ```apl
+   mydb=# \dt public.test_copy
+              List of relations
+    Schema |   Name    | Type  |  Owner
+   --------+-----------+-------+----------
+    public | test_copy | table | postgres
+   (1 row)
+   
+   mydb=# \dt
+              List of relations
+    Schema |   Name    | Type  |  Owner
+   --------+-----------+-------+----------
+    public | table_1   | table | postgres
+    public | test_1    | table | postgres
+    public | test_copy | table | postgres
+   (3 rows)
+   
+   mydb=# COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   COPY 3
+   mydb=# select * from public.test_copy;
+    id | name
+   ----+------
+     1 | a
+     2 | b
+     3 | c
+   (3 rows)
+   ```
+
+   如果使用普通用户pguser导入文件数据，则报错
+
+   ```apl
+   [root@pgsql scripts]# psql -U postgres -d mydb
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# ALTER ROLE pguser LOGIN;
+   ALTER ROLE
+   
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   2024-06-10 00:57:07.055 CST [1961] ERROR:  must be superuser or have privileges of the pg_read_server_files role to COPY from a file
+   2024-06-10 00:57:07.055 CST [1961] HINT:  Anyone can COPY to stdout or from stdin. psql's \copy command also works for anyone.
+   2024-06-10 00:57:07.055 CST [1961] STATEMENT:  COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   ERROR:  must be superuser or have privileges of the pg_read_server_files role to COPY from a file
+   HINT:  Anyone can COPY to stdout or from stdin. psql's \copy command also works for anyone.
+   ##提示需要使用超级用户而\copy元命令普通用户即可使用。
+   ```
+
+   COPY将表test_copy中的数据导出到文件，同样使用postgres用户
+
+   ```apl
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   [root@pgsql scripts]# psql mydb postgres
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# copy public.test_copy TO '/data/scripts/test_copy_in.txt'
+   mydb-# ;
+   COPY 15
+   mydb=# exit
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   ```
+
+   也可以将表数据输出到表中输出，不需要超级用户权限
+
+   ```apl
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> copy test_copy TO stdout;
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   ```
+
+2. 导出为csv格式
+
+   将数据导出为csv格式，并且with csv header 是指导出格式为csv，并显示字段名称，可用使用ofice execl打开。
+
+   ```apl
+   mydb=# COPY public.test_copy TO '/data/scripts/test_copy.csv' with csv header;
+   COPY 15
+   ```
+
+3. 筛选导出ID为1的数据记录
+
+   ```apl
+   mydb=# COPY (SELECT * FROM public.test_copy where id=1) to '/data/scripts/test_copy2.csv' with csv header;
+   COPY 5
+   mydb=# exit
+   [root@pgsql scripts]# cat test_copy2.csv
+   id,name
+   1,a
+   1,a
+   1,a
+   1,a
+   1,a
+   ```
+
+4. \COPY元命令导入导出数据
+
+   如果需要导出小表数据，通过\copy元命令，如果是大表则使用主机COPY命令，效率更高。
+
+   COPY命令是从数据库服务端主机读取或写入文件数据，并且\copy不需要超级用户权限
+
+   ```apl
+   mydb=> DELETE FROM public.test_copy;
+   DELETE 15
+   mydb=> \copy public.test_copy FROM '/data/scripts/test_copy.csv' CSV HEADER;
+   COPY 15
+   mydb=> \q
+   [root@pgsql scripts]# cat test_copy2.csv
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> \copy public.test_copy to '/data/scripts/test_copy2.csv' CSV HEADER;
+   COPY 15
+   mydb=> \q
+   [root@pgsql scripts]# cat test_copy2.csv
+   id,name
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   ```
+
+### 2.2.4 psql语法和选项介绍
+
+1. -A 设置非对齐输出模式
+
+   ```apl
+   [root@pgsql scripts]# psql -c "SELECT * FROM test_1 where id=1" mydb postgres
+    id |   name   |        create_time
+   ----+----------+----------------------------
+     1 | 1_francs | 2024-06-09 23:42:43.047825
+   (1 row)
+   ## 添加-A选项
+   [root@pgsql scripts]# psql -A -c "SELECT * FROM test_1 where id=1" mydb postgres
+   id|name|create_time
+   1|1_francs|2024-06-09 23:42:43.047825
+   (1 row)
+   
+   ```
+
+2. -t 只现实记录数据
+
+   注意：通常-A和-t一起使用因为单独-t每个字段后空格无法省略。通过添加-A就可以去除空格
+
+   ```apl
+   [root@pgsql scripts]# psql -t -c  "SELECT * FROM test_1 where id=1" mydb postgres
+     1 | 1_francs | 2024-06-09 23:42:43.047825
+   [root@pgsql scripts]# psql -At -c  "SELECT * FROM test_1 where id=1" mydb postgres
+   1|1_francs|2024-06-09 23:42:43.047825
+   ```
+
+3. -q不显示输出信息
+
+   ![image-20240609173849453](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240609173849453.png?raw=true)
+
+### 2.2.5psql执行sql脚本
+
+-c 支持在操作系统层面通过psql向数据库发起sql命令
+
+```apl
+[root@pgsql scripts]# psql -c "select current_user;" -U postgres
+ current_user
+--------------
+ postgres
+(1 row)
+[root@pgsql scripts]# psql -At -c "select current_user;" -U postgres
+postgres
+```
+
+通过-f选项导入脚本
+
+```apl
+[root@pgsql scripts]# cat test_2.sql
+create table test_2(id int4);
+insert into test_2 values (1);
+insert into test_2 values (2);
+insert into test_2 values (3);
+[root@pgsql scripts]# psql mydb postgres -f test_2.sql
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+```
+
+### 2.2.6 psql如何传递变量到SQL
+
+1. \set元命令方式传递变量
+
+   ```apl
+   mydb=# \set name value
+   mydb=# \set v_id 2
+   mydb=# select * from test_copy where id=:v_id
+   mydb-# ;
+    id | name
+   ----+------
+     2 | b
+   ```
+
+   取消之前设置的变量值，\set 命令后，参数名即可
+
+   ```apl
+   mydb=# \set v_id
+   ```
+
+2. psql的-v参数传递变量：查询id为1的行数
+
+   通过-v参数传递变量，首先编写select_1.sql脚本
+
+   ```apl
+   [root@pgsql scripts]# cat select_1.sql
+   select * from test_copy where id=:v_id;
+   [root@pgsql scripts]# psql -v v_id=1 mydb postgres -f select_1.sql
+    id | name
+   ----+------
+     1 | a
+     1 | a
+     1 | a
+     1 | a
+     1 | a
+   (5 rows)
+   
+   ```
+
+#### 2.2.7 使用sql定制日常维护脚本
+
+1. 定制维护脚本，查询活动会话
+
+   - .psqlrc文件，如果psql没有带-X选项，psql尝试读取和执行用户~/.psqlrc启动文件中的命令，结合这个文件预先定制维护脚本。例如查询活动会话的SQL
+   - PID：指进程号
+   - usename：指数据库用户名称
+   - datname：指数据库名称
+   - query：显示进程最近执行的SQL
+   - state：为active则query显示当前执行的sql
+     - active：后台进程正在执行
+     - idle：后台进程为空闲状态，等待后续客户端发出命令
+     - idle in transaction：后台进程正在事物中，并不是指正在执行SQL
+     - idle in transaction(aborted)：类似上面一个，只是事物中的部分SQL异常。
+   - client_addr是进程的客户端IP
+
+   ```apl
+   mydb=# select * from pg_stat_activity limit 1;
+   
+   mydb=# 
+    pid  | usename  | datname |                                query                                 | client_addr
+   ------+----------+---------+----------------------------------------------------------------------+-------------
+    1652 |          |         |                                                                      |
+    1653 | postgres |         |                                                                      |
+    2232 | postgres | mydb    | select pid,usename,datname,query,client_addr from pg_stat_activity ; |
+    1649 |          |         |                                                                      |
+    1648 |          |         |                                                                      |
+    1651 |          |         |                                                                      |
+   (6 rows)
+   ```
+
+- 之后，重新连接数据库，执行active_session命令，冒号后边接变量名即可
+
+  ```apl
+  [root@pgsql ~]# pwd
+  /root
+  [root@pgsql ~]# cat .psqlrc
+  \set active_session 'select pid,usename,datname,query,client_addr from pg_stat_activity where pid <> pg_backend_pid () and state=\'active\' order by query;';
+  
+  [root@pgsql ~]# psql -U postgres -d mydb
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# :active_session
+   pid | usename | datname | query | client_addr
+  -----+---------+---------+-------+-------------
+  (0 rows)
+  ```
+
+2. 定制维护脚本：查询等待事件
+
+   PostgreSQL也有等待事件的概念，对于问题诊断有较大的参考作用，查询等待事件SQL
+
+   查看会话等待事件
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set active_session 'select pid,usename,datname,query,client_addr from pg_stat_activity where pid <> pg_backend_pid () and state=\'active\' order by query;';
+   \set wait_event  'SELECT pid, usename, datname, query, client_addr, wait_event_type, wait_event FROM pg_stat_activity WHERE pid <> pg_backend_pid() AND wait_event IS NOT NULL ORDER BY wait_event_type;'
+   
+   [root@pgsql ~]# psql -U postgres -d mydb
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# :wait_event
+    pid  | usename  | datname | query | client_addr | wait_event_type |     wait_event
+   ------+----------+---------+-------+-------------+-----------------+---------------------
+    1652 |          |         |       |             | Activity        | AutoVacuumMain
+    1653 | postgres |         |       |             | Activity        | LogicalLauncherMain
+    1649 |          |         |       |             | Activity        | BgWriterHibernate
+    1648 |          |         |       |             | Activity        | CheckpointerMain
+    1651 |          |         |       |             | Activity        | WalWriterMain
+   (5 rows)
+   ```
+
+   查看连接数
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set connections  'SELECT datname, usename, client_addr, count(*) FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY 1, 2, 3 ORDER BY 1, 4 DESC;'
+   mydb=# :connections
+    datname | usename  | client_addr | count
+   ---------+----------+-------------+-------
+            |          |             |     4
+            | postgres |             |     1
+   (2 rows)
+   ```
 
    
+
+   1. **条件 1: `pid <> pg_backend_pid()`**：
+      - `pid` 是 `pg_stat_activity` 表中的列，表示每个活动会话的进程 ID。
+      - `pg_backend_pid()` 是一个 PostgreSQL 内置函数，用于获取当前会话的后端进程 ID。
+      - `pid <> pg_backend_pid()` 表示选择那些进程 ID 不等于当前后端进程 ID 的行。这个条件确保查询不会返回当前执行查询的会话自身的信息。
+   2. **条件 2: `wait_event IS NOT NULL`**：
+      - `wait_event` 是 `pg_stat_activity` 表中的列，它表示当前会话正在等待的事件类型。
+      - `IS NOT NULL` 是一个条件运算符，用于检查列的值是否不为 `NULL`。
+      - `wait_event IS NOT NULL` 表示选择那些等待事件不为空的会话。这个条件确保只返回正在等待某种事件的活动会话信息。
+
+   ### ORDER BY 子句解释：
+
+   - ORDER BY 子句
+
+     ：
+
+     - `ORDER BY` 子句用于对查询结果进行排序。在您的查询中，`ORDER BY wait_event_type` 表示按照 `wait_event_type` 列的值对结果进行升序排序。
+     - `wait_event_type` 是 `pg_stat_activity` 表中的列，表示当前会话正在等待的事件的类型。
+     - `ORDER BY 1`: 结果集会首先按照数据库名称 (`datname`) 的字母顺序进行升序排列。
+     - `ORDER BY 4 DESC`: 如果有多行具有相同的 `datname`，那么这些行会按照它们的 `count(*)` 的值进行降序排列。也就是说，在每个数据库名称组合下，会把拥有最多连接数的会话放在前面。
+
+### 2.2.8 psql亮点功能
+
+1. \timing显示SQL执行时间
+
+   ```apl
+   mydb=# \timing
+   Timing is on.
+   mydb=# select count(*) FROM test_copy ;
+    count
+   -------
+       15
+   (1 row)
+   
+   Time: 0.555 ms
+   ```
+
+   以上显示count语句执行的时间为0.5毫秒，如果需要关闭再次执行\timing元命令即可
+
+   ```apl
+   mydb=# \timing
+   Timing is on.
+   mydb=# select count(*) FROM test_copy ;
+    count
+   -------
+       15
+   (1 row)
+   
+   Time: 0.555 ms
+   mydb=# \timing
+   Timing is off.
+   ```
+
+2. \watch反复执行当前sql
+
+   \watch 元命令会反复执行当前查询缓冲区的SQL命令，知道SQL被中止或失败
+
+   语法：
+
+   \watch [ seconds ]
+
+   seconds表示两次执行间隔的时间，以秒为单位，默认为2秒，例如每个一秒反复执行now()函数查询当前时间
+
+   ```apl
+   mydb=# select now();
+                 now
+   -------------------------------
+    2024-06-10 03:17:45.571675+08
+   (1 row)
+   
+   mydb=# \watch 1
+   2024年06月10日 星期一 03时17分51秒 (every 1s)
+   
+                now
+   ------------------------------
+    2024-06-10 03:17:51.51207+08
+   (1 row)
+   
+   2024年06月10日 星期一 03时17分52秒 (every 1s)
+   
+                 now
+   -------------------------------
+    2024-06-10 03:17:52.512406+08
+   (1 row)
+   
+   2024年06月10日 星期一 03时17分53秒 (every 1s)
+   
+                 now
+   -------------------------------
+    2024-06-10 03:17:53.512246+08
+   (1 row)
+   ```
+
+3. 客户端提示符
+
+   以下命令显示了psql客户端提示符“postgresql=#”是默认的客户端提示符
+
+   ```apl
+   [root@pgsql ~]# psql -U postgres
+   psql (15.5)
+   Type "help" for help.
+   
+   postgres=#
+   
+   ```
+
+   可用根据喜好设置psql客户端提示符
+
+   %M：数据库服务器别名，不是指主机名，显示的是psql的-h参数设置的值；当连接建立在Unix域套接字上时则是[local]
+
+   %>：数据库服务器的端口号
+
+   %n：数据库会话的用户名，在数据库会话期间，这个值可能会应为命令SET SESSIONAUTHORIZATION的结构而改变。
+
+   %/：当前数据库名称。
+
+   %#：如果是超级用户则显示“#”，其他用户“>"
+
+   %p：当前数据库连接的后台进程号。
+
+   %R：在PROMPT1中通常显示”=“如果进程被断开则显示”！“
+
+   ```
+   postgres=# \echo :PROMPT1
+   %/%R%x%#
+   
+   postgres=# \set PROMPT1 '%M%R%#'
+   [local]=#
+   
+   ```
+
+   在pghost1远程pghost2主机设置PROMPT1变量值为 "%M%R%#"
+
+   ```apl
+   [root@pgsql ~]# psql -U postgres -h 192.168.71.11
+   Password for user postgres:
+   psql (15.5)
+   Type "help" for help.
+   
+   postgres=# \set PROMPT1 '%M%R%#'
+   192.168.71.11=#
+   
+   [root@pgsql ~]# psql -U pguser -h 192.168.71.11 -d mydb
+   Password for user pguser:
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# \set PROMPT1 '%/@%M%R%#'
+   mydb@192.168.71.11=#
+   
+   ```
+
+   将PROMPT1设置为"%/@%M:%>%R%#"
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set PROMPT1 '%/@%M:%>%R%#'
+   
+   [root@pgsql ~]# psql -U pguser -h 192.168.71.11 mydb -p 1921
+   Password for user pguser:
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb@192.168.71.11:1921=#
+   ```
+
+# 第三章 数据类型
+
+## 3.1数字类型
+
+- PostgreSQL支持的数据类型有整数类型，用户指定精度类型、浮点类型、serial类型
+
+### 3.1.1数字类型列表
+
+| 类型名称         | 存储长度 | 描述           | 范围                                                     |
+| ---------------- | -------- | -------------- | -------------------------------------------------------- |
+| smallint         | 2 字节   | 小范围整数类型 | -32,768 到 +32,767                                       |
+| integer          | 4 字节   | 整数类型       | -2,147,483,648 到 +2,147,483,647                         |
+| bigint           | 8 字节   | 大范围整数类型 | -9,223,372,036,854,775,808 到 +9,223,372,036,854,775,807 |
+| decimal          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| numeric          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| real             | 4 字节   | 变长，不精确   | 6 位十进制精度                                           |
+| double precision | 8 字节   | 变长，不精确   | 15 位十进制精度                                          |
+
+- smallint、integer、bigint都是整数类型，存储一定范围的整数，超出范围将报错。
+- smallint存储2字节整数，字段定义时可以写成int2，integer存储4字节整数，支持的数值范围比smallint大，字段写成int4，是最常用的整数类型，bigint存储8字节整数，支持的发呢我i比integer大，写成int8.
+
+| 类型名称         | 存储长度 | 描述           | 范围                                                     |
+| ---------------- | -------- | -------------- | -------------------------------------------------------- |
+| smallint         | 2 字节   | 小范围整数类型 | -32,768 到 +32,767                                       |
+| integer          | 4 字节   | 整数类型       | -2,147,483,648 到 +2,147,483,647                         |
+| bigint           | 8 字节   | 大范围整数类型 | -9,223,372,036,854,775,808 到 +9,223,372,036,854,775,807 |
+| decimal          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| numeric          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| real             | 4 字节   | 变长，不精确   | 6 位十进制精度                                           |
+| double precision | 8 字节   | 变长，不精确   | 15 位十进制精度                                          |
+
+### 其他数据类型
+
+| 类型名称    | 存储长度 | 描述              | 范围                           |
+| ----------- | -------- | ----------------- | ------------------------------ |
+| smallserial | 2 字节   | smallint 自增序列 | 1 到 32,767                    |
+| serial      | 4 字节   | integer 自增序列  | 1 到 2,147,483,647             |
+| bigserial   | 8 字节   | bigint 自增序列   | 1 到 9,223,372,036,854,775,807 |
+
+定义一张使用integer类型的表：
+
+```apl
+mydb@192.168.71.11:1921=#create table test_integer (id1 integer,id2 int4);
+CREATE TABLE
+```
+
+- decimal和numeric是等效的，可以存储指定精度的多位数据，比如小数位的数据和要求计算精度的运算
+
+  precision是指numeric数字里面的所有数字，scale是指小数为，比如：
+
+  18.222，precision=5为，scale=3位，numeric类型运算相比整数类型性能低些
+
+- real和double precision是指浮点数据类型，real支持4字节，double precision支持8字节。
+
+- smallserial、serial和bigserial类型是指自增serial类型，严格意义上不能称之为一种数据类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#create table test_serial (id serial,falg text);
+  CREATE TABLE
+  ```
+
+  查看test_serial的表结构
+
+  ```apl
+  mydb@192.168.71.11:1921=#\d test_serial
+                              Table "public.test_serial"
+   Column |  Type   | Collation | Nullable |                 Default
+  --------+---------+-----------+----------+-----------------------------------------
+   id     | integer |           | not null | nextval('test_serial_id_seq'::regclass)
+   falg   | text    |           |          |
+  ```
+
+  以上显示id字段使用了序列test_serial_id_seq,插入表数据时可以不指定serial字段名称，将自动使用序列值填充
+
+  ```apl
+  mydb@192.168.71.11:1921=#\d test_serial
+                              Table "public.test_serial"
+   Column |  Type   | Collation | Nullable |                 Default
+  --------+---------+-----------+----------+-----------------------------------------
+   id     | integer |           | not null | nextval('test_serial_id_seq'::regclass)
+   falg   | text    |           |          |
+  
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('a');
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('a');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('b');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('c');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#select * from test_serial
+  ;
+   id | falg
+  ----+------
+    1 | a
+    2 | b
+    3 | c
+  (3 rows)
+  ```
+
+### 3.1.2 数字类型操作符和数学函数
+
+- PostgreSQL支持数字类型操作和丰富的数学函数，列入：加、减、乘、除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 1+2,2*3,4/2,8%3,22*2;
+   ?column? | ?column? | ?column? | ?column? | ?column?
+  ----------+----------+----------+----------+----------
+          3 |        6 |        2 |        2 |       44
+  (1 row)
+  ```
+
+  按模取余8除3余2
+
+  ```apl
+  mydb@192.168.71.11:1921=#select mod(8,3);
+   mod
+  -----
+     2
+  ```
+
+  四舍五入函数如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#select round(10.2),round(10.9);
+   round | round
+  -------+-------
+      10 |    11
+  (1 row)
+  ```
+
+  返回大于或等于给出参数的最小整数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select ceil(3.6),ceil(-3.6);
+   ceil | ceil
+  ------+------
+      4 |   -3
+  ```
+
+  返回小于或等于给出参数的最大整数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select floor(3.6),floor(-3.6);
+   floor | floor
+  -------+-------
+       3 |    -4
+  ```
+
+## 3.2字符类型
+
+- PostgreSQL支持的字符类型，并且介绍常用的字符类型函数。
+
+### 3.2.1字符类型列表
+
+| 字符类型名称                     | 描述                                   |
+| -------------------------------- | -------------------------------------- |
+| character varying(n), varchar(n) | 变长，字符最大数有限制                 |
+| character(n), char(n)            | 定长，字符数没达到最大值则使用空白填充 |
+| text                             | 变长，无长度限制                       |
+
+character varying(n) 存储的是变长字符类型，n是一个正整数，如果存储的字符串长度超出n则报错：如果存储的字符串比n小，character varying(n)进存储实际位数，如何小则用空格填充。
+
+```apl
+mydb@192.168.71.11:1921=#create table test_char(coll varchar(4),coll2 character(4));
+CREATE TABLE
+INSERT 0 1
+```
+
+表test_char的字段coll类型为character varying(4),col2类型为character(4),接下来计算两个字段值的字符串长度。
+
+```apl
+mydb@192.168.71.11:1921=#select char_length(coll),char_length(coll2) FROM test_char;
+ char_length | char_length
+-------------+-------------
+           1 |           1
+(1 row)
+```
+
+char_length(string)显示字符串字符数，从上面结果可以看出字符串长度为1，接着查看两字段实际占用物理空间大小。
+
+```apl
+mydb@192.168.71.11:1921=#select octet_length(coll),octet_length(coll2) FROM test_char ;
+ octet_length | octet_length
+--------------+--------------
+            1 |            4
+(1 row)
+```
+
+test字符类型存储任意长度的字符串，和没有声明字符长度的character varying类型几乎没有差别。
+
+### 3.2.2 字符类型函数
+
+- PostgreSQL支持丰富的字符函数
+
+- 字符数：char_length
+
+  ```apl
+  mydb@192.168.71.11:1921=#select char_length('a释');
+   char_length
+  -------------
+             2
+  ```
+
+- 字节数：octet_length
+
+  ```apl
+  mydb@192.168.71.11:1921=#select octet_length('a释');
+   octet_length
+  --------------
+              4
+  ```
+
+- 指定字符在字符串的位置：position
+
+  ```apl
+  mydb@192.168.71.11:1921=#select position('a' in 'bacd');
+   position
+  ----------
+          2
+  ```
+
+- 提前字符串中的子串
+
+  ```apl
+  mydb@192.168.71.11:1921=#select substring('franc释放' from 3 for 5);
+   substring
+  -----------
+   anc释放
+  ```
+
+- 拆分字符串，split_part
+
+  ```apl
+  mydb@192.168.71.11:1921=#select split_part('abc@def1@cnb','@',2);
+   split_part
+  ------------
+   def1
+  
+  mydb@192.168.71.11:1921=#select split_part('abc@def1@cnb','c',2);
+   split_part
+  ------------
+   @def1@
+  ```
+
+## 3.3时间/日期类型
+
+PostgreSQL对时间、日期数据类型支持丰富灵活。
+
+### 3.3.1 时间/日期类型列表
+
+| 字符类型名称                        | 存储长度 | 描述                                       |
+| ----------------------------------- | -------- | ------------------------------------------ |
+| timestamp [(p)] [without time zone] | 8 字节   | 包括日期和时间，不带时区，简写成 timestamp |
+| timestamp [(p)] with time zone      | 8 字节   | 包括日期和时间，带时区，简写成 timestamptz |
+| date                                | 4 字节   | 日期，但不包含一天中的时间                 |
+| time [(p)] [without time zone]      | 8 字节   | 一天中的时间，不包含日期，不带时区         |
+| time [(p)] with time zone           | 12 字节  | 一天中的时间，不包含日期，带时区           |
+| interval [fields] [(p)]             | 16 字节  | 时间间隔                                   |
+
+- 系统自带的now()
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now();
+                now
+  -------------------------------
+   2024-06-10 08:59:00.716041+08
+  ```
+
+- timestamp和timestamptz
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::timestamp;
+              now
+  ----------------------------
+   2024-06-10 09:01:18.417413
+  
+  mydb@192.168.71.11:1921=#select now()::timestamp without time zone;
+              now
+  ----------------------------
+   2024-06-10 09:01:20.374325
+  
+  mydb@192.168.71.11:1921=#select now()::timestamp with time zone;
+  mydb@192.168.71.11:1921=#select now()::timestamptz;
+                now
+  -------------------------------
+   2024-06-10 09:01:52.010901+08
+  ```
+
+  转换成data格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::date;
+      now
+  ------------
+   2024-06-10
+  ```
+
+  转换成time with time zone格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::time without time zone;
+         now
+  -----------------
+   09:05:47.112888
+  
+  mydb@192.168.71.11:1921=#select now()::time with time zone;
+          now
+  --------------------
+   09:05:48.801075+08
+  
+  mydb@192.168.71.11:1921=#select now()::timetz;
+          now
+  --------------------
+   09:05:59.646271+08
+  
+  ```
+
+  interval指时间间隔，间隔单位可以是hour、day、month、year等
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now(),now()+interval'1 day';
+                now              |           ?column?
+  -------------------------------+-------------------------------
+   2024-06-10 09:10:05.685558+08 | 2024-06-11 09:10:05.685558+08
+  (1 row)
+  ```
+
+  没声明精度默认值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now(),now()::timestamp(0);
+                now              |         now
+  -------------------------------+---------------------
+   2024-06-10 09:12:03.945239+08 | 2024-06-10 09:12:04
+  ```
+
+### 3.3.2 时间/日期类型操作符
+
+- 时间、日期数据类型支持的操作符有加减乘除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select date '2017-07-29' + interval '1 days,1 year';
+        ?column?
+  ---------------------
+   2018-07-30 00:00:00
+  ```
+
+- 日期相乘
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 100* interval '1 second';
+   ?column?
+  ----------
+   00:01:40
+  ```
+
+- 日期相除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select interval '1 hour' / double precision '3';
+   ?column?
+  ----------
+   00:20:00
+  ```
+
+### 3.3.3 日期/日期类型常用函数
+
+- 显示当前时间、日期常用函数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select current_date,current_time;
+   current_date |    current_time
+  --------------+--------------------
+   2024-06-10   | 09:23:54.679631+08
+  ```
+
+  ![image-20240610012451176](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610012451176.png?raw=true)
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(year from now());
+   extract
+  ---------
+      2024
+  ```
+
+- 对于timestamp类型，取月份和月份里的第几天
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(month from now()),extract(day from now());
+   extract | extract
+  ---------+---------
+         6 |      10
+  ```
+
+- 取小时、分钟
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract( hour from now()),extract(minute from now());
+   extract | extract
+  ---------+---------
+         9 |      28
+  ```
+
+- 取秒
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(second from now());
+   extract
+  ----------
+   9.786804
+  ```
+
+- 取当前日期所在年份中第几周
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(week from now());
+   extract
+  ---------
+        24
+  ```
+
+- 当天属于当年的第几天
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now();
+                now
+  -------------------------------
+   2024-06-10 09:32:39.584523+08
+  
+  mydb@192.168.71.11:1921=#select extract(doy from now());
+   extract
+  ---------
+       162
+  
+  ```
+
+## 3.4布尔类型
+
+- PostgreSQL还支持很多非常规数据类型，比如布尔类型、网络地址类型、数组类型、范围类型、json/isonb类型等，从这一节开始将介绍PostgreSQL支持的非常规数据类型，本节介绍布尔类型，PostgreSQL支持的布尔类
+
+| 字符类型名称 | 存储长度 | 描述              |
+| ------------ | -------- | ----------------- |
+| boolean      | 1字节    | 状态为true或false |
+
+true状态的有效值可以是TRUE、t、true、y、yes、on、1、false状态的有效值FALSE、f、false、n、no、off、0
+
+```apl
+mydb@192.168.71.11:1921=#create table test_boolean(cola boolean,colb boolean);
+CREATE TABLE
+
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('true','false');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('t','f');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('TRUE','FALSE');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('yes','no');
+
+INSERT 0 1                                                       ^
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('1','0');
+
+INSERT 0 1                                                    ^
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values (null,null);
+INSERT 0 1
+
+```
+
+```apl
+mydb@192.168.71.11:1921=#select * from test_boolean;
+ cola | colb
+------+------
+ t    | f
+ t    | f
+ t    | f
+ t    | f
+ t    | f
+      |
+```
+
+## 3.5 网络地址类型
+
+- 当有存储IP地址需求的业务场景时，postgresql提供用于ipv4、ipv6、mac网络地址的转有网络地址数据类型，使用网络地址数据类型存储IP地址要由于字符类型，因为网络地址类型一方面会对数据合法性进行检查，另一方面也提供了网络数据类型操作和函数方便应用程序开发
+
+### 3.5.1网络地址类型列表
+
+| 字符类型名称 | 存储长度     | 描述                   |
+| ------------ | ------------ | ---------------------- |
+| cidr         | 7 或 19 字节 | IPv4 和 IPv6 网络      |
+| inet         | 7 或 19 字节 | IPv4 和 IPv6 网络      |
+| macaddr      | 6 字节       | MAC 地址               |
+| macaddr8     | 8 字节       | MAC 地址 (EUI-64 格式) |
+
+- inet和cidr类型存储的网络地址格式为address/y,其中address表示ipv4或ipv6网络地址，y表示网络掩码位数，如果省略y，则表示ipv4掩码为32为，对于ipv6为128，所以改该值表示一台主机
+
+  ![image-20240610015429951](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610015429951.png?raw=true)
+
+inet和cid网络类型存在一下差别
+
+1. cidr类型输出默认带子网掩码，而inet不一定。
+
+```apl
+mydb@192.168.71.11:1921=#select '192.168.1.100'::inet;
+     inet
+---------------
+ 192.168.1.100
+(1 row)
+
+mydb@192.168.71.11:1921=#select '192.168.1.100/32'::inet;
+     inet
+---------------
+ 192.168.1.100
+(1 row)
+
+mydb@192.168.71.11:1921=#select '192.168.1.100/16'::inet;
+       inet
+------------------
+ 192.168.1.100/16
+(1 row)
+```
+
+2. cidr类型对IP地址和子网掩码合法性进行检查，inet不会
+
+```apl
+mydb@192.168.71.11:1921=#select '192.168.2.0/8'::cidr;
+ERROR:  invalid cidr value: "192.168.2.0/8"
+LINE 1: select '192.168.2.0/8'::cidr;
+               ^
+DETAIL:  Value has bits set to right of mask.
+
+mydb@192.168.71.11:1921=#select '192.168.2.0/8'::inet;
+     inet
+---------------
+ 192.168.2.0/8
+ 
+ mydb@192.168.71.11:1921=#select '192.168.2.0/24'::inet;
+      inet
+----------------
+ 192.168.2.0/24
+```
+
+- 因此，从这个层面来说cidr比inet网络类型更严谨。
+
+### 3.5.2 网络地址操作符
+
+![image-20240610020144165](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610020144165.png?raw=true)
+
+### 3.5.3网络地址函数
+
+- PostgreSQL网络地址类型支持一系列函数
+
+- 取IP地址，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select host(cidr '192.168.1.0/24');
+      host
+  -------------
+   192.168.1.0
+  ```
+
+- 取IP地址和网络掩码，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select text(cidr '192.168.1.0/24');
+        text
+  ----------------
+   192.168.1.0/24
+  ```
+
+- 取网络地址和子网掩码，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select netmask(cidr '192.168.1.0/24');
+      netmask
+  ---------------
+   255.255.255.0
+  ```
+
+## 3.6 数组类型
+
+- PostgreSQL支持一系列数组和多数组，常用的数据类型为数字类型数组和字符型数组，也就是枚举类型，复合类型数组
+
+### 3.6.1 数组类型定义
+
+![image-20240610020701114](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610020701114.png?raw=true)
+
+```apl
+mydb@192.168.71.11:1921=#create table test_array1 ( id integer,array_i integer[],array_t text[]);
+CREATE TABLE
+```
+
+### 3.6.2 数据类型值输入
+
+- 数组类型的插入有两种方式，第一种方式使用花括号方式
+
+  ```apl
+  ‘{vall delim val2 delim...}
+  ```
+
+- 将数组元素值用花括号“{}“包围并用delim分隔符分开，数组元素值可以用双引号引用，delim分隔符通常为逗号
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{1,2,3}';
+   ?column?
+  ----------
+   {1,2,3}
+  ```
+
+- 往表test_array1中插入一条记录的代码
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_array1(id,array_i,array_t) values (1,'{1,2,3}','{"a","b","c"}');
+  INSERT 0 1
+  ```
+
+- 数组类型插入的第二种方式为使用ARRAY关键字
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,3];
+    array
+  ---------
+   {1,2,3}
+  (1 row)
+  ```
+
+- 往test_array1表中插入另一条记录
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_array1 (id,array_i,array_t) values (2,array[4,5,6],array['d','e','f']);
+  INSERT 0 1
+  ```
+
+- 表arrary1数据如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_array1
+  ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  ```
+
+### 3.6.3
+
+查询数组元素
+
+- 如果查询素组所有元素值，只需查询数组字段名即可
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_i from test_array1 where id=1;
+   array_i
+  ---------
+   {1,2,3}
+  ```
+
+- 数组元素的引用通过方括号”[]"方式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_i[1],array_t[3] from test_array1 where id=1;
+   array_i | array_t
+  ---------+---------
+         1 | c
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select * from test_array1
+  ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  (2 rows)
+  
+  ```
+
+### 3.6.4 数组元素的追加、删除、更新
+
+- PostgreSQL数组类型支持数组元素的追加、删除与更新操作，数据元素的追加使用array_append
+
+  ```apl
+  array_append(anyarray,anyelement)
+  ```
+
+- array_append函数向数组末端加一个元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_append(array[1,2,3],4);
+   array_append
+  --------------
+   {1,2,3,4}
+  ```
+
+- 数据元素最佳到数组也可以使用||
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,3] || 4;
+   ?column?
+  -----------
+   {1,2,3,4}
+  ```
+
+- 数组元素的删除使用array_remove函数
+
+  ```apl
+  array_remove(anyarray,anylement)
+  ```
+
+- array_remove函数将移除函数中值等于给定值的所有数组元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,2,3],array_remove(array[1,2,2,3],2);
+     array   | array_remove
+  -----------+--------------
+   {1,2,2,3} | {1,3}
+  ```
+
+- 数组元素的修改
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  (2 rows)
+  
+  mydb@192.168.71.11:1921=#update test_array1 set array_i[3]=4 where id=1;
+  UPDATE 1
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+   1 | {1,2,4} | {a,b,c}
+   2 | {4,5,6} | {d,e,f}
+  ```
+
+- 真个数组也能被更新
+
+  ```apl
+  mydb@192.168.71.11:1921=#update test_array1 set array_i=array[7,8,9] where id =1;
+  UPDATE 1
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {7,8,9} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  ```
+
+### 3.6.5 数组操作符
+
+![image-20240610023449649](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610023449649.png?raw=true)
+
+### 3.6.6数组函数
+
+- PostgreSQL支持丰富的数组函数，给数组添加元素或删除元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_append(array[1,2,3],3),array_remove(array[1,2],2);
+   array_append | array_remove
+  --------------+--------------
+   {1,2,3,3}    | {1}
+  ```
+
+- 获取数组维度
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_ndims(array[1,2]);
+   array_ndims
+  -------------
+             1
+  ```
+
+- 获取数组长度
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_length(array[1,2],1);
+   array_length
+  --------------
+              2
+  ```
+
+- 返回数组中某个数组元素第一次出现的位置
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_position(array['a','d','c','d','c'],'d');
+   array_position
+  ----------------
+                2
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select array_position(array['a','d','c','d','c'],'c');
+   array_position
+  ----------------
+                3
+  ```
+
+### 3.7 范围类型
+
+- 范围类型包含一个范围内的数据，常见的范围数据类型有日期范围类型、整数范围类型等，对于日期安排、价格范围应用场景比较适用。
+
+### 3.7.1 范围类型列表
+
+- PostgreSQL 系统提供内置的范围类型如下
+  int4range--integer范围类型
+  int8range--bigint 范围类型
+  numrange--numeric范围类型
+  --不带时区的timestamp范围类型tsrangetstzrange--带时区的timestamp范围类型
+  daterange--date 范围类型
+
+- 用户可以通过CREATE TYPE命令自定义范围数据类型，integer举例如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,5);
+   int4range
+  -----------
+   [1,5)
+  ```
+
+- 以上定义 1到5的整数范围，date范围举例如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select daterange('2017-07-01','2017-07-30');
+          daterange
+  -------------------------
+   [2017-07-01,2017-07-30)
+  ```
+
+### 3.7.2 范围类型边界
+
+- 每一个范围类型都包含下界和上界，方括号“[”表示包含下界，圆括号“(”表示排除下界，方括号“]”表示包含上界，圆括号“)”表示排除上界，也就是说方括号表示边界点包含在内，圆括号表示边界点不包含在内，范围类型值的输人有以下几种模式:
+  (lower-bound,upper-bound)
+  (lower-bound,upper-bound]
+  [lower-bound,upper-bound)
+  [lower-bound,upper-bound]
+  empty
+
+- 主要empty表示空范围，不包含任何元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7);
+   int4range
+  -----------
+   [4,7)
+  ```
+
+- 以上表示包含4，5，6，但不包含7，表中的范围类型为下界包含同时上节排除如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,3);
+   int4range
+  -----------
+   [1,3)
+  ```
+
+- 以上没有指定数据类型边界模式，指定上界为“]"
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,3,'[]');
+   int4range
+  -----------
+   [1,4)
+  ```
+
+### 3.7.3 范围类型操作
+
+- 包含元素操作如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7) @> 4;
+   ?column?
+  ----------
+   t
+  ```
+
+- 包含范围操作符
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7)@>int4range(4,6);
+   ?column?
+  ----------
+   t
+  ```
+
+- 等于操作符
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7)=int4range(4,6,'[]');
+   ?column?
+  ----------
+   t
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select int4range(4,7)=int4range(4,7,'[]');
+   ?column?
+  ----------
+   f
+  ```
+
+- 其中@> 操作符在范围数据类型中比较常用，常用查询范围数据类型是否包含莫格指定元素。
+
+### 3.7.4 范围类型函数
+
+- 一下列举范围类型常用函数
+
+- 区范围下界
+
+  ```apl
+  mydb@192.168.71.11:1921=#select lower(int4range(1,10));
+   lower
+  -------
+       1
+  ```
+
+- 取范围类型上界
+
+  ```apl
+  mydb@192.168.71.11:1921=#select upper(int4range(1,10));
+   upper
+  -------
+      10
+  ```
+
+- 范围是否为空
+
+  ```apl
+  mydb@192.168.71.11:1921=#select isempty(int4range(1,10));
+   isempty
+  ---------
+   f
+  ```
+
+### 3.7.5 给范围类型创建索引
+
+- 范围类型数据支持创建GiST索引，GiST索引支持的操作符有 = && <@  @>   <<  >>  -|-  &<  &>  
+
+  ```apl
+  create index idx_ip_address_range ON ip_address USING gist (ip_range);
+  ```
+
+## 3.8 json/sjonb类型
+
+- PostgreSQL不只是一个关系数据库，同时还支持非关系数据库类型json（非常规化数据类型），本章介绍，json类型，json与jsonb差异，json与jsonb操作符和函数，以及jsonb键值的追加、删除、更新。
+
+### 3.8.1 json类型简介
+
+- PG对json的支持趋于完善，提供多个json函数和操作符便于开发
+
+  ```apl
+  mydb@192.168.71.11:1921=#SELECT '{"a":1,"b":2}'::json;
+       json
+  ---------------
+   {"a":1,"b":2}
+  ```
+
+- 更好的演示，创建一张表
+
+  ```apl
+  mydb@192.168.71.11:1921=#create table test_json1 (id serial primary key,name json);
+  CREATE TABLE
+  ```
+
+  
