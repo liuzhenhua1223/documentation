@@ -3698,3 +3698,529 @@ CREATE TABLE
   ```
 
   ![image-20240610043858289](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610043858289.png?raw=true)
+
+# 第四章 SQL高级特性
+
+- 本章将介绍PostgreSQL在SQL方面的高级特性，例如WHERE查询，批量插入，RET-urning返回修改的数据、upsert、数据抽样、聚合函数、窗口函数。
+
+## 4.1 WITH查询
+
+- with查询是PostgreSQL支持的高级SQL特性之一，这一特性常称为CTE，with查询在复杂的查询中定义一个辅助语句（可以理解成一个查询中定义的临时表），通常用于递归查询或复杂查询。
+
+### 4.1.1 复杂查询使用CTE
+
+- 简单的CTE了解WITH
+
+  ```apl
+  mydb@192.168.71.11:1921=#with t as ( select generate_series(1,3)) select * from t;
+   generate_series
+  -----------------
+                 1
+                 2
+                 3
+  ```
+
+  CTE示例中，一开始定义了一条辅助语句t取数，之后在主查询语句中查询 t，定义的辅助语句就像是定义了一张临时表，对于复杂查询如果不使用CTE，可以通过创建视图方式简化SQL
+
+- CTE可以简化SQL并且减少嵌套，因为可以预先定义辅助语句，之后在主查询中多次调用。接着看一个稍复杂CTE例子
+
+  ```apl
+  with regional_sales as (
+      select region, sum(amount) as total_sales
+      from sales.orders
+      group by region
+  ),
+  top_regions as (
+      select region
+      from regional_sales
+      where total_sales > (select sum(total_sales) / 10 from regional_sales)
+  )
+  select region, product, sum(quantity) as product_units, sum(amount) as product_sales
+  from sales.orders
+  where region in (select region from top_regions)
+  group by region, product;
+  ```
+
+  这个例子首先定义了regional_sales和top_regions两个辅助语句，regional_sales算出每个区域的总销量，top_regions算出销量占总销量10%以上的所有区域，主查询语句通过辅助语句与orders表关联，算出了顶级区域每件商品的销量和销售额。
+
+### 4.1.2 递归查询使用CTE
+
+- with查询的一个重要属性是recursive，使用recursive属性可以引用自己的输出，从而实现递归，一般用于层次结构或树形结构的应用场景，一个简单的recursive
+
+  ```apl
+  mydb@192.168.71.11:1921=#WITH recursive t (x) AS (
+      SELECT 1
+      UNION ALL
+      SELECT x + 1 //1+2+3+4+5
+      FROM t
+      WHERE x < 5
+  )
+  SELECT sum(x) FROM t;
+   sum
+  -----
+    15
+  ```
+
+- 递归查询案例，当给定一个id是能够得到他完整的域名，例如当id=7时，地名是：中国辽宁沈阳和平区，当id=5是，地名是：`中国辽宁大连`，这是一个典型的层次数据递归应用场景，恰好通过PostgreSQL的WITH查询实现，首先创建测试表并插入数据：
+
+  ```apl
+  postgres=# create table test_area(id int4,name varchar(32),fatherid int4);
+  
+  insert into test_area values (1,'中国' ,0);
+  insert into test_area values (2,'辽宁' ,1);
+  insert into test_area values (3,'山东' ,1);
+  insert into test_area values (4,'沈阳' ,2);
+  insert into test_area values (5,'大连' ,2);
+  insert into test_area values (6,'济南' ,3);
+  insert into test_area values (7,'和平区' ,4);
+  insert into test_area values (8,'沈河区' ,4);
+  
+  postgres=# select * from test_area;
+   id |  name  | fatherid
+  ----+--------+----------
+    1 | 中国   |        0
+    2 | 辽宁   |        1
+    3 | 山东   |        1
+    4 | 沈阳   |        2
+    5 | 大连   |        2
+    6 | 济南   |        3
+    7 | 和平区 |        4
+    8 | 沈河区 |        4
+  ```
+
+- 使用PostgreSQL我WITH查询检索ID为7以及以上的所有父节点：
+
+  - **UNION ALL**: 将前一个查询的结果与下一个查询的结果合并。`UNION ALL` 保留所有重复行，而 `UNION` 会去除重复行。这里使用 `UNION ALL` 是因为我们希望保留所有找到的行。
+  - **FROM test_area, r**: 从 `test_area` 表和递归CTE `r` 中选择数据。
+  - **WHERE test_area.id = r.fatherid**: 仅选择 `test_area` 表中 `id` 等于 `r` 表中 `fatherid` 的行
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area, r where test_area.id = r.fatherid )
+  select * from r order by id;\
+  
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area, r where test_area.id = r.fatherid )
+  select * from r order by id;
+   id |  name  | fatherid
+  ----+--------+----------
+    1 | 中国   |        0
+    2 | 辽宁   |        1
+    4 | 沈阳   |        2
+    7 | 和平区 |        4
+  ```
+
+  ![image-20240611100226784](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611100226784.png?raw=true)
+
+- 查询结果正好是ID=7 节点以及它所有父节点，将输出的name字段合并成 "中国辽宁沈阳和平区"，方法很多，这里通过string_agg函数实现
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area,r where test_area.id = r.fatherid)
+  select string_agg(name,'<<-') from (select name from r order by id )n;
+           string_agg
+  -----------------------------
+   中国<<-辽宁<<-沈阳<<-和平区
+  ```
+
+- 以上是查询当前节点以及当前节点的所有父节点，也可以查询当前节点以及其下的所有子节点，需要修改where条件，如果查找沈阳市及管辖区
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id = 3
+  union all
+  select test_area.* from test_area,r where test_area.fatherid = r.id
+  )
+  select * from r order by id;
+   id | name | fatherid
+  ----+------+----------
+    3 | 山东 |        1
+    6 | 济南 |        3
+  (2 rows)
+  
+  postgres=# with recursive r as (
+  select * from test_area where id = 4
+  union all
+  select test_area.* from test_area,r where test_area.fatherid = r.id
+  )
+  select * from r order by id;
+   id |  name  | fatherid
+  ----+--------+----------
+    4 | 沈阳   |        2
+    7 | 和平区 |        4
+    8 | 沈河区 |        4
+  ```
+
+---
+
+以上给出了CTE的两个应用场景：复杂查询中的应用和递归查询中的应用，通过示例，很容易知道CTE有以下有点：
+
+- CTE可以简化SQL代码，减少SQL嵌套层数，提高SQL代码的可读性。
+- CTE可以辅助语句只需要计算一次，在主查询中可以多次使用
+- 当不需要共享查询结果时，相比视图更轻量。
+
+## 4.2批量插入
+
+- 批量插入是指一次性插入多条数据，主要用于提升数据库插入效率，PostgreSQL有多种方法实现批量插入。
+
+### 4.2.1 方式一：INSERT INTO SELECT
+
+通过表数据或函数批量插入
+
+```apol
+insert into table_name select...from source_table
+```
+
+1. 创建一张表结构和user_ini相同的表并插入user_ini表的全量数据
+
+```
+create table tb1_batch1(user_id int8,user_name text);
+
+create table user_ini (user_id integer,user_name varchar(255));
+insert into user_ini (user_id,user_name) values (0,'alice');
+insert into user_ini (user_id,user_name) values (1,'text');
+
+
+postgres=# insert into tb1_batch1 (user_id,user_name)
+select user_id,user_name from user_ini;
+INSERT 0 2
+postgres=# select * from tb1_batch1 ;
+ user_id | user_name
+---------+-----------
+       0 | alice
+       1 | text
+```
+
+2. 指定where进行插入
+
+```apl
+postgres=# insert into tb1_batch1 (user_id,user_name)
+postgres-# select * from user_ini where user_id=0;
+INSERT 0 1
+postgres=# select * from tb1_batch1 ;
+ user_id | user_name
+---------+-----------
+       0 | alice
+       1 | text
+       0 | alice
+```
+
+3. 函数进行批量插入
+
+   - **generate_series(1,5)**：这是一个生成序列函数，它会生成一个从 1 到 5 的序列。
+   - **'batch2'**：这是一个字符串常量 `'batch2'`，每次生成的记录都将包含这个字符串。
+
+   创建tab1_batch2库
+
+   ```apl
+   create table tb1_batch2 (id int8,info text)
+   ```
+
+   通过select表数据批量插入的方式大多关系型数据库都不支持，接下来看看PostgreSQL支持的其他批量插入方式。
+
+   ```postgresql
+   postgres=# insert into tb1_batch2 (id,info)
+   postgres-# select generate_series(1,5),'徐梦云';
+   INSERT 0 5
+   
+   postgres=# select * from tb1_batch2 ;
+    id |  info
+   ----+--------
+     1 | 徐梦云
+     2 | 徐梦云
+     3 | 徐梦云
+     4 | 徐梦云
+     5 | 徐梦云
+   ```
+
+### 4.2.2 方式二 INSERT INTO VALUES(),(),...
+
+- PostgreSQL的另一种支持批量插入的方法在一条INSERT语句中通过VALUES关键字插入多条记录，通过一个例子就很容易理解。
+
+  ```postgresql
+  postgres=# create table tb1_batch3(id int4,info text);
+  CREATE TABLE
+  postgres=# insert into tb1_batch3(id,info) values (1,'a'),(2,'b'),(3,'c');
+  INSERT 0 3
+  postgres=# select * from tb1_batch3 ;
+   id | info
+  ----+------
+    1 | a
+    2 | b
+    3 | c
+  ```
+
+- 这种批量插入方式非常独特，一条sql插入多行数据，相比一条SQL插入一条数据方式能减少和数据的交互，减少数据库WAL日志的生成。
+
+### 4.2.3 方式三：COPY或\COPY元命令
+
+- 创建一张测算表，并插入一千万数据，如下
+
+  - **default clock_timestamp()**：是一个 PostgreSQL 内置函数，它返回当前的日期和时间，包括时区。不同于 `current_timestamp` 或 `now()`，`clock_timestamp()` 在一个事务中每次调用都会返回不同的值（精确到微秒）
+
+  ```apl
+  create table tb1_batch4(
+  id int4,
+  info text,
+  create_time timestamp(6) with time zone default clock_timestamp());
+  
+  insert into tb1_batch4(id,info) select n,n||'_batch4' from generate_series(1.10000000) as n;
+  ```
+
+- 通过insert插入一千万数据，将一千万数据导出到文件
+
+  ```apl
+  [postgres@pgsql root]$ psql postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# \timing
+  Timing is on.
+  
+  postgres=# copy public.tb1_batch4 TO '/data/scripts/tb1_batch4.txt';
+  COPY 10000000
+  Time: 3978.851 ms (00:03.979)
+  ```
+
+- 一千万数据导出花了3978毫秒，之后情况tb1_batch4并将tb1_batch4.txt数据导入到表中。
+
+  ```postgresql
+  postgres=# truncate table tb1_batch4 ;
+  TRUNCATE TABLE
+  Time: 61.340 ms
+  postgres=# select * from tb1_batch4;
+   id | info | create_time
+  ----+------+-------------
+  (0 rows)
+  
+  Time: 0.693 ms
+  
+  postgres=# copy public.tb1_batch4 from '/data/scripts/tb1_batch4.txt';
+  COPY 10000000
+  Time: 10560.340 ms (00:10.560)
+  ```
+
+## 4.3 RETURNING返回的数据
+
+- Postgresql的returning可以返回DML修改的数据，具体三个场景：
+
+  insert语句后接returning属性返回插入的数据
+
+  update语句后接returning属性返回更新后的数据
+
+  delete语句后接returning属性后返回删除的数据。
+
+  这个特性的优点在于不需要额外的SQL获取这些值，能够便于应用开发
+
+### 4.3.1 RETURNING返回插入的数据
+
+- insert语句后接returning属性返回插入的值，下面的代码创建测试表，并返回已插入的整行数据。
+
+  ```postgresql
+  postgres=# create table test_r1(id serial,flag char(1));
+  CREATE TABLE
+  
+  postgres=# insert into test_r1(flag) values ('a') returning *;
+   id | flag
+  ----+------
+    1 | a
+  ```
+
+  `RETURNING *`表示返回表插入的所有字段数据，也可以返回指定字段，RETURNING后接字段名即可，如下代码仅返回插入的id字段：
+
+  ```apl
+  postgres=# insert into test_r1(flag) values ('b') returning id;
+   id
+  ----
+    2
+  ```
+
+### 4.3.2 RETURNING 返回更新后数据
+
+- UPdate后接RETURNING属性返回UPDATE语句更行后的值：
+
+  ```apl
+  postgres=# update test_r1 set flag ='p' where id =1 returning *;
+   id | flag
+  ----+------
+    1 | p
+  ```
+
+### 4.3.3 RETURNING 返回删除的数据
+
+- DELETE后接RETURNING属性返回删除的数据
+
+  ```apl
+  postgres=# delete from test_r1 where id =2 returning *;
+   id | flag
+  ----+------
+    2 | b
+  (1 row)
+  
+  DELETE 1
+  postgres=# select * from test_r1;
+   id | flag
+  ----+------
+    1 | p
+  ```
+
+## 4.4 UPSERT
+
+- UPSERT特性是指INSERT....ON CONFLICT UPSERT，解决插入过程数据冲突，如违反用户自定义约束，并且在日志场景中，批量插入日志数据，如果其中一条数据违反表上的约束，整个插入事件将会回滚。UPSERT能解决这一问题。
+
+### 4.4.1 UPSERT 场景演示：
+
+- 定义一张用户登录日志表并插入一条数据
+
+  ```postgresql
+  create table user_logins(user_name text primary key,
+  login_cat int4,
+  last_login_time timestamp(0) without time zone);
+  CREATE TABLE
+  
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('francs',1);
+  INSERT 0 1
+  
+  postgres=# select * from user_logins ;
+   user_name | login_cat | last_login_time
+  -----------+-----------+-----------------
+   francs    |         1 |
+  ```
+
+  ---
+
+  在user_logins表user_name字段上定义主键，批量插入数据中如果有重复会报错
+
+  ```apl
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('matiler',1),('francs',1);
+  ERROR:  duplicate key value violates unique constraint "user_logins_pkey"
+  DETAIL:  Key (user_name)=(francs) already exists.
+  ```
+
+  ---
+
+  上述SQL试图插入两条数据，其中matiler这条数据不违反主键冲突，而francs这条数据违反主键冲突，结果两台数据都不能插入。
+
+- PostgreSQL的UPSERT可以处理冲突的数据比如当掺入的数据的冲突是不报错，同时更新冲突的数据
+
+  - **ON CONFLICT**: 指定当插入操作导致唯一约束冲突时的处理方式。
+  - **(user_name)**: 指定用于检测冲突的列，这里是 `user_name` 列。它通常是一个唯一约束或主键。
+
+  - `DO UPDATE SET login_cat = user_logins.login_cat + EXCLUDED.login_cat, last_login_time = now()`
+
+  - **DO UPDATE SET**: 指定在冲突发生时需要执行的更新操作。
+
+  - login_cat = user_logins.login_cat + EXCLUDED.login_cat
+
+    :
+
+    - **user_logins.login_cat**: 表示现有表中对应冲突行的 `login_cat` 列的值。
+    - **EXCLUDED.login_cat**: 表示试图插入但引发冲突的行的 `login_cat` 列的值。
+    - **user_logins.login_cat + EXCLUDED.login_cat**: 将现有行的 `login_cat` 值与新行的 `login_cat` 值相加。
+
+  - **last_login_time = now()**: 将 `last_login_time` 列设置为当前时间。
+
+  ```postgresql
+  postgres=# insert into user_logins(user_name,login_cat)
+  values ('matiler',1),('francs',1)
+  on conflict(user_name)
+  do update set login_cat=user_logins.login_cat+EXCLUDED.login_cat,
+  postgres-# last_login_time=now()::timestamp with time zone;
+  INSERT 0 2
+  
+  postgres=# select * from user_logins;
+   user_name | login_cat |   last_login_time
+  -----------+-----------+---------------------
+   matiler   |         1 |
+   francs    |         2 | 2024-06-12 01:09:32
+  (2 rows)
+  ```
+
+---
+
+一方面冲突的francs这条数据被更新了login_cat和last_login_time字段另一方面新的数据matiler记录已经正常插入。
+
+- 指定数据冲突后啥也不干，这时需要指定DO nothing属性
+
+  ```apl
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('true',1),('francs',1)
+  postgres-# on conflict(user_name)
+  postgres-# do nothing;
+  INSERT 0 1
+  postgres=# select * from user_logins;
+   user_name | login_cat |   last_login_time
+  -----------+-----------+---------------------
+   matiler   |         1 |
+   francs    |         2 | 2024-06-12 01:09:32
+   true      |         1 |
+  ```
+
+### 4.4.2 UPSERT语法
+
+- PostgreSQL的UPSERT语法比较复杂，通过以上演示后再来查看语法会轻松些。
+
+![image-20240611172112973](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611172112973.png?raw=true)
+
+### 4.5 数据抽样
+
+- 数据抽样 TABLESAMPLE(tablesample)数据处理经常用，特别是表数据量比较大时，随机查询表中一定数量记录操作很常见，但新能很低。
+
+  ```apl
+  postgres=# create table user_ini (id int4,user_id int4 ,user_name varchar(100),create_time timestamp without time zone default clock_timestamp());
+  CREATE TABLE
+  postgres=# insert into user_ini (id,user_id,user_name)                                           select n,n,n ||'_francs'
+  from generate_series(1,500000) n;
+  INSERT 0 500000
+  ```
+
+  ```apl
+  postgres=# select * from user_ini limit 2;
+   id | user_id | user_name |        create_time
+  ----+---------+-----------+----------------------------
+    1 |       1 | 1_francs  | 2024-06-12 01:37:41.010486
+    2 |       2 | 2_francs  | 2024-06-12 01:37:41.010583
+  (2 rows)
+  
+  postgres=# select * from user_ini order by random() limit 2;
+     id   | user_id |   user_name   |        create_time
+  --------+---------+---------------+----------------------------
+   286380 |  286380 | 286380_francs | 2024-06-12 01:37:41.406446
+    51589 |   51589 | 51589_francs  | 2024-06-12 01:37:41.084805
+    
+  postgres=# select * from user_ini order by random() limit 2;
+     id   | user_id |   user_name   |        create_time
+  --------+---------+---------------+----------------------------
+   174038 |  174038 | 174038_francs | 2024-06-12 01:37:41.249593
+   471258 |  471258 | 471258_francs | 2024-06-12 01:37:41.664831
+  ```
+
+- 执行计划如下：
+
+  ```apl
+  postgres=# EXPLAIN ANALYZE select * from user_ini order by random() limit 1;
+                                                           QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ----------------------------
+   Limit  (cost=12427.00..12427.00 rows=1 width=37) (actual time=111.123..111.125 rows=1 loops=1)
+     ->  Sort  (cost=12427.00..13677.00 rows=500000 width=37) (actual time=111.121..111.122 rows=1
+  loops=1)
+           Sort Key: (random())
+           Sort Method: top-N heapsort  Memory: 25kB
+           ->  Seq Scan on user_ini  (cost=0.00..9927.00 rows=500000 width=37) (actual time=0.012..
+  52.569 rows=500000 loops=1)
+   Planning Time: 0.078 ms
+   Execution Time: 111.146 ms
+  (7 rows)
+  ```
+
+  
