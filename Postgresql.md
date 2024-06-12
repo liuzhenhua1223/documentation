@@ -4170,7 +4170,7 @@ postgres=# select * from tb1_batch1 ;
 
 ![image-20240611172112973](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611172112973.png?raw=true)
 
-### 4.5 数据抽样
+## 4.5 数据抽样
 
 - 数据抽样 TABLESAMPLE(tablesample)数据处理经常用，特别是表数据量比较大时，随机查询表中一定数量记录操作很常见，但新能很低。
 
@@ -4223,4 +4223,649 @@ postgres=# select * from tb1_batch1 ;
   (7 rows)
   ```
 
+  表user_ini数据量为50万，从50万随机取一条上述SQL的执行事件为111ms这种方式进行了全表扫描和排序，效率非常低，当表数据量大时，性能几乎无法接受。
   
+- PostgreSQL支持TABLESAMPLE数据抽样
+
+  ![image-20240611232407774](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611232407774.png?raw=true)
+  
+  sampling_method指抽样方法，主要有两种：SYSTEM和BERNOULLI，接下来详细解释这两种抽样方式，argument指抽样百分比。
+
+### 4.5.1 SYSTEM抽样方式
+
+- SYSTEM抽样方式随机抽取表上数据库上的数据，SYSTEM抽样方式基于数据块级别，后接抽样参数，的所有数据将被检索。
+
+  ```postgresql
+  postgres=# create table test_sample(id int4,message text,
+  create_time timestamp(6) without time zone default clock_timestamp());
+  
+  postgres=# insert into test_sample (id,message)
+  select n, md5(random()::text) from generate_series(1,1500000) n;
+  
+  postgres=# select * from test_sample limit 1;
+   id |             message              |        create_time
+  ----+----------------------------------+----------------------------
+    1 | 1cc563b206c6ad324daa0d7cd684d3fd | 2024-06-12 02:10:23.671603
+  (1 row)
+  ```
+
+  抽样因子设置成0.01，意味着50000×0.01%=150条记录
+
+  ```postgresql
+  postgres=# explain analyze select * from test_sample tablesample system(0.01);
+                                                   QUERY PLAN
+  -------------------------------------------------------------------------------------------------------------
+   Sample Scan on test_sample  (cost=0.00..5.58 rows=158 width=44) (actual time=0.038..0.138 rows=321 loops=1)
+     Sampling: system ('0.01'::real)
+   Planning Time: 0.140 ms
+   Execution Time: 0.163 ms
+  (4 rows)
+  
+  ```
+
+  以上执行计划主要有两点，一方面进行了Sample Scan扫描(抽样的方式为SYSTEM)执行事件为0.019ms，性能，另一方面优化器预计访问5条记录，实际返回45
+
+  ```apl
+  postgres=# select relname,relpages from pg_class where relname='test_sample';
+     relname   | relpages
+  -------------+----------
+   test_sample |    14019
+  ```
+
+  表test_sample物理上占用了14019个数据块，也就是说每个数据块1000000/14019=158
+
+- 查看抽样数据的ctid
+
+  ```apl
+  postgres=# select ctid,* from test_sample tablesample system(0.01);
+      ctid     |   id    |             message              |        create_time
+  -------------+---------+----------------------------------+----------------------------
+   (9988,1)    | 1068717 | 9610359f37ce3188f4d6b6c2df5f258f | 2024-06-12 02:31:13.413036
+   (9988,2)    | 1068718 | a0454591f2f6f09ebd7f4d3fa98907cd | 2024-06-12 02:31:13.41306
+  ..............
+  ```
+
+  ctid是表的隐藏列，括号里第一位表示逻辑数据库编号，第二位表示逻辑块上的数据的逻辑编号，从以上看出，这107条记录都存储在逻辑编号为6646的数据块上，也就是抽样返回一个数据库上的所有数据，抽样因子固定为0.01，多次执行以下查询
+
+  ```apl
+  postgres=# select count(*) from test_sample tablesample system(0.01);
+   count
+  -------
+     214
+  (1 row)
+  
+  postgres=# select count(*) from test_sample tablesample system(0.01);
+   count
+  -------
+     107
+  (1 row)
+  ```
+
+---
+
+再次查询发现返回的记录为214或107，由于一个数据存储块107条记录，因此查询结果有时返回了两个数据块以上的所有数据，这是因为抽样因子设置成0.01，意味着返回样方式返回的数据块为单位，被抽样的块上所有数据被检索。
+
+### 4.5.2 BERNOULLI抽样方式
+
+- BERNOULLI抽样方式随机抽取表的数据，并返回指定百分比数据，基于数据行级别，BERNOULLI抽样方式抽取的数据相比SYSTEM方式有更好的随机性，但性能上相比SYSTEM抽样方式低很多。
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select * from test_sample tablesample bernoulli (0.01);
+                                                       QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  -------------------
+   Sample Scan on test_sample  (cost=0.00..14020.50 rows=150 width=45) (actual time=10.349..207.223
+   rows=167 loops=1)
+     Sampling: bernoulli ('0.01'::real)
+   Planning Time: 0.048 ms
+   Execution Time: 207.258 ms
+  (4 rows)
+  ```
+
+  从以上执行计划看出继续宁了Sample Scan扫描执行计划预计返回150条记录，实际返回167，从返回的记录数来看，非常接近150条(100000×0.01%)需要执行207毫秒，
+
+- 多次执行以下查询，查看返回记录数据的变化
+
+  ```apl
+  postgres@pghost1:1921=#select count(*) from test_sample tablesample bernoulli (0.01);
+   count
+  -------
+     166
+  (1 row)
+  
+  postgres@pghost1:1921=#select count(*) from test_sample tablesample bernoulli (0.01);
+   count
+  -------
+     132
+  ```
+
+- 由于BERNOULLI 抽样基于数据行级别，猜想返回的数据应该位于不同的数据块上，通过查询表的ctid进行验证
+
+  ```postgresql
+  postgres@pghost1:1921=#select ctid,id,message from test_sample tablesample bernoulli (0.01);
+      ctid     |   id    |             message
+  -------------+---------+----------------------------------
+   (127,28)    |   13617 | 29094764b4e8154f2bacb4257f960910
+   (206,25)    |   22067 | e35edc24436cc633bb4d7da0f97d65c9
+   (207,59)    |   22208 | ae9d8042bce53f1210ef45f24cb45c5f
+  ................
+  ```
+
+  从以上三条记录的ctid信息看出，三条数据分别位于数据库127，206，207上，因此BERNOULLI抽样方式随机性相比SYSTEM方式更好。
+
+  ## 4.6聚合函数
+
+  聚合函数可以对结果进行计算，常用聚合函数有 avg()、sum()、main()、max()、count()等
+
+  ![image-20240612094847305](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612094847305.png?raw=true)
+
+### 4.6.1 string_agg函数
+
+- 首先介绍string_agg函数，此函数语法如下所示
+
+  ```apl
+  string_agg(expression,delimiter)
+  ```
+
+- string_agg函数能将结果集某个字段的所有行连接成字符串，并指定delimiter分隔符分隔，expression处理字符类型数据，参数类型为(text,text)或(bytea,bytea)函数返回的类型同输入参数类型一直，bytea属于二进制类型，使用情况不多，我们主要介绍text类型输入参数，本节开头的场景正好可以用string_agg函数处理
+
+- 首先创建测试表并插入以下数据
+
+  ```apl
+  postgres@pghost1:1921=#create table city (country character varying(64),city character varying(64));
+  
+  insert into city values ('中国','台北');
+  insert into city values ('中国','香港');
+  insert into city values ('中国','上海');
+  insert into city values ('日本','东京');
+  insert into city values ('日本','大连');
+  
+  postgres@pghost1:1921=#select * from city ;
+   country | city
+  ---------+------
+   中国    | 台北
+   中国    | 香港
+   中国    | 上海
+   日本    | 东京
+   日本    | 大连
+  ```
+
+- 将city字段连接成字符串
+
+  ```apl
+  postgres@pghost1:1921=#select string_agg(city,'<>') from city ;
+            string_agg
+  ------------------------------
+   台北<>香港<>上海<>东京<>大连
+  ```
+
+- string_agg函数将输出结果集成了字符串，并用指定逗号分隔
+
+  ```apl
+  postgres@pghost1:1921=#select country,string_agg(city,',') from city group by country;
+   country |   string_agg
+  ---------+----------------
+   日本    | 东京,大连
+   中国    | 台北,香港,上海
+  ```
+
+### 4.6.2array_agg函数
+
+- array_agg函数和string_agg函数类似，主要的区别为返回类型为数组，数组数据类型同输入参数数据类型一直，array_agg函数支持两种语法
+
+  ```apl
+  array_agg(expressions)--输入参数为任何非数组类型
+  ```
+
+  输入参数可以是任何非数组类型，返回的结果是一组数组，array_agg函数将结束集某个字段女的所有行连接数组
+
+  ```apl
+  postgres@pghost1:1921=#select country,array_agg(city) from city group by country;
+   country |    array_agg
+  ---------+------------------
+   日本    | {东京,大连}
+   中国    | {台北,香港,上海}
+  ```
+
+  ---
+
+  arrar_agg函数输出的结果为字符类型数组，其他无明显区别，使用array_agg函数组要优点在于可以使用数组相关函数和操作符
+
+- 第二种array_agg(expression) --输入参数为任何数据类型
+
+  第一种array_agg函数的输入阐述为任何非数组类型，这里输入任何参数为数组类型
+
+  创建数组表
+
+  ```postgresql
+  postgres@pghost1:1921=#create table test_array3(id int4[]);
+  
+  postgres@pghost1:1921=#insert into test_array3(id) values ( array[1,2,3]);
+  
+  postgres@pghost1:1921=#insert into test_array3(id) values ( array[4,5,6]);
+  
+  postgres@pghost1:1921=#select * from test_array3 ;
+     id
+  ---------
+   {1,2,3}
+   {4,5,6}
+  (2 rows)
+  ```
+
+  使用array_agg函数
+
+  ```apl
+  postgres@pghost1:1921=#select array_agg(id) from test_array3 ;
+       array_agg
+  -------------------
+   {{1,2,3},{4,5,6}}
+  ```
+
+  也可以将array_agg函数输出类型转换成字符串，并用分隔符分隔`arrag_to_string`函数
+
+  ```postgresql
+  postgres@pghost1:1921=#select array_to_string (array_agg(id),',') from test_array3 ;
+   array_to_string
+  -----------------
+   1,2,3,4,5,6
+  ```
+
+## 4.7 窗口函数
+
+- 窗口函数也是基于结果集进行计算，与聚合函数不同的是窗口函数不会将结果集输出一行，二十合并到输出的结果集上，返回多行。
+
+### 4.7.1 窗口函数语法
+
+- postgresql提供内置的窗口函数，例如：row()、rank()、lan()等，除了内置的窗口函数外，聚合函数，自定义函数后接OVER属性也可以作为窗口函数。
+
+  窗口函数的调用语法稍微复杂
+
+  ![image-20240612104805041](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612104805041.png?raw=true)
+
+### 4.7.2 avg() OVER()
+
+- 聚合函数后接OVER属性的窗口函数，表示在一个查询结果集上应用聚合函数。
+
+1. 将此窗口函数用来计算分组后数据的平均值。
+
+- 创建一张成绩表并插入测试数据
+
+  ```apl
+  postgres@pghost1:1921=#create table score ( id serial primary key,
+  subject character varying (32),
+  stu_name varchar(32),
+  score numeric(3,0));
+  CREATE TABLE
+  
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'francs', 70);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'matiler', 70);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'tutu', 80);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'matiler', 75);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'francs', 90);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'tutu', 60);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'francs', 80);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'matiler', 99);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'tutu', 65);
+  
+  ```
+
+- 查询每名学生学习成绩并且显示课程的平均分，通常是先计算出课程的平均分，然后用score表与平均分表关联查询
+
+  - **LEFT JOIN**：执行左连接操作，确保左边表`s`中的所有记录都被包括，即使右边的子查询`tmp`中没有对应的记录。
+
+    **(SELECT subject, avg(score) avgscore FROM score GROUP BY subject)**：这是一个子查询，用于计算每个学科的平均分数。
+
+    - **SELECT subject, avg(score)**：选择每个学科和对应的平均分数。
+    - **avg(score)**：计算每个学科的平均分数。
+    - **FROM score**：指定数据来源于`score`表。
+    - **GROUP BY subject**：按`subject`列分组，以计算每个学科的平均分数。
+
+    - **tmp**：给子查询结果起一个别名`tmp`，方便在主查询中引用。
+
+    - **ON**：指定连接条件。
+
+      **s.subject = tmp.subject**：连接条件为主查询表`s`中的`subject`列与子查询结果`tmp`中的`subject`列相等。
+
+  ```apl
+  LEFT JOIN (SELECT subject, avg(score) avgscore FROM score GROUP BY subject) tmp
+  ON s.subject = tmp.subject;
+   subject | stu_name | score |      avgscore
+  ---------+----------+-------+---------------------
+   Chinese | francs   |    70 | 73.3333333333333333
+   Chinese | matiler  |    70 | 73.3333333333333333
+   Chinese | tutu     |    80 | 73.3333333333333333
+   English | matiler  |    75 | 75.0000000000000000
+   English | francs   |    90 | 75.0000000000000000
+   English | tutu     |    60 | 75.0000000000000000
+   Math    | francs   |    80 | 81.3333333333333333
+   Math    | matiler  |    99 | 81.3333333333333333
+   Math    | tutu     |    65 | 81.3333333333333333
+  ```
+
+- 使用窗口函数很容易实现以上需求
+
+  - 查询前三列源于表socre，低撕裂表示课程的平均分，PARTITION BY subject
+
+  ```apl
+  postgres@pghost1:1921=#select subject,stu_name,score,avg(score) OVER(partition by subject) from score;
+   subject | stu_name | score |         avg
+  ---------+----------+-------+---------------------
+   Chinese | francs   |    70 | 73.3333333333333333
+   Chinese | matiler  |    70 | 73.3333333333333333
+   Chinese | tutu     |    80 | 73.3333333333333333
+   English | matiler  |    75 | 75.0000000000000000
+   English | francs   |    90 | 75.0000000000000000
+   English | tutu     |    60 | 75.0000000000000000
+   Math    | francs   |    80 | 81.3333333333333333
+   Math    | matiler  |    99 | 81.3333333333333333
+   Math    | tutu     |    65 | 81.3333333333333333
+  ```
+
+### 4.7.3 row_number()
+
+- row_number()窗口函数对结果及分组后的数据标注行号，从1开始
+
+  ```apl
+  postgres@pghost1:1921=#select row_number() OVER (PARTITION by subject ORDER by score desc),* from score;
+   row_number | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+            1 |  3 | Chinese | tutu     |    80
+            2 |  1 | Chinese | francs   |    70
+            3 |  2 | Chinese | matiler  |    70
+            1 |  5 | English | francs   |    90
+            2 |  4 | English | matiler  |    75
+            3 |  6 | English | tutu     |    60
+            1 |  8 | Math    | matiler  |    99
+            2 |  7 | Math    | francs   |    80
+            3 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+  以上row_number()窗口函数显示的是分组后记录的行号，如果不指定partition属性，row_number()窗口函数表示所有记录的行号。
+
+  ```apl
+  postgres@pghost1:1921=#select row_number() OVER(ORDER BY id) as rownum,* from score;
+   rownum | id | subject | stu_name | score
+  --------+----+---------+----------+-------
+        1 |  1 | Chinese | francs   |    70
+        2 |  2 | Chinese | matiler  |    70
+        3 |  3 | Chinese | tutu     |    80
+        4 |  4 | English | matiler  |    75
+        5 |  5 | English | francs   |    90
+        6 |  6 | English | tutu     |    60
+        7 |  7 | Math    | francs   |    80
+        8 |  8 | Math    | matiler  |    99
+        9 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+### 4.7.4 rank()
+
+- rank()窗口函数和row_number()窗口函数相似，主要区别为当组内某行字段值相同时，行号重复并且行号产生间隙，如下所示
+
+  ```apl
+  postgres@pghost1:1921=#select rank() OVER(partition by subject order by score),* from score;
+   rank | id | subject | stu_name | score
+  ------+----+---------+----------+-------
+      1 |  2 | Chinese | matiler  |    70
+      1 |  1 | Chinese | francs   |    70
+      3 |  3 | Chinese | tutu     |    80
+      1 |  6 | English | tutu     |    60
+      2 |  4 | English | matiler  |    75
+      3 |  5 | English | francs   |    90
+      1 |  9 | Math    | tutu     |    65
+      2 |  7 | Math    | francs   |    80
+      3 |  8 | Math    | matiler  |    99
+  (9 rows)
+  ```
+
+  以上示例中，Chinese课程前两条记录的score字段值为70，因此前两行的rank字段值为1，而三行的rank()字段值为3，产生了间隙。
+
+### dense_rank()
+
+- dense_rank()窗口函数和rank()窗口函数相似，主要区别当组内某行字段值相同时，虽然行号重复，但行号不产生间隙
+
+  ```apl
+  postgres@pghost1:1921=# select dense_rank() OVER(partition by subject order by score),* from score;
+   dense_rank | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+            1 |  2 | Chinese | matiler  |    70
+            1 |  1 | Chinese | francs   |    70
+            2 |  3 | Chinese | tutu     |    80
+            1 |  6 | English | tutu     |    60
+            2 |  4 | English | matiler  |    75
+            3 |  5 | English | francs   |    90
+            1 |  9 | Math    | tutu     |    65
+            2 |  7 | Math    | francs   |    80
+            3 |  8 | Math    | matiler  |    99
+  (9 rows)
+  ```
+
+  ---
+
+  Chinese课程前两行的rank字段值为1，而第三个字段为2，没有产生间隙。
+
+### 4.7.7 first_value()
+
+- first_value()窗口函数用来取结果集每一个分组的第一行数据的字段值。
+
+- 例如score表按课程分组后取分组的第一行的分数
+
+  ```apl
+  postgres@pghost1:1921=#select first_value (score) OVER(partition by subject),*from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            70 |  1 | Chinese | francs   |    70
+            70 |  2 | Chinese | matiler  |    70
+            70 |  3 | Chinese | tutu     |    80
+            75 |  4 | English | matiler  |    75
+            75 |  5 | English | francs   |    90
+            75 |  6 | English | tutu     |    60
+            80 |  7 | Math    | francs   |    80
+            80 |  8 | Math    | matiler  |    99
+            80 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+- 通过first_value()窗口函数很容易查询分组数据的最大值或最小值，例如score表按课程分组同时取每门课程的最高分
+
+  ```postgresql
+  ### 降序desc
+  postgres@pghost1:1921=#select first_value(score) OVER(partition by subject order by score desc),* from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            80 |  3 | Chinese | tutu     |    80
+            80 |  1 | Chinese | francs   |    70
+            80 |  2 | Chinese | matiler  |    70
+            90 |  5 | English | francs   |    90
+            90 |  4 | English | matiler  |    75
+            90 |  6 | English | tutu     |    60
+            99 |  8 | Math    | matiler  |    99
+            99 |  7 | Math    | francs   |    80
+            99 |  9 | Math    | tutu     |    65
+  (9 rows)
+  
+  ###升序ASC
+  postgres@pghost1:1921=#select first_value(score) OVER(partition by subject order by score asc),* from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            70 |  2 | Chinese | matiler  |    70
+            70 |  1 | Chinese | francs   |    70
+            70 |  3 | Chinese | tutu     |    80
+            60 |  6 | English | tutu     |    60
+            60 |  4 | English | matiler  |    75
+            60 |  5 | English | francs   |    90
+            65 |  9 | Math    | tutu     |    65
+            65 |  7 | Math    | francs   |    80
+            65 |  8 | Math    | matiler  |    99
+  (9 rows)
+  
+  ```
+
+### 4.7.8 last_value()
+
+- last_value()窗口函数用来取结果集每一个分组的最后一行数据的字段值
+
+  ```postgresql
+  postgres@pghost1:1921=#select last_value(score) OVER(partition by subject ),* from score;
+   last_value | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+           80 |  1 | Chinese | francs   |    70
+           80 |  2 | Chinese | matiler  |    70
+           80 |  3 | Chinese | tutu     |    80
+           60 |  4 | English | matiler  |    75
+           60 |  5 | English | francs   |    90
+           60 |  6 | English | tutu     |    60
+           65 |  7 | Math    | francs   |    80
+           65 |  8 | Math    | matiler  |    99
+           65 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+### 4.7.9 nth_value()
+
+- nth_value()窗口函数用来取结果集每一个分组的指定行数据的字段值
+
+  ```postgresql
+  nth_value(value any,nth integer)
+  ```
+
+  其中：
+
+  - value：指定表的字段
+  - nth：指定结果集分组数据中的第几行，如果不存在则返回空。
+
+  ```apl
+  postgres@pghost1:1921=#select nth_value(score,2) OVER(partition by subject),* from score;
+   nth_value | id | subject | stu_name | score
+  -----------+----+---------+----------+-------
+          70 |  1 | Chinese | francs   |    70
+          70 |  2 | Chinese | matiler  |    70
+          70 |  3 | Chinese | tutu     |    80
+          90 |  4 | English | matiler  |    75
+          90 |  5 | English | francs   |    90
+          90 |  6 | English | tutu     |    60
+          99 |  7 | Math    | francs   |    80
+          99 |  8 | Math    | matiler  |    99
+          99 |  9 | Math    | tutu     |    65
+  ```
+
+### 4.7.10窗口函数别名的使用
+
+- 如果SQL中需要多次使用窗口函数，可以使用窗口函数别名
+
+  ```postgresql
+  select....from....WINDOW window_name as (window_definition) {,...}
+  ```
+
+  WINDOW属性指定表的别名为window_name，可以给OVER属性应用
+
+  ```apl
+  postgres@pghost1:1921=#select avg(score) OVER(r),sum(score) OVER(r),* from score window r as (partition by subject);
+           avg         | sum | id | subject | stu_name | score
+  ---------------------+-----+----+---------+----------+-------
+   73.3333333333333333 | 220 |  1 | Chinese | francs   |    70
+   73.3333333333333333 | 220 |  2 | Chinese | matiler  |    70
+   73.3333333333333333 | 220 |  3 | Chinese | tutu     |    80
+   75.0000000000000000 | 225 |  4 | English | matiler  |    75
+   75.0000000000000000 | 225 |  5 | English | francs   |    90
+   75.0000000000000000 | 225 |  6 | English | tutu     |    60
+   81.3333333333333333 | 244 |  7 | Math    | francs   |    80
+   81.3333333333333333 | 244 |  8 | Math    | matiler  |    99
+   81.3333333333333333 | 244 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+# 核心篇
+
+# 第五章 体系结构
+
+
+
+# 第六章 并行查询
+
+- oracle支持并行查询，比如SELECT、UPDATE、DELETE大事物开启并行功能后能利用多核CPU，从而发挥硬件性能，提升大事物处理效率，并行索引查询，并行索引扫描，并行index-only扫描，并行bitmap heap扫描等。
+
+## 6.1 并行查询相关配置参数
+
+- 介绍并行查询之前先介绍并行查询几个重要参数。
+
+  1. max_worker_processes(integer)
+
+     设置系统支持的最大后台进程数，默认值为8，如果有备库，备库上此参数必须大于或等于主库上的此参数配置值，此参数调整后需重启数据库生效。
+
+  2. max_parallel_workers(integer)
+
+     设置系统支持的并行查询进程数，默认值为8，此参数受max_worker_processes参数限制，设置此参数的值比max_worker_processes值高将无效。
+
+     当调整这个参数时建议同时调整max_parallel_workers_per_gather参数值
+
+  3. max_parallel_workers_per_gather（integer）
+
+     设置允许启用并行进程的进数，默认值为2，设置成0表示禁用并行查询，此参数受max_worker_processes参数和max_parallel_workers参数限制，因此并行查询的实际进程数会少些，并行查询比非并行查询消耗更多CPU、IO、内存资源，对生产系统有一定影响，使用时需要考虑这方面的因素
+
+     ```apl
+     max_worker_processes > max_parallel_workers > max_parallel_workers_per_gather
+     ```
+
+  4. parallel_setup_cost(floating point)
+
+     设置优化器启动并行进程的成本，默认为1000
+
+  5. parallel_tuple_cost(floating point)
+
+     设置优化器通过并行进程处理一行数据的成本，默认0.1
+
+  6. min_parallel_table_scan_size(integer)
+
+     设置开启并行的条件之一，表占用空间小于此值将不会开启并行，并行顺序扫描场景下扫描的数据大小通常等于表大小，默认值为8MB
+
+  7. min_parallel_index_scan_size(integer)
+
+     设置开启并行的条件之一，实际上并行索引扫描不会扫描索引所有模块，只是扫描索引相关数据模块，默认值512kb。
+
+  8. force_parallel_mode(enum)
+
+     强制开启并行，一般作为测试目的，OLTP生产环境开启需要慎重，一般不建议开启。
+
+     本章中Postgresql.conf配置文件设置了一下参数
+
+     ```postgresql
+     max_worker_processes = 16 
+     max_parallel_workers_per_gather = 4
+     max_parallel_workers = 8
+     parallel_tuple_cost = 0.1
+     parallel_setup_cost = 1000.0 
+     min_parallel_table_scan_size = 8MB
+     min_parallel_index_scan_size = 512kB
+     force_parallel_mode = off //如果没有手动添加
+     ```
+
+---
+
+![image-20240612171647299](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612171647299.png?raw=true)
+
+## 6.2 并行扫描
+
+- 扫描包括并行扫描、并行索引扫描，并行index-only扫描、并行bitmap heap扫描场景，测试过程中会对上一小节的部分参数进行设置，通过实验了解这些参数的含义。
+
+### 6.2.1 并行顺序扫描
+
+- 介绍并行顺序扫描前先介绍（sequential scan)，顺序扫描通常也称之为全表扫描，全表扫描会扫描整张表数据，当表很大时，全表扫描会占用大量CPU\内存\IO资源，对数据库性能影响大。
+
+1. 创建一张测试表，并插入5000万数据
+
+   ```postgresql
+   postgres@pghost1:1921=#create table test_big1(id int4,
+   postgres(# name varchar(32),
+   postgres(# craete_time timestamp without time zone default clock_timestamp());
+            
+   postgres@pghost1:1921=#insert into test_big1 (id,name)
+   select n,n||'_test' from generate_series(1,50000000)n;
+   ```
+
+   
+
+
+
