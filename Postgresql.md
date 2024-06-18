@@ -4791,17 +4791,17 @@ postgres=# select * from tb1_batch1 ;
 
 - 介绍并行查询之前先介绍并行查询几个重要参数。
 
-  1. max_worker_processes(integer)
+  1. **max_worker_processes(integer)**
 
      设置系统支持的最大后台进程数，默认值为8，如果有备库，备库上此参数必须大于或等于主库上的此参数配置值，此参数调整后需重启数据库生效。
 
-  2. max_parallel_workers(integer)
+  2. **max_parallel_workers(integer)**
 
      设置系统支持的并行查询进程数，默认值为8，此参数受max_worker_processes参数限制，设置此参数的值比max_worker_processes值高将无效。
 
      当调整这个参数时建议同时调整max_parallel_workers_per_gather参数值
 
-  3. max_parallel_workers_per_gather（integer）
+  3. **max_parallel_workers_per_gather（integer）**
 
      设置允许启用并行进程的进数，默认值为2，设置成0表示禁用并行查询，此参数受max_worker_processes参数和max_parallel_workers参数限制，因此并行查询的实际进程数会少些，并行查询比非并行查询消耗更多CPU、IO、内存资源，对生产系统有一定影响，使用时需要考虑这方面的因素
 
@@ -4809,29 +4809,29 @@ postgres=# select * from tb1_batch1 ;
      max_worker_processes > max_parallel_workers > max_parallel_workers_per_gather
      ```
 
-  4. parallel_setup_cost(floating point)
+  4. **parallel_setup_cost(floating point)**
 
      设置优化器启动并行进程的成本，默认为1000
 
-  5. parallel_tuple_cost(floating point)
+  5. **parallel_tuple_cost(floating point)**
 
      设置优化器通过并行进程处理一行数据的成本，默认0.1
 
-  6. min_parallel_table_scan_size(integer)
+  6. **min_parallel_table_scan_size(integer)**
 
      设置开启并行的条件之一，表占用空间小于此值将不会开启并行，并行顺序扫描场景下扫描的数据大小通常等于表大小，默认值为8MB
 
-  7. min_parallel_index_scan_size(integer)
+  7. **min_parallel_index_scan_size(integer)**
 
      设置开启并行的条件之一，实际上并行索引扫描不会扫描索引所有模块，只是扫描索引相关数据模块，默认值512kb。
 
-  8. force_parallel_mode(enum)
+  8. **force_parallel_mode(enum)**
 
      强制开启并行，一般作为测试目的，OLTP生产环境开启需要慎重，一般不建议开启。
 
      本章中Postgresql.conf配置文件设置了一下参数
 
-     ```postgresql
+     ```apl
      max_worker_processes = 16 
      max_parallel_workers_per_gather = 4
      max_parallel_workers = 8
@@ -4865,7 +4865,728 @@ postgres=# select * from tb1_batch1 ;
    select n,n||'_test' from generate_series(1,50000000)n;
    ```
 
+2. 一个顺序扫描的示例
+
+   ```apl
+   postgres@pghost1:1921=#explain select * from test_big1 where name='1_test';
+                                     QUERY PLAN
+   ------------------------------------------------------------------------------
+    Gather  (cost=1000.00..523930.22 rows=1 width=25)
+      Workers Planned: 4
+      ->  Parallel Seq Scan on test_big1  (cost=0.00..522930.12 rows=1 width=25)
+            Filter: ((name)::text = '1_test'::text)
+   (4 rows)
+   ```
+
+   以上执行计划Seq Scan on test_big1说明表test_big1上继续宁了顺序扫描，并利用多个逻辑CPU并行全表扫描，一个并行顺序扫描的执行如下：
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select * from test_big1 where name='1_test';
+                                                            QUERY PLAN
+   
+   ---------------------------------------------------------------------------------------------
+   -------------------------------
+    Gather  (cost=1000.00..523930.22 rows=1 width=25) (actual time=0.971..875.605 rows=1 loops=1
+   )
+      Workers Planned: 4
+      Workers Launched: 4
+      ->  Parallel Seq Scan on test_big1  (cost=0.00..522930.12 rows=1 width=25) (actual time=67
+   9.975..854.734 rows=0 loops=5)
+            Filter: ((name)::text = '1_test'::text)
+            Rows Removed by Filter: 10000000
+    Planning Time: 0.067 ms
+    Execution Time: 875.624 ms
+   (8 rows)
+   ```
+
+   以上Woeker Planned表执行计划预估的并行进程数，Woker Launched表示查询实际获得的并行进程数，这里Woker Planned和Woker Launched值都为4，Parallel Seq on test_big1表示进行了并行顺序扫描, 从上可以看出，开启4个并行时，sql的执行时间为875毫秒
+
+3. 不开启worker_per_gather参数设置成了4，设置成0表示关闭并行。
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select * from test_big1 where name='1_test';
+                                                     QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   ------------------------
+    Seq Scan on test_big1  (cost=0.00..991728.50 rows=1 width=25) (actual time=878.832..2
+   439.526 rows=1 loops=1)
+      Filter: ((name)::text = '1_test'::text)
+      Rows Removed by Filter: 49999999
+    Planning Time: 0.041 ms
+    Execution Time: 2439.541 ms
+   (5 rows)
+   ```
+
+   不开启并行时此SQL执行时间为5329毫秒，比开启并行查询性能低了3倍左右。
+
+### 6.2.2并行索引扫描
+
+- 索引扫描(index scan) ，在表上创建索引后，进行索引扫描的执行如下：
+
+  ```apl
+  postgres@pghost1:1921=#explain select * from test_1 where id=1;
+                                  QUERY PLAN
+  ---------------------------------------------------------------------------
+   Index Scan using test_1_pkey on test_1  (cost=0.15..8.17 rows=1 width=40)
+     Index Cond: (id = 1)
+  (2 rows)
+  ```
+
+  Index Scan using 表示执行计划预计进行索引扫描，索引扫描也支持并行，称为并行索引扫描(Parallel index scan)，本节演示并行索引扫描，并在表test_big1上创建索引
+
+  ```apl
+  postgres@pghost1:1921=#create index idx_big1_id ON test_big1 USING btree (id);
+  CREATE INDEX
+  ```
+
+  执行以下SQL，统计ID小于1千万的记录数
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(name) from test_big1 where id<10000000;
+                                                                                QUERY PL
+  AN
+  --------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------
+   Finalize Aggregate  (cost=284884.55..284884.56 rows=1 width=8) (actual time=413.915..
+  424.356 rows=1 loops=1)
+     ->  Gather  (cost=284883.93..284884.54 rows=6 width=8) (actual time=413.753..424.34
+  8 rows=7 loops=1)
+           Workers Planned: 6
+           Workers Launched: 6
+           ->  Partial Aggregate  (cost=283883.93..283883.94 rows=1 width=8) (actual tim
+  e=402.149..402.150 rows=1 loops=7)
+                 ->  Parallel Index Scan using idx_big1_id on test_big1  (cost=0.56..279
+  642.04 rows=1696754 width=13) (actual time=0.053..294.569 rows=1428571 loops=7)
+                       Index Cond: (id < 10000000)
+   Planning Time: 0.139 ms
+   Execution Time: 424.380 ms
+  (9 rows)
+  ```
+
+  根据以上执行计划可以看出，进行了并行索引扫描，开启了4个并行进程，执行时间为424毫秒
+
+- 会话级别关闭进行查询
+
+  ```apl
+  max_parallel_workers_per_gather
+  ```
+
+  再次执行
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(name) from test_big1 where id<10000000;
+                                                                      QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Aggregate  (cost=389931.07..389931.08 rows=1 width=8) (actual time=1552.588..1552.590
+   rows=1 loops=1)
+     ->  Index Scan using idx_big1_id on test_big1  (cost=0.56..364479.75 rows=10180525
+  width=13) (actual time=0.065..1097.416 rows=9999999 loops=1)
+           Index Cond: (id < 10000000)
+   Planning Time: 0.060 ms
+   Execution Time: 1552.613 ms
+  (5 rows)
+  ```
+
+  从执行计划看出进行了索引扫描，并没有开启并行，执行时间为1552毫秒，比并行索引性能低很多。
+
+### 6.2.3并行index-only扫描
+
+- index-only扫描只需要扫描索引，也就是说SQL仅根据索引就能够获取所需要检索的数据，而不需要通过索引回表查询数据。
+
+- 会话级别关闭。
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;                         SET
+  ```
+
+1. 查看执行计划
+
+   ```apl
+   postgres@pghost1:1921=#explain select count(*) from test_big1 where id<10000000;
+                                                QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   --------------
+    Aggregate  (cost=315271.07..315271.08 rows=1 width=8)
+      ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..289819.75 rows=1018
+   0525 width=0)
+            Index Cond: (id < 10000000)
+   (3 rows)
+   ```
+
+   以上执行主要看Index Only Scan 这一行，由于ID字段上建立了索引，统计记录数不需要再回表查询其他信息，因此进行了index-only扫描
+
+2. EXPLAIN ANALYZE执行此SQL
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id<10000000;
+                                                                         QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   ----------------------------------------------------------------
+    Aggregate  (cost=315271.07..315271.08 rows=1 width=8) (actual time=863.722..863.723 r
+   ows=1 loops=1)
+      ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..289819.75 rows=1018
+   0525 width=0) (actual time=0.020..563.454 rows=9999999 loops=1)
+            Index Cond: (id < 10000000)
+            Heap Fetches: 0
+    Planning Time: 0.058 ms
+    Execution Time: 863.745 ms
+   (6 rows)
+   ```
+
+   执行时间为253毫秒，index-only扫描支持并行，称为并行index-only扫描
+
+- 开启并行index-only扫描
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather to default;
+  SET
+  ```
+
+- 再次执行以下查询
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather to default;
+  
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id <10000000;
+                                                                                  QUERY
+  PLAN
+  --------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------
+   Finalize Aggregate  (cost=220829.06..220829.07 rows=1 width=8) (actual time=348.532..
+  350.266 rows=1 loops=1)
+     ->  Gather  (cost=220828.64..220829.05 rows=4 width=8) (actual time=348.430..350.25
+  9 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=219828.64..219828.65 rows=1 width=8) (actual tim
+  e=337.799..337.800 rows=1 loops=5)
+                 ->  Parallel Index Only Scan using idx_big1_id on test_big1  (cost=0.56
+  ..213465.82 rows=2545131 width=0) (actual time=0.060..252.034 rows=2000000 loops=5)
+                       Index Cond: (id < 10000000)
+                       Heap Fetches: 0
+   Planning Time: 0.074 ms
+   Execution Time: 350.291 ms
+  (10 rows)
+  ```
+
+### 6.2.4 并行bitmap heap扫描
+
+- Bitmap Index和Bitmap Heap扫描，当SQL的where条件中出现or时很有可能出现Bitmap Index扫描
+
+  ```apl
+  postgres@pghost1:1921=#explain select * from test_big1 where id=1 or id=2;
+                                     QUERY PLAN
+  --------------------------------------------------------------------------------
+   Bitmap Heap Scan on test_big1  (cost=9.15..17.16 rows=2 width=25)
+     Recheck Cond: ((id = 1) OR (id = 2))
+     ->  BitmapOr  (cost=9.15..9.15 rows=2 width=0)
+           ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..4.57 rows=1 width=0)
+                 Index Cond: (id = 1)
+           ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..4.57 rows=1 width=0)
+                 Index Cond: (id = 2)
+  (7 rows)
+  ```
+
+  从以上执行计划看出，限制性两次Bitamp index扫描获取索引项，之后讲Bitmap index扫描获取的结果结合起来回表查询，再查询中讲ID的选择范围扩大。
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id <10000000 or id > 49000000;
+                                                                      QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Finalize Aggregate  (cost=562003.43..562003.44 rows=1 width=8) (actual time=896.896..
+  897.563 rows=1 loops=1)
+     ->  Gather  (cost=562003.01..562003.42 rows=4 width=8) (actual time=896.785..897.55
+  6 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=561003.01..561003.02 rows=1 width=8) (actual tim
+  e=893.790..893.791 rows=1 loops=5)
+                 ->  Parallel Seq Scan on test_big1  (cost=0.00..554164.00 rows=2735602
+  width=0) (actual time=256.298..801.286 rows=2200000 loops=5)
+                       Filter: ((id < 10000000) OR (id > 49000000))
+                       Rows Removed by Filter: 7800000
+   Planning Time: 0.191 ms
+   Execution Time: 897.595 ms
+  (10 rows)
+  ```
+
+2. 在会话级关闭并行查询
+
+   ```APL
+   postgres@pghost1:1921=#explain analyze select count (*) from test_big1 where id < 1000000 or id > 49000000;
+                                                                      QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   -----------------------------------------------------------
+    Aggregate  (cost=1096345.81..1096345.82 rows=1 width=8) (actual time=183.203..183.206
+    rows=1 loops=1)
+      ->  Bitmap Heap Scan on test_big1  (cost=38885.60..1091272.21 rows=2029440 width=0)
+    (actual time=44.967..122.749 rows=1999999 loops=1)
+            Recheck Cond: ((id < 1000000) OR (id > 49000000))
+            Heap Blocks: exact=13724
+            ->  BitmapOr  (cost=38885.60..38885.60 rows=2050366 width=0) (actual time=43.
+   152..43.153 rows=0 loops=1)
+                  ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..20199.28 rows=1093696
+    width=0) (actual time=21.794..21.794 rows=999999 loops=1)
+                        Index Cond: (id < 1000000)
+                  ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..17671.59 rows=956670
+   width=0) (actual time=21.357..21.357 rows=1000000 loops=1)
+                        Index Cond: (id > 49000000)
+    Planning Time: 0.086 ms
+    Execution Time: 183.229 ms
+   (11 rows)
+   ```
+
+   从以上执行计划看出进行了Bitmap Heap扫描，执行时间为183毫秒，不开启并行此开启并行性能低了不少。
+
+## 6.3 并行聚合
+
+- 并行聚合：count()、sum()等集合函数的SQL，以下执行count()函数统计表记录总数
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 ;                                                                                   QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Finalize Aggregate  (cost=523914.42..523914.43 rows=1 width=8) (actual time=1122.163.
+  .1122.678 rows=1 loops=1)
+     ->  Gather  (cost=523914.00..523914.41 rows=4 width=8) (actual time=1122.047..1122.
+  660 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=522914.00..522914.01 rows=1 width=8) (actual tim
+  e=1109.915..1109.915 rows=1 loops=5)
+                 ->  Parallel Seq Scan on test_big1  (cost=0.00..491664.00 rows=12500000
+   width=0) (actual time=0.025..696.300 rows=10000000 loops=5)
+   Planning Time: 0.059 ms
+   Execution Time: 1122.701 ms
+  (8 rows)
+  ```
+
+  ![image-20240613174121480](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240613174121480.png?raw=true)
+
+  首先进行partial Aggregate，开启了四个并行进程，最后进行Finalize Aggregate，此SQL执行时间为2474毫秒，在操作系统层通过top命令看到 EXPLAIN ANLAYZE四个进程
+
+2. 尝试讲进程数更改为2
+
+   ```apl
+   postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;
+   
+   postgres@pghost1:1921=#explain analyze select count(*) from test_big1 ;
+                                                                        QUERY PLAN
+   ----------------------------------------------------------------------------------------------------------------------------------------------------
+    Finalize Aggregate  (cost=628080.88..628080.89 rows=1 width=8) (actual time=1658.148..1658.546 rows=1 loops=1)
+      ->  Gather  (cost=628080.67..628080.88 rows=2 width=8) (actual time=1658.059..1658.538 rows=3 loops=1)
+            Workers Planned: 2
+            Workers Launched: 2
+            ->  Partial Aggregate  (cost=627080.67..627080.68 rows=1 width=8) (actual time=1648.419..1648.420 rows=1 loops=3)
+                  ->  Parallel Seq Scan on test_big1  (cost=0.00..574997.33 rows=20833333 width=0) (actual time=0.050..1017.596 rows=16666667 loops=3)
+    Planning Time: 0.131 ms
+    Execution Time: 1658.579 ms
+   (8 rows)
+   ```
+
+   | 并行进程数 | Count（）执行时间 |
+   | ---------- | ----------------- |
+   | 0          | 4132毫秒          |
+   | 2          | 1598毫秒          |
+   | 4          | 1036毫秒          |
+   | 6          | 785毫秒           |
+
+3. sum()函数也能支持并行扫描
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select sum(hashtext (name)) from test_big1 ;
+                                                                       QUERY PLAN
+   --------------------------------------------------------------------------------------------------------------------------------------------------
+    Finalize Aggregate  (cost=492664.62..492664.63 rows=1 width=8) (actual time=1126.214..1126.902 rows=1 loops=1)
+      ->  Gather  (cost=492664.00..492664.61 rows=6 width=8) (actual time=1126.121..1126.895 rows=7 loops=1)
+            Workers Planned: 6
+            Workers Launched: 6
+            ->  Partial Aggregate  (cost=491664.00..491664.01 rows=1 width=8) (actual time=1122.389..1122.390 rows=1 loops=7)
+                  ->  Parallel Seq Scan on test_big1  (cost=0.00..449997.33 rows=8333333 width=13) (actual time=0.023..494.675 rows=7142857 loops=7)
+    Planning Time: 0.133 ms
+    Execution Time: 1126.938 ms
+   (8 rows)
+   ```
+
+   main()、max() 聚合函数也支持并行查询，这里不再测试。
+
+## 6.4 多表关联
+
+- 多表关联也能用到并行扫描，而是指多表关联涉及的表数据检索时能够使用并行处理
+
+### 6.4.1 Nested loop多表关联
+
+- 多表关联Nested loop是一个嵌套循环，伪代码
+
+  ```
+  for(i=0;i<length(outer);i++)
+  for(j=0;j<length(inner);j++)
+  	if(outer[i]== inner[j])
+  	output(outerli],innerlj]);
+  ```
+
+- 接着测试Nested loop 多表关联场景下使用到并行扫描的情况，创建一张test_small小表。
+
+  ```apl
+  postgres@pghost1:1921=#create table test_small(id int4,name character varying(32));
+  CREATE TABLE
+  
+  postgres@pghost1:1921=#insert into test_small(id,name)
+  select n,n || '_small' from generate_series(1,8000000) n;
+  INSERT 0 8000000
+  ```
+
+- 创建索引并做表分析
+
+  ```apl
+  postgres@pghost1:1921=#create index idx_test_small_id ON test_small USING btree (id);
+  CREATE INDEX
+  postgres@pghost1:1921=#select * from test_small limit 1;
+   id |  name
+  ----+---------
+    1 | 1_small
+  (1 row)
+  
+  postgres@pghost1:1921=#analyze test_small;
+  ANALYZE
+  ```
+
+- ANALYZE命令用于收集表上的统计信息，使优化器能够获得更精准的执行计划
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 ,test_small where test_big1.id = test_small.id and test_small.id < 10000;
+                                                                   QUERY PLAN
+  ---------------------------------------------------------------------------------------------------------------------------------------------
+   Nested Loop  (cost=1.00..44018.87 rows=9804 width=13) (actual time=0.037..11.778 rows=9999 loops=1)
+     ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..346.00 rows=9804 width=17) (actual time=0.011..1.266 rows=9999 loops=1)
+           Index Cond: (id < 10000)
+     ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..4.44 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=9999)
+           Index Cond: (id = test_small.id)
+           Heap Fetches: 0
+   Planning Time: 0.811 ms
+   Execution Time: 12.044 ms
+  ```
+
+  首先在表test_big1上进行了Index Only扫描，用于检索id小于100000的记录，之后两表进行Nested loop关联同时在表test_small
+  
+  
+
+### 6.4.1 Merge join 多表关联
+
+- Merge join 多表关联首先讲两个表进行排序，之后进行关联字段匹配，Merge join
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_small,test_big1 where test_big1.id = test_small.id and test_small.id < 200000;
+                                                                             QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------
+   Gather  (cost=1001.74..176162.42 rows=204448 width=13) (actual time=0.750..70.396 rows=199999 lo
+  ops=1)
+     Workers Planned: 6
+     Workers Launched: 6
+     ->  Merge Join  (cost=1.74..154717.62 rows=34075 width=13) (actual time=4.650..52.878 rows=285
+  71 loops=7)
+           Merge Cond: (test_big1.id = test_small.id)
+           ->  Parallel Index Only Scan using idx_big1_id on test_big1  (cost=0.56..881729.90 rows=
+  8333333 width=4) (actual time=0.050..2.763 rows=28572 loops=7)
+                 Heap Fetches: 0
+           ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..7125.27 rows=204448 wi
+  dth=17) (actual time=0.026..32.533 rows=199999 loops=7)
+                 Index Cond: (id < 200000)
+   Planning Time: 0.246 ms
+   Execution Time: 76.992 ms
+  (11 rows)
+  ```
+
+- 开启6个并行，执行时间为76毫秒，下面关闭进行比较
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_small,test_big1 where test_big1.id = test_small.id and test_small.id < 200000;
+                                                                       QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ----------------------------------------------------
+   Merge Join  (cost=1.74..241099.09 rows=204448 width=13) (actual time=0.033..70.119 rows=199999 l
+  oops=1)
+     Merge Cond: (test_small.id = test_big1.id)
+     ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..7125.27 rows=204448 width=17
+  ) (actual time=0.020..22.511 rows=199999 loops=1)
+           Index Cond: (id < 200000)
+     ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..1298396.56 rows=50000000 width
+  =4) (actual time=0.009..13.382 rows=200000 loops=1)
+           Heap Fetches: 0
+   Planning Time: 0.218 ms
+   Execution Time: 175.200 ms
+  (8 rows)
+  ```
+
+### 6.4.3 Hash join 多表关联
+
+- PostgreSQL多表关联也支持 Hash join，当关联字段没有索引情况下两表关联通常会进行Hash join接下来查看Hash join 的执行计划，先将两表上的索引删除，同时关闭并行。
+
+  ```postgresql
+  postgres@pghost1:1921=#SET enable_nestloop TO off;
+  SET
+  postgres@pghost1:1921=#SET enable_mergejoin TO off;
+  SET
+  postgres@pghost1:1921=#drop index idx_test_big1_id;  
+  postgres@pghost1:1921=#drop index idx_test_small_id;
+  DROP INDEX
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;                  
+  
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 join test_small ON ( test_big1.id =test_small.id) and test_small.id < 100;
+                                                            QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ------------------------------
+   Hash Join  (cost=150870.85..1205042.85 rows=800 width=13) (actual time=5264.722..6393.665 rows=9
+  9 loops=1)
+     Hash Cond: (test_big1.id = test_small.id)
+     ->  Seq Scan on test_big1  (cost=0.00..866664.00 rows=50000000 width=4) (actual time=0.012..31
+  83.107 rows=50000000 loops=1)
+     ->  Hash  (cost=150860.85..150860.85 rows=800 width=17) (actual time=459.848..459.849 rows=99
+  loops=1)
+           Buckets: 1024  Batches: 1  Memory Usage: 13kB
+           ->  Seq Scan on test_small  (cost=0.00..150860.85 rows=800 width=17) (actual time=0.008.
+  .459.832 rows=99 loops=1)
+                 Filter: (id < 100)
+                 Rows Removed by Filter: 7999901
+   Planning Time: 0.123 ms
+   Execution Time: 6393.693 ms
+  
+  ```
+
+- 开启4个并行
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 join test_small ON ( test_big1.id =test_small.id) and test_small.id < 100;
+                                                                   QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  --------------------------------------------
+   Gather  (cost=76862.71..615482.21 rows=800 width=13) (actual time=1504.987..1505.477 rows=99 loo
+  ps=1)
+     Workers Planned: 4
+     Workers Launched: 4
+     ->  Parallel Hash Join  (cost=75862.71..614402.21 rows=200 width=13) (actual time=1439.674..14
+  94.355 rows=20 loops=5)
+           Hash Cond: (test_big1.id = test_small.id)
+           ->  Parallel Seq Scan on test_big1  (cost=0.00..491664.00 rows=12500000 width=4) (actual
+   time=0.019..680.644 rows=10000000 loops=5)
+           ->  Parallel Hash  (cost=75860.21..75860.21 rows=200 width=17) (actual time=99.912..99.9
+  12 rows=20 loops=5)
+                 Buckets: 1024  Batches: 1  Memory Usage: 40kB
+                 ->  Parallel Seq Scan on test_small  (cost=0.00..75860.21 rows=200 width=17) (actu
+  al time=77.773..99.748 rows=20 loops=5)
+                       Filter: (id < 100)
+                       Rows Removed by Filter: 1599980
+   Planning Time: 0.185 ms
+   Execution Time: 1505.509 ms
+  ```
+
+# 第七章事物与并发控制
+
+## 7.1 事物和并发控制的概念
+
+- 事物有四个重要的特性
+  - 原子性
+    - 一个事物的所有操作，要么全部执行，要么全不执行
+  - 一致性
+    - 执行事物时保持数据库从一个一致的状态变更到另一个一致的状态。
+  - 隔离性
+    - 即使每个事物都能确保一致性和原子性，如果并发执行时，不希望的方式交叉运行，就会导致不一致的情况发生。
+  - 持久性
+    - 一个事物完成之后，即使数据库发生故障，他对数据库的更变也永久保存在数据库中。
+
+### 7.1.2 并发引发的现象
+
+- 事务都按照顺序执行，所有事物的执行时间没有重叠就不会存在事物并发性。Postgresql可以把这些非预期的现象总结为：脏读、不可重复读、幻读、和序列化异常
+
+1. 脏读
+
+   - 当第一个事物读取了第二个事物中已经修改但还未提交的数据，包括INSERT UPDATE、DELETE当第二个事务不提交并执行ROLLBACK后，第一个事务所读取到的数据是不正常的，这种读取现象称作脏读。
+   - 首先创建一张测试表并插入测试数据，如下所示
+
+   ```postgresql
+   postgres@pghost1:1921=#CREATE TABLE tbl_mvcc (
+       id SERIAL NOT NULL,
+       ival INT,
+       PRIMARY KEY (id)
+   );
+   
+   postgres@pghost1:1921=#INSERT INTO tb1_mvcc (ival) VALUES (1);
+   INSERT 0 1
+   ```
+
+   | T1                                                           | T2                                                           |
+   | ------------------------------------------------------------ | ------------------------------------------------------------ |
+   | set session transaction isolation level read uncommitted; start transaction; | start transaction;<br />update tb1_mvcc set ival = 10 where id =1; |
+   |                                                              |                                                              |
+   | select * from tb1_mvcc where id =1;                          |                                                              |
+   |                                                              | rollback;                                                    |
+   |                                                              |                                                              |
+
    
 
+![image-20240618230951775](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618230951775.png?raw=true)
 
+- 事物T1在tb1_mvcc表中查询数据，得到id=1，ival=1的行，这时时间T2更新表中id=1，ival=10，此时事务T1查询tb1_mvcc表，而事务T2此时并未提交，ival预期的值应当是1，但是T1却得到ival=10，事务T2最终进行了ROLLBACK操作，显然，事务T1将得到错误的值，引发了脏读现象
 
+2. 不可重复读
+
+   当一个事务第一次读取数据之后，被读取的数据已经被另一个已提交的事务进行了修改，事务再次读取这些数据已经被另一个事务修改，两次查询的结果不一致，这种称为不可重复读。
+
+   - 创建一张测试表插入数据
+
+     ```postgresql
+     postgres@pghost1:1921=#create table tb2_mvcc (
+     id serial primary key,
+     ival int
+     );
+     postgres@pghost1:1921=#insert into tb2_mvcc (ival) values (1);
+     ```
+
+     | T1                                                           | T2                                                      |
+     | ------------------------------------------------------------ | ------------------------------------------------------- |
+     | begin transaction isolation level read committed;            |                                                         |
+     | select id,ival from tb2_mvcc where id =1;                    |                                                         |
+     | ![image-20240618232045706](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232045706.png?raw=true) |                                                         |
+     |                                                              | begin;<br />update tb2_mvcc set ival = 10 where id =1 ; |
+     | select id,ival from tb2_mvcc where id =1;                    |                                                         |
+
+![image-20240618232601911](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232601911.png?raw=true)
+
+![image-20240618232651718](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232651718.png?raw=true)
+
+3. 幻读
+
+- 指一个事务的两次查询的结果集 记录数不一致。例如第一次查询的数据和第二次再次插入或删除了所查询的数据不一致。或则第一次查询的结果数据不存在，两次查询结果不同
+
+  | T1                                                           | T2                                                       |
+  | ------------------------------------------------------------ | -------------------------------------------------------- |
+  | begin transaction isolation level read committed;<br />select id,ival from tb2_mvcc where id > 3 and id < 10; |                                                          |
+  | select id,ival from tb2_mvcc where id =1;                    |                                                          |
+  |                                                              | begin;<br />insert into tb2_mvcc (id,ival) values (6,6); |
+  | select id,ival from tb2_mvcc where id > 3 and id < 10;       |                                                          |
+  |                                                              |                                                          |
+
+![image-20240618234052221](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234052221.png?raw=true)
+
+![image-20240618234245199](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234245199.png?raw=true)
+
+### 7.1.3 ANSI SQL 标准事务隔离级别
+
+- 为避免事务与事务之间发生执行引发的副作用，最简单的方法是窜行化地逐个执行事务。
+- ANSI SQL标准定义了四类隔离级别，每个隔离级别都包括了一些具体规则，也就是允许或不允许出现脏读、不可重复读，幻读的现象
+  - **Read Uncommitted(读未提交)|**
+    - 所有事物都可以看到其他未提交事物的执行结果，在多用户数据库中，脏读非常危险。所以未提交 这一事物隔离级别很少用于实际应用。
+  - **Read Committed（读已提交)**
+    - 默认隔离级别，满足一个事物只能看已经提交事物对关联数据所做的改变的隔离需求
+  - **Serializable(可序列化)**
+    - 最高隔离级别，通过强制事物排序，不能相互冲突，从而解决幻读问题。
+
+![image-20240618234956844](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234956844.png?raw=true)
+
+![image-20240618235021729](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618235021729.png?raw=true)
+
+## 7.2 事物隔离级别
+
+![image-20240618235701353](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618235701353.png?raw=true)
+
+| T1                                                           | T2                                               |
+| ------------------------------------------------------------ | ------------------------------------------------ |
+| begin transaction isolation level repeatable read;<br />select id,ival from tb2_mvcc where id =1; |                                                  |
+|                                                              |                                                  |
+|                                                              | update tb2_mvcc set ival= ival * 10 where id =1; |
+| update tb2_mvcc set ival= ival + 1 where id =1;              |                                                  |
+| ROLLBACK                                                     |                                                  |
+
+![image-20240619000155858](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619000155858.png?raw=true)
+
+![image-20240619000527215](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619000527215.png?raw=true)
+
+- Repeatable 事物隔离级别不能出现幻读
+
+  | T1                                                           | T2                                                           |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | begin transaction isolation level repeatable read;<br />select id,ival from tb2_mvcc where id > 3 and id < 10; |                                                              |
+  |                                                              |                                                              |
+  |                                                              | begin;<br />insert into tb1_mvcc (id,ival) values (6,6);end; |
+  | select id,ival from tb2_mvcc where id > 3 and id < 10;       |                                                              |
+  | end;                                                         |                                                              |
+
+![image-20240619002217458](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619002217458.png?raw=true)
+
+### 7.2.1 查看和设置数据库的事务隔离级别
+
+- 默认的事务隔离级别是Read Committed。
+
+  ```postgresql
+  postgres@pghost1:1921=#select name,setting from pg_settings where name ='default_transaction_isolation';
+               name              |    setting
+  -------------------------------+----------------
+   default_transaction_isolation | read committed
+   
+   postgres@pghost1:1921=#select current_setting('default_transaction_isolation');
+   current_setting
+  -----------------
+   read committed
+  ```
+
+### 7.2.2 修改全局的事务隔离级别
+
+- 方法1：通过修改Postgresql.conf文件中的 **default_transaction_isolation**参数修改全局事务隔离级别，修改之后reload
+
+- 方法2：通过ALTER SYSTEM 命令修改全局事务隔离级别
+
+  ```postgresql
+  postgres@pghost1:1921=#alter system set default_transaction_isolation TO 'REPEATABLE READ';
+  ALTER SYSTEM
+  
+  postgres@pghost1:1921=#select pg_reload_conf();
+   pg_reload_conf
+  ----------------
+   t
+  ```
+
+### 7.2.3 查看当前会话的事务隔离级别
+
+- 会话级别
+
+  ```apl
+  postgres@pghost1:1921=#show transaction_isolation;
+   transaction_isolation
+  -----------------------
+   repeatable read
+  
+  postgres@pghost1:1921=#select current_setting('transaction_isolation');
+   current_setting
+  -----------------
+   repeatable read
+  
+  ```
+
+### 7.2.4 设置当前会话的事务隔离级别
+
+- 设置会话级别
+
+  ```apl
+  postgres@pghost1:1921=#set session characteristics as transaction isolation level read uncommitted;
+  SET
+  postgres@pghost1:1921=#show transaction_isolation;
+   transaction_isolation
+  -----------------------
+   read uncommitted
+  ```
+
+  
