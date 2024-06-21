@@ -5589,4 +5589,730 @@ postgres=# select * from tb1_batch1 ;
    read uncommitted
   ```
 
+
+### 7.2.5 设置当前事务的事务隔离级别
+
+- 启动事务的同时设置事务隔离级别
+
+  ```postgresql
+  postgres@pghost1:1921=#start transaction isolation level read uncommitted;
+  postgres@pghost1:1921=#end;
+  COMMIT
+  
+  postgres@pghost1:1921=#begin isolation level read uncommitted read write;
+  BEGIN
+  postgres@pghost1:1921=#end;
+  COMMIT
+  ```
+
+## 7.3 并发控制
+
+- 允许多人同时和修改数据，为了保持事务的隔离性，系统必须对并发事务之间的相互作用加以控制。
+- 这次情况下既要确保用户一致读取和修改数据，还要争取尽量多的并发数，这是数据库并发控制器需要做的事情。
+- 数据库管理系统中并发控制的任务便是确保在多个事务同时存取数据库中同一数据时不破坏事务的隔离性、数据的一致性、以及数据库一致性，也就是解决丢失更新、脏读、不可重复读、幻读、序列化异常的问题
+- 并发控制模型有`基于的并发控制`和`基于多版本的并发控制`封锁、时间戳、乐观并发控制(OCC)和悲观并发控制是并发控制采用的主要技术手段。
+
+### 7.3.1 基于锁的并发控制
+
+- 数据库引入了“锁” 的概念。基本的封锁类型有两种：
+  - `排它锁`
+  - `共享锁`
+- **`排它锁`**：被加锁的对象可以被持锁事务读取和修改，其他事务无法在该对象上加其他锁，也不能读取和改该对象。
+- **`共享锁`**：被加锁的对象可以被持锁事务读取，但是不能被修改，其他事务也可以在上面再加共享锁。
+
+![image-20240619105135037](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619105135037.png?raw=true)
+
+### 7.3.2 基于多版本的并发控制
+
+- 如果每一数据项的旧值副本保存在系统中，这些问题就可以避免。集中基于多个旧值版本的并发控制即MVCC。
+- 一般把基于锁的并发控制机制成为悲观机制，而MVCC机制称为乐观机制。这是因为锁机制是一种预防的机制，读会阻塞，写也会阻塞，当封锁隔离度较大，时间较长时，并发性能就可以能不会太好；而MVCC是一种后验性的机制，读不阻塞写，写也不阻塞读，等到提交的时候才验证是否有冲突，由于没有锁，所以读写不会相互阻塞，避免了大颗粒度和长时间的锁定，能更好适应对读的响应速度和并发性要求高的场景，大大提升了并发性能
+- 在MVCC中，每个写操作创建一个新的版本。当事物发出一个读操作时，并发控制管理器选择一个版本进行读取。也就是为数据增加一个关于版本的标识，在读取数据时，连同版本号一起读除，在更新时对此版本号加一。
+
+- MVCC通过保存数据在某个时间点的快照，并控制元组的可见性来实现。
+
+![image-20240619111814715](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619111814715.png?raw=true)
+
+```apl
+postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =1;
+ xmin | xmax | cmin | cmax | id | ival
+------+------+------+------+----+------
+  956 |    0 |    1 |    1 |  1 |   11
+(1 row)
+```
+
+- 其中xmin保存了创建该行数据的事物的xid，xmax保存的是删除该行的xid，PostgreSQL在不同事物时间使用xmin和xmax控制事物对其他事物的可见性。
+
+1. 通过xmin决定事物的可见性
+
+   当插入一行数据时，PG会将插入这行数据的事物的xid存储在xmin中。通过xmin值判断事物中插入的行记录对其他事物的可见性有两种情况。
+
+   - 由由于回滚的事物或未提交的事物创建的行对于任何其他事物都是不可见的。开启一个新的事物
+
+   ```postgresql
+   postgres@pghost1:1921=#begin;
+   BEGIN
+   postgres@pghost1:1921=#select txid_current();
+    txid_current
+   --------------
+             961
+   
+   postgres@pghost1:1921=#insert into tb1_mvcc (id,ival) values (7,7);
+   
+   postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =7;
+    xmin | xmax | cmin | cmax | id | ival
+   ------+------+------+------+----+------
+     961 |    0 |    0 |    0 |  7 |    7
+   
+   ```
+
+   - 通过SELECT txid_current()语句我们查询到当前的事物xid是961，插入这行数据事物的id等于7的数据，查询这个数据的隐藏列可以看到xmin的值等于961，也就是插入这行数据的事物的xid。
+
+2. 无论提交成功或回滚的事务，xid都会递增，如果它的xid小于另一个事务的xid，也就是元组的xmin小于另一个事务的xmin，那么另一个事务对这个事务是不可用见的
+
+   ```apl
+   postgres@pghost1:1921=#begin transaction isolation level repeatable read;
+   BEGIN
+   postgres@pghost1:1921=#select txid_current();
+    txid_current
+   --------------
+             973
+   ```
+
+   以上语句开启了一个事务，这个事务的xid是973。在开启另一个事务
+
+   ```apl
+   postgres@pghost1:1921=#insert into tb1_mvcc (id,ival) values (7,7)
+   postgres-*# ;
+   INSERT 0 1
+   postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =7;
+    xmin | xmax | cmin | cmax | id | ival
+   ------+------+------+------+----+------
+     974 |    0 |    0 |    0 |  7 |    7
+   
+   postgres@pghost1:1921=#commit
+   ```
+
+- 第二个事务的xid是974并且这个事务在表中插入一条新的数据，xmin记录了第二个事务的xid，第二个事务提交成功。
+
+![image-20240619145721418](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619145721418.png?raw=true)
+
+- 尽管第二个事务提交成功，但在第一个事务中并未能查询到第二个事务插入的数据，因为第一个事务的XID是973，第二个事务插入的数据的xmin值是974，小于第二个事务的xmin，所以插入的id等于7的数据对第一个事务是不可见的。
+
+2. 通过xmax决定事务的可见性
+
+   通过xmax值判断事务的更新操作和删除操作对其他事务的可见性有这几种情况：
+
+   - 如果没有设置xmax值，该行对其他事务总是可见的
+   - 如果他被设置为回滚事务的xid，该行对其他事务也是可以见的
+   - 如果他被设置为一个正在运行，没有commit和rollback的事务的xid，改行对其他事务是可见的
+   - 如果它被设置为一个已提交的事务的xid，该行对这个已经提交事务之后发起的所有事务都是不可见的。
+
+### 7.3.3 通过pageinspect观察MVCC
+
+- 通过PostgreSQL文件系统的存储格式可以理解的更清晰。
+
+  ```apl
+  postgres@pghost1:1921=#\dx+ pageinspect
+                  Objects in extension "pageinspect"
+                          Object description
+  -------------------------------------------------------------------
+   function brin_metapage_info(bytea)
+   function brin_page_items(bytea,regclass)
+   function brin_page_type(bytea)
+   function brin_revmap_data(bytea)
+   function bt_metap(text)
+   function bt_page_items(bytea)
+   function bt_page_items(text,bigint)
+   function bt_page_stats(text,bigint)
+   function fsm_page_contents(bytea)
+   function get_raw_page(text,bigint)
+   function get_raw_page(text,text,bigint)
+   function gin_leafpage_items(bytea)
+   function gin_metapage_info(bytea)
+   function gin_page_opaque_info(bytea)
+   function gist_page_items_bytea(bytea)
+   function gist_page_items(bytea,regclass)
+   function gist_page_opaque_info(bytea)
+   function hash_bitmap_info(regclass,bigint)
+   function hash_metapage_info(bytea)
+   function hash_page_items(bytea)
+  postgres@pghost1:1921=#
+  ```
+
+- 下面介绍两个会调用的函数。get_raw_page 它的一个重载get_raw_page，用于读取relation中指定的块的值，其中relname是relation name参数fork可以有main、vm、fsm、init这几个值，
+
+  - fork默认值是main、main表示数据文件的主文件，
+  - vm是可见性映射的块文件
+  - fsm为free space map的块文件
+  - init 是初始化的块
+  - get_raw_page以一个bytea值的形式返回一个拷贝。
+
+- heap_page_items  显示一个堆页面上所有的行指针。对那些使用中的行指针，元组头部和尾部显示元组，原始数据也会被显示。不管元组对于拷贝原始页面时的MVCC快照是否可见，他们都会被显示。一般使用get_raw_page函数获得堆页面映射作为参数传递给heap_page_items.
+
+- 创建如下视图以便清晰地观察PG的MVCC是如何控制并发时的多版本
+
+  ```apl
+  CREATE VIEW v_pageinspect AS
+  SELECT
+      '(0,' || lp || ')' AS ctid,
+      CASE lp_flags
+          WHEN 0 THEN 'Unused'
+          WHEN 1 THEN 'Normal'
+          WHEN 2 THEN 'redirect to ' || lp_off
+          WHEN 3 THEN 'Dead'
+      END AS status,
+      t_xmin::text::int8 AS xmin,
+      t_xmax::text::int8 AS xmax,
+      t_ctid
+  FROM heap_page_items(get_raw_page('tb1_mvcc', 0))
+  ORDER BY lp;
+  ```
+
+- 当INSERT 数据时，事务会将INSERT的数据的xmin的值设置为当前事务的xid，xmax设置为NULL
+
+  ```apl
+  postgres@pghost1:1921=#insert into tb1_mvcc (ival) values (10);
+  INSERT 0 1
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    0 | (0,21)
+  
+  postgres@pghost1:1921=#end;
+  COMMIT
+  ```
+
+  当DELETE数据时，将xmax的值设置为当前事务的xid
+
+  ```postgresql
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+            998
+  
+  postgres@pghost1:1921=#delete from tb1_mvcc where id =1;
+  DELETE 1
+  
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    0 | (0,21)
+  
+  postgres@pghost1:1921=#end;
+  ```
+
+- 当Update数据时，对于每个更新的行，首先DELETE原先的行，再执行INSERT
+
+  ```apl
+  postgres@pghost1:1921=#insert into tb1_mvcc (ival) values (2);
+  INSERT 0 1
+  
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+           1002
+  postgres@pghost1:1921=#select * from tb1_mvcc;
+   id | ival
+  ----+------
+    6 |    6
+    7 |    7
+    2 |   10
+    3 |    2
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+            998
+  postgres@pghost1:1921=#update tb1_mvcc set ival =20 where id =2;
+  postgres@pghost1:1921=#select * from v_pageinspect;
+   ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,23) | Normal | 1002 |    0 | (0,23)
+   
+   end;
+  ```
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    1002 | (0,23)
+   (0,23) | Normal | 1002 |    0    | (0,23)
+  ```
+
+- 通过pageinspect查看page的内部，可以看到UPDATE实际上先是DELETE先前的数据，再INSERT一行新的数据，前面插入这条数据事务的xid为995，可以看到ctid(0.21)的这条记录的xmin567，xmax等于当前事务的xid：1002,另外在这个page中多了一条ctid(0.23)的记录，它的xmin等于当前事务的xid：1002.这是数据库中就存在两个版本，一个是被UPDATE之前的那条数据，另外一个就是被重新插入的那条数据。
+
+### 7.3.4 使用pg_repack解决膨胀问题
+
+- 尽管 MVCC读不阻塞写，写不阻塞读，实现了高性能和高吞吐量，但也有不足的地方，PG中数据采用堆表保存。并且MVCC的旧版本和新版本存储在同一个地方，如果更新大量数据，将会导致数据表的膨胀。
+  - 例如一张一万条数据的表，如果对它进行一次全量的更新，根据PG的MVCC实现方式，在数据文件中每条数据实际会有两个版本存在，一个版本是更新之前的旧版本，一个版本是更新之后的新版本，这两个版本必然会导致磁盘的使用率是实际数据的一倍，对性能也有影响。
+- pg_repack是一个可以在线重建表和索引的扩展。他会在数据库中建立一个和需要清理的目标表一样的临时表，将目标表中数据COPY到临时表，并在临时表上建立于目标表一样的索引，然后通过从命名的方式用临时表替换目标表。
+  - 可以下载源码编译安装，也可以通过yum源安装，这里通过
+
+![image-20240619181022630](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619181022630.png?raw=true)
+
+### 7.3.5 支撑事务的DDL
+
+- PG事务的一个高级功能就是它能够通过预写日志涉及来执行事务性的DDL也就是把DDL语句放在一个事务中，比如创建表，truncate
+
+  ```apl
+  postgres@pghost1:1921=#drop table if exists tb1_test;
+  NOTICE:  table "tb1_test" does not exist, skipping
+  DROP TABLE
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#create table tb1_test (ival int);
+  CREATE TABLE
+  postgres@pghost1:1921=#insert into tb1_test values (1);
+  INSERT 0 1
+  postgres@pghost1:1921=#select * from tb1_test;
+   ival
+  ------
+      1
+  (1 row)
+  
+  postgres@pghost1:1921=#rollback ;
+  ROLLBACK
+  postgres@pghost1:1921=#select * from tb1_test;
+  2024-06-19 18:12:47.640 CST [40082] ERROR:  relation "tb1_test" does not exist at character 15
+  2024-06-19 18:12:47.640 CST [40082] STATEMENT:  select * from tb1_test;
+  ERROR:  relation "tb1_test" does not exist
+  LINE 1: select * from tb1_test;
+                        ^
+  ```
+
+  再举个TRUNCATE
+
+  ```apl
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       4
+  (1 row)
+  
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#truncate tb1_mvcc;
+  TRUNCATE TABLE
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       0
+  (1 row)
+  
+  postgres@pghost1:1921=#select * from tb1_mvcc;
+   id | ival
+  ----+------
+  (0 rows)
+  
+  postgres@pghost1:1921=#rollback ;
+  ROLLBACK
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       4
+  (1 row)
+  ```
+
+# 第八章分区表
+
+## 8.1 分区表的意义
+
+**分区表的定义**
+
+- 当查询或更新一个分区上的大部分数据时，对分区进行索引扫描代价很大，然而在分区上使用顺序扫描能提升性能。
+- 当需要删除一个分区数据时，通过DROP TABLE删除一个分区，远比DELETE 删除数据高效，特别适用于日志数据场景
+- 由于一个表只能存储在一个表空间上，使用分区表，可以将分区放到不同的表空间上。
+
+**分区表的优势主要体现在降低大表管理成本和某些场景的性能提升，相比普通表性能有何差异？**
+
+## 8.2 传统分区表
+
+- 传统分区是通过继承和触发器方式实现的，其实现过程步骤多，非常复杂，需要定义父表，定义子表，定义子表约束，创建子表索引，创建分区插入，删除，修改函数和触发器，可以说是普通表基础上手工实现的分区表。
+
+### 8.2.1 继承表
+
+PG提供继承表，简单地说就是首先定义一张父表，之后可以创建子表并继承父表
+
+- 创建一张日志模型表tb1_log
+
+  ```apl
+  postgres@pghost1:1921=#create table tb1_log(id int4,create_date date,log_type text);
+  CREATE TABLE
+  ```
+
+- 之后创建一张子表tb1_log_sql用于存储SQL日志
+
+  ```postgresql
+  postgres@pghost1:1921=#create table tb1_log_sql(sql text) INHERITS(tb1_log);
+  ```
+
+- 通过INHERITS(tb1_log)表示表tb1_log_sql继承表tb1_log，子表可以定义额外的字段以上定义了`sql`为额外字段，其他字段则继承父表tb1_log，查看tb1_log_sql表结构
+
+  ```postgresql
+  postgres@pghost1:1921=#\d tb1_log_sql ;
+                 Table "public.tb1_log_sql"
+     Column    |  Type   | Collation | Nullable | Default
+  -------------+---------+-----------+----------+---------
+   id          | integer |           |          |
+   create_date | date    |           |          |
+   log_type    | text    |           |          |
+   sql         | text    |           |          |
+  Inherits: tb1_log
+  ```
+
+  - 从上可以看出tb1_log_sql表有四个字段，前三个字段和附表tb1_log_sql一样，第四个字段 `sql`为自定义字段，以上inherits：tb1_log信息表示继承了表tb1_log.
+
+- 父表和子表都可以插入数据，接着分别在附表和子表中插入一条数据
+
+  ```postgresql
+  postgres@pghost1:1921=#insert into tb1_log values (1,'2024-6-19',null);
+  INSERT 0 1
+  postgres@pghost1:1921=#insert into tb1_log_sql values ( 2,'2024-6-19',null,'select 2');
+  INSERT 0 1
+  ```
+
+- 这时查询父表tb1_log会显示两表记录
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from tb1_log;
+   id | create_date | log_type
+  ----+-------------+----------
+    1 | 2024-06-19  |
+    2 | 2024-06-19  |
+  (2 rows)
+  ```
+
+- 尽管查询父表会将子表的记录数也列出，但子表自定义字段没有显示，如果想确定数据来源于那张表，可以通过 **SQL查看表的OID**
+
+  ```postgresql
+  postgres@pghost1:1921=#select tableoid,* from tb1_log;
+   tableoid | id | create_date | log_type
+  ----------+----+-------------+----------
+      49299 |  1 | 2024-06-19  |
+      49304 |  2 | 2024-06-19  |
+  ```
+
+- tableoid是表的隐藏字段，表示表的OID，可以通过`pg_class系统表关联找到表名`
+
+  ```postgresql
+  postgres@pghost1:1921=#select p.relname,c.* from tb1_log c,pg_class p where c.tableoid = p.oid;
+     relname   | id | create_date | log_type
+  -------------+----+-------------+----------
+   tb1_log     |  1 | 2024-06-19  |
+   tb1_log_sql |  2 | 2024-06-19  |
+  ```
+
+- 如果**只想查询父表的数据**，需要在父表名称前加上关键字`ONLY`
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from ONLY tb1_log;
+   id | create_date | log_type
+  ----+-------------+----------
+    1 | 2024-06-19  |
+  (1 row)
+  ```
+
+- 因此，对于UPDATE、DELETE、SELECT操作，如果父表名称前没有加ONLY，则会对父表和所有子表进行DML操作
+
+  ```postgresql
+  postgres@pghost1:1921=#delete from tb1_log;
+  DELETE 2
+  postgres@pghost1:1921=#select count(*) from tb1_log;
+   count
+  -------
+       0
+  ```
+
+### 8.2.2 创建分区表
+
+- 步骤1：创建父表，如果父表上定义了约束，子表会继承，因此除非是全局约束，否则不因该在附表上定义约束，另外，父表不应该写入数据。
+- 步骤2：通过INHERITS方式创建继承表，也称之为子表或分区，子表的字段定义应该和父表保持一致。
+- 步骤3：给所有子表创建约束，只有满足约束条件的数据才能写入对应分区，注意分区约束值范围不要有重叠。
+- 步骤4：给所有子表创建索引，由于继承操作不会继承父表上的索引，因此索引需要手工创建。
+- 步骤5：在父表上定义INSERT、DELETE、UPDATE 触发器，将SOL分发到对应分区这步可选，因为应用可以根据分区规则定位到对应分区进行 DML操作。
+- 步骤6：启用  constraint_exclusion 参数，如果这个参数设置成off，则父表上的 SQL 性能会降低，后面会通过示例解释这个参数。
+
+**以上六个步骤是创建传统分区的主要步骤，接下来通过一个实例演示**
+
+1. 创建父表
+
+   ```postgresql
+   postgres@pghost1:1921=#create table log_ins(id serial,
+   user_id int4,
+   create_time timestamp(0) without time zone);
+   ```
+
+2. 创建13张子表
+
+   ```postgresql
+   CREATE TABLE log_ins_history (
+       CHECK (create_time < '2017-01-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201701 (
+       CHECK (create_time >= '2017-01-01' AND create_time < '2017-02-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201702 (
+       CHECK (create_time >= '2017-02-01' AND create_time < '2017-03-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201703 (
+       CHECK (create_time >= '2017-03-01' AND create_time < '2017-04-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201704 (
+       CHECK (create_time >= '2017-04-01' AND create_time < '2017-05-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201705 (
+       CHECK (create_time >= '2017-05-01' AND create_time < '2017-06-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201706 (
+       CHECK (create_time >= '2017-06-01' AND create_time < '2017-07-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201707 (
+       CHECK (create_time >= '2017-07-01' AND create_time < '2017-08-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201708 (
+       CHECK (create_time >= '2017-08-01' AND create_time < '2017-09-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201709 (
+       CHECK (create_time >= '2017-09-01' AND create_time < '2017-10-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201710 (
+       CHECK (create_time >= '2017-10-01' AND create_time < '2017-11-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201711 (
+       CHECK (create_time >= '2017-11-01' AND create_time < '2017-12-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201712 (
+       CHECK (create_time >= '2017-12-01' AND create_time < '2018-01-01')
+   ) INHERITS (log_ins);
+   ```
+
+   **给子表创建索引：**
+
+   ```postgresql
+   CREATE INDEX idx_his_ctime ON log_ins_history USING btree (create_time);
+   CREATE INDEX idx_log_ins_201701_ctime ON log_ins_201701 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201702_ctime ON log_ins_201702 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201703_ctime ON log_ins_201703 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201704_ctime ON log_ins_201704 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201705_ctime ON log_ins_201705 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201706_ctime ON log_ins_201706 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201707_ctime ON log_ins_201707 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201708_ctime ON log_ins_201708 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201709_ctime ON log_ins_201709 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201710_ctime ON log_ins_201710 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201711_ctime ON log_ins_201711 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201712_ctime ON log_ins_201712 USING btree (create_time);
+   ```
+
+- 由于父表上不存储数据，可以不用在父表上创建索引。
+
+  创建触发器，设置插入表时的路由规则
+
+```postgresql
+CREATE OR REPLACE FUNCTION log_ins_insert_trigger()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+    IF (NEW.create_time < '2017-01-01') THEN
+        INSERT INTO log_ins_history VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-01-01' AND NEW.create_time < '2017-02-01') THEN
+        INSERT INTO log_ins_201701 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-02-01' AND NEW.create_time < '2017-03-01') THEN
+        INSERT INTO log_ins_201702 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-03-01' AND NEW.create_time < '2017-04-01') THEN
+        INSERT INTO log_ins_201703 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-04-01' AND NEW.create_time < '2017-05-01') THEN
+        INSERT INTO log_ins_201704 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-05-01' AND NEW.create_time < '2017-06-01') THEN
+        INSERT INTO log_ins_201705 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-06-01' AND NEW.create_time < '2017-07-01') THEN
+        INSERT INTO log_ins_201706 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-07-01' AND NEW.create_time < '2017-08-01') THEN
+        INSERT INTO log_ins_201707 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-08-01' AND NEW.create_time < '2017-09-01') THEN
+        INSERT INTO log_ins_201708 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-09-01' AND NEW.create_time < '2017-10-01') THEN
+        INSERT INTO log_ins_201709 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-10-01' AND NEW.create_time < '2017-11-01') THEN
+        INSERT INTO log_ins_201710 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-11-01' AND NEW.create_time < '2017-12-01') THEN
+        INSERT INTO log_ins_201711 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-12-01' AND NEW.create_time < '2018-01-01') THEN
+        INSERT INTO log_ins_201712 VALUES (NEW.*);
+    ELSE
+        RAISE EXCEPTION 'create_time out of range. Fix the log_ins_insert_trigger() function!';
+    END IF;
+    RETURN NULL;
+END;
+$function$;
+
+```
+
+- 函数忠的new.*是指要插入的数据行，在父表中定义插入触发器
+
+  ```postgresql
+  CREATE TRIGGER insert_log_ins_trigger
+  BEFORE INSERT ON log_ins
+  FOR EACH ROW EXECUTE FUNCTION log_ins_insert_trigger();
+  ```
+
+- 触发器创建完之后，往父表log_ins插入数据时，会执行触发器函数log_ins_insert_trgger()将表数据插入到行营分区中。DELETE、UPDATE触发器和函数创建过程和INSERT方式类似，这里不再列出，这步完成之后，传统分区表的创建步骤就已经完成。
+
+### 8.2.3使用分区表
+
+- 往父表log_ins插入测试数据，并验证是否插入对应分区表
+
+  ```postgresql
+  postgres@pghost1:1921=#insert into log_ins(user_id,create_time)
+  postgres-# select round(100000000*random()),generate_series('2016-12-01'::date,
+  postgres(# '2017-12-01'::date,'1 minute');
+  INSERT 0 0
+  ```
+
+- 这里通过round(100000000*random())随机生成8位整数，generate_series函数生成时间书记
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from log_ins limit 2;
+   id | user_id  |     create_time
+  ----+----------+---------------------
+    1 | 89824011 | 2016-12-01 00:00:00
+    2 | 57496353 | 2016-12-01 00:01:00
+  ```
+
+- 查看父表书记,还想父表没有书记
+
+  ```postgresql
+  postgres@pghost1:1921=#select count(*) from ONLY log_ins;
+   count
+  -------
+       0
+  (1 row)
+  
+  postgres@pghost1:1921=#select count(*) from  log_ins;
+   count
+  --------
+   525601
+  (1 row)
+  ```
+
+- 查看子表数据
+
+  ```postgresql
+  postgres@pghost1:1921=#select min(create_time),max(create_time) from log_ins_201701 ;
+           min         |         max
+  ---------------------+---------------------
+   2017-01-01 00:00:00 | 2017-01-31 23:59:00
+  (1 row)
+  
+  postgres@pghost1:1921=#select min(create_time),max(create_time) from log_ins_201712 ;
+           min         |         max
+  ---------------------+---------------------
+   2017-12-01 00:00:00 | 2017-12-01 00:00:00
+  (1 row)
+  ```
+
+- 查看子表大小
+
+  ```postgresql
+  postgres@pghost1:1921=#\dt+ log_ins*
+                                            List of relations
+   Schema |      Name       | Type  |  Owner   | Persistence | Access method |    Size    | Descrip
+  tion
+  --------+-----------------+-------+----------+-------------+---------------+------------+--------
+  -----
+   public | log_ins         | table | postgres | permanent   | heap          | 0 bytes    |
+   public | log_ins_201701  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201702  | table | postgres | permanent   | heap          | 1776 kB    |
+   public | log_ins_201703  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201704  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201705  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201706  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201707  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201708  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201709  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201710  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201711  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201712  | table | postgres | permanent   | heap          | 8192 bytes |
+   public | log_ins_history | table | postgres | permanent   | heap          | 1968 kB    |
+  (14 rows)
+  ```
+
+### 8.2.4查询父表还是子表
+
+- 假如检索2017-01-01这一天的数据，我们可以查询父表，也可以直接查询子表
+
+1. 查询父表
+
+   ```postgresql
+   postgres@pghost1:1921=#explain analyze select * from log_ins where create_time > '2017-01-01' and create_time < '2017-01-02';
+                                                                              QUERY PLAN
+   
+   -------------------------------------------------------------------------------------------------
+   ----------------------------------------------------------------
+    Append  (cost=0.00..69.27 rows=1480 width=16) (actual time=0.009..0.192 rows=1439 loops=1)
+      ->  Seq Scan on log_ins log_ins_1  (cost=0.00..0.00 rows=1 width=16) (actual time=0.002..0.002
+    rows=0 loops=1)
+            Filter: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (create_
+   time < '2017-01-02 00:00:00'::timestamp without time zone))
+      ->  Index Scan using idx_log_ins_201701_ctime on log_ins_201701 log_ins_2  (cost=0.29..61.87 r
+   ows=1479 width=16) (actual time=0.007..0.138 rows=1439 loops=1)
+            Index Cond: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (cre
+   ate_time < '2017-01-02 00:00:00'::timestamp without time zone))
+    Planning Time: 0.307 ms
+    Execution Time: 0.229 ms
+   (7 rows)
+   ```
+
+   从上执行计划看出log_ings_2017-01-01进行了索引扫描，执行时间为0.22毫秒
+
+2. 直接查询子表log_ins_2017-01-01的执行计划
+
+   ```postgresql
+   postgres@pghost1:1921=#explain analyze select * from log_ins_201701 where create_time > '2017-01-01' and create_time < '2017-01-02';
+                                                                           QUERY PLAN
+   
+   -------------------------------------------------------------------------------------------------
+   ----------------------------------------------------------
+    Index Scan using idx_log_ins_201701_ctime on log_ins_201701  (cost=0.29..61.87 rows=1479 width=1
+   6) (actual time=0.013..0.146 rows=1439 loops=1)
+      Index Cond: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (create_ti
+   me < '2017-01-02 00:00:00'::timestamp without time zone))
+    Planning Time: 0.077 ms
+    Execution Time: 0.208 ms
+   (4 rows)
+   ```
+
+   从上执行计划看出，直接查询子表需要0.208毫秒，性能上有一定提升，如果并发上去的话，这个差异更加明显
+
+### 8.2.5 constraint_exclusion参数
+
+- 该参数用来控制优化器是否根据表示表上的约束来优化查询，参数值为
+
+  - on：所有表都通过约束优化查询
+  - off：所有表都不通过约束优化查询
+  - partition：只对继承表和USION ALL子表查询过检索约束来优化查询
+
+- 检索那些子表，而不需要扫描所有子表，从而提升查询性能
+
+  将constraint_exclusion设置为off进行测试：
+
+  ```
+  
+  ```
+
   
