@@ -641,7 +641,7 @@ func main() {
 }	
 ```
 
-![image-20231014175246363](assets/image-20231014175246363.png?raw=true)
+![image-20231014175246363](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014175246363.png?raw=true)
 
 说明：float64 的精度比 float32 的要准确. 
 
@@ -654,7 +654,7 @@ func main() {
 1. Golang 浮点类型有固定的范围和字段长度，不受具体 OS(操作系统)的影响。
 2. Golang 的浮点型默认声明为 float64类型。
 
-![image-20231014175510166](assets/image-20231014175510166.png?raw=true)
+![image-20231014175510166](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014175510166.png?raw=true)
 
 3. 浮点类型常量有两种表示形式
 
@@ -700,7 +700,7 @@ func main() {
 }	
 ```
 
-![image-20231014180101357](assets/image-20231014180101357.png?raw=true)
+![image-20231014180101357](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014180101357.png?raw=true)
 
 ## 3.10字符类型
 
@@ -731,7 +731,7 @@ func main() {
 }
 ```
 
-![image-20231014183117397](assets/image-20231014183117397.png?raw=true)
+![image-20231014183117397](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014183117397.png?raw=true)
 
 对上面代码说明：
 
@@ -753,11 +753,11 @@ func main() {
 
 5. 可以直接给某个变量赋一个数字，然后按格式化输出时%c，会输出该数字对应的 unicode 字
 
-![image-20231014193752155](assets/image-20231014193752155.png?raw=true)
+![image-20231014193752155](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014193752155.png?raw=true)
 
 6. 字符类型是可以进行运算的，相当于一个整数，因为它对应有Unicod码。
 
-![image-20231014193940072](assets/image-20231014193940072.png?raw=true)
+![image-20231014193940072](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014193940072.png?raw=true)
 
 ```go
 package main
@@ -824,7 +824,7 @@ fmt.Println(b,unsafe.Sizeof(b))
 }
 ```
 
-![image-20231014194354482](assets/image-20231014194354482.png?raw=true)
+![image-20231014194354482](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194354482.png?raw=true)
 
 ## 3.12 string类型
 
@@ -834,14 +834,14 @@ fmt.Println(b,unsafe.Sizeof(b))
 
 ### 3.12.2案例演示
 
-![image-20231014194534185](assets/image-20231014194534185.png?raw=true)
+![image-20231014194534185](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194534185.png?raw=true)
 
 ### 3.12.3string使用注意事项和细节
 
 1. Go 语言的字符串的字节使用 UTF-8 编码标识 Unicode 文本，这样 Golang 统一使用 UTF-8 编码,中文 乱码问题不会再困扰程序员。
 2. 字符串一旦赋值了，字符串就不能修改了：在 Go 中字符串是不可变的。
 
-![image-20231014194640110](assets/image-20231014194640110.png?raw=true)
+![image-20231014194640110](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194640110.png?raw=true)
 
 3. 字符串的两种表示形式
    - 双引号, 会识别转义字符
@@ -849,15 +849,15 @@ fmt.Println(b,unsafe.Sizeof(b))
 
 ### 案例演示
 
-![image-20231014194812765](assets/image-20231014194812765.png?raw=true)
+![image-20231014194812765](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194812765.png?raw=true)
 
 4. 字符串拼接方式
 
-![image-20231014194830233](assets/image-20231014194830233.png?raw=true)
+![image-20231014194830233](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194830233.png?raw=true)
 
 5. 当一行字符串太长时，需要使用到多行字符串，可以如下处理
 
-![image-20231014194847918](assets/image-20231014194847918.png?raw=true)
+![image-20231014194847918](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014194847918.png?raw=true)
 
 ## 3.13基本数据类型的默认值
 
@@ -867,11 +867,11 @@ fmt.Println(b,unsafe.Sizeof(b))
 
 ### 3.13.2 基本数据类型的默认值如下
 
-![image-20231014201655131](assets/image-20231014201655131.png?raw=true)
+![image-20231014201655131](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014201655131.png?raw=true)
 
 案例：
 
-![image-20231014201849891](assets/image-20231014201849891.png?raw=true)
+![image-20231014201849891](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014201849891.png?raw=true)
 
 ## 3.14 基本数据类型的相互转换
 
@@ -901,32 +901,32 @@ fmt.Println(n1, n2, n3)
 }
 ```
 
-![image-20231014202203675](assets/image-20231014202203675.png?raw=true)
+![image-20231014202203675](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014202203675.png?raw=true)
 
 ### 3.14.4基本数据类型相互转换的注意事项：
 
 1. Go 中，数据类型的转换可以是从 表示范围小-->表示范围大，也可以 范围大--->范围
 2. 被转换的是变量存储的数据(即值)，变量本身的数据类型并没有变化！
 
-![image-20231014202401442](assets/image-20231014202401442.png?raw=true)
+![image-20231014202401442](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014202401442.png?raw=true)
 
 3. 在转换中，比如将 int64 转成 int8 【-128---127】 ，编译时不会报错，只是转换的结果是按 溢出处理，和我们希望的结果不一样。 因此在转换时，需要考虑范
 
-![image-20231014202653684](assets/image-20231014202653684.png?raw=true)
+![image-20231014202653684](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014202653684.png?raw=true)
 
 ### 3.14.5课堂练习
 
 练习1
 
-![image-20231014202912189](assets/image-20231014202912189.png?raw=true)
+![image-20231014202912189](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014202912189.png?raw=true)
 
 如何修改上面的代码，就可以正确.
 
-![image-20231014203201145](assets/image-20231014203201145.png?raw=true)
+![image-20231014203201145](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014203201145.png?raw=true)
 
 练习2
 
-![image-20231014205838477](assets/image-20231014205838477.png?raw=true)
+![image-20231014205838477](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014205838477.png?raw=true)
 
 ## 3.15基本数据类型string的转换
 
@@ -940,7 +940,7 @@ fmt.Println(n1, n2, n3)
 
 函数的介绍：
 
-![image-20231014210006366](assets/image-20231014210006366.png?raw=true)
+![image-20231014210006366](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014210006366.png?raw=true)
 
 参数需要和表达式的数据类型相匹配
 
@@ -972,11 +972,11 @@ func main() {
 }
 ```
 
-![image-20231014210747222](assets/image-20231014210747222.png?raw=true)
+![image-20231014210747222](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014210747222.png?raw=true)
 
 方式2：使用strcov包的函数
 
-![image-20231014210812935](assets/image-20231014210812935.png?raw=true)
+![image-20231014210812935](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014210812935.png?raw=true)
 
 案例说明：
 
@@ -1020,13 +1020,13 @@ func main() {
 }
 ```
 
-![image-20231014211601204](assets/image-20231014211601204.png?raw=true)
+![image-20231014211601204](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014211601204.png?raw=true)
 
 ### 3.15.3string类型转基本数据类型
 
 - 使用string类型转基本数据类型
 
-![image-20231014220239006](assets/image-20231014220239006.png?raw=true)
+![image-20231014220239006](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014220239006.png?raw=true)
 
 ```go
 package main
@@ -1053,13 +1053,13 @@ func main() {
 }
 ```
 
-![image-20231014221301545](assets/image-20231014221301545.png?raw=true)
+![image-20231014221301545](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014221301545.png?raw=true)
 
 ### 3.15.4string转基本数据类型的注意事项
 
 - 在将 String 类型转成 基本数据类型时，要确保 String 类型能够转成有效的数据，比如 我们可以 把 "123" , 转成一个整数，但是不能把 "hello" 转成一个整数，如果这样做，Golang 直接将其转成 0 ， 其它类型也是一样的道理. float => 0 bool
 
-![image-20231014221549176](assets/image-20231014221549176.png?raw=true)
+![image-20231014221549176](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014221549176.png?raw=true)
 
 ## 3.16指针
 
@@ -1073,13 +1073,13 @@ func main() {
 
    
 
-![image-20231014221739938](assets/image-20231014221739938.png?raw=true)
+![image-20231014221739938](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014221739938.png?raw=true)
 
 3. 指针类型：指针变量存的是一个地址，这个地址指向的空间的才是值
 
    比如：var prt *int = &num
 
-   ![image-20231014221851895](assets/image-20231014221851895.png?raw=true)
+   ![image-20231014221851895](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014221851895.png?raw=true)
 
 4. 获取指针类型所指向的值，使用：*，比如：var ptr *int 使用\*ptr获取ptr指向的值
 
@@ -1103,11 +1103,11 @@ func main() {
    }
    ```
 
-   ![image-20231014222800961](assets/image-20231014222800961.png?raw=true)
+   ![image-20231014222800961](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014222800961.png?raw=true)
 
 5. 一个案例再说明
 
-![image-20231014222840539](assets/image-20231014222840539.png?raw=true)
+![image-20231014222840539](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014222840539.png?raw=true)
 
 ### 3.16.2案例演示
 
@@ -1131,11 +1131,11 @@ func main () {
 
 ```
 
-![image-20231014230208690](assets/image-20231014230208690.png?raw=true)
+![image-20231014230208690](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014230208690.png?raw=true)
 
 ### 3.16.3指针的课堂练习
 
-![image-20231014230305253](assets/image-20231014230305253.png?raw=true)
+![image-20231014230305253](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014230305253.png?raw=true)
 
 ### 3.16.4指针的使用细节
 
@@ -1153,12 +1153,12 @@ func main () {
 
 1. 值类型：变量直接存储值，内存通常在栈中分配
 
-![image-20231014230526457](assets/image-20231014230526457.png?raw=true)
+![image-20231014230526457](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014230526457.png?raw=true)
 
 2. 引用类型：变量存储的是一个地址，这个地址对应的空间才真正存储数据(值)，内存通常在堆 上分配，当没有任何变量引用这个地址时，该地址对应的数据空间就成为一个垃圾，由 GC 来回
 3. 内存的栈区和堆区示意图
 
-​	![image-20231014230657236](assets/image-20231014230657236.png?raw=true)
+​	![image-20231014230657236](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014230657236.png?raw=true)
 
 ## 3.18标识符的命名规范
 
@@ -1177,11 +1177,11 @@ func main () {
 
 4. 标识符不能包括空格
 
-    ![image-20231014231104029](assets/image-20231014231104029.png?raw=true)
+    ![image-20231014231104029](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014231104029.png?raw=true)
 
 5. 下划线"_"本身在Go中是一个特殊的表示符，称为空标识符。可以代表任何其他标识符，但是它对应的值会被忽略(比如:忽略某个返回值)。所以仅能被作为占位符，不能作为标识符使用
 
-​		![image-20231014231238254](assets/image-20231014231238254.png?raw=true)
+​		![image-20231014231238254](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014231238254.png?raw=true)
 
 6. 不能以系统保留关键字作为标识符（一共有 25 个），比如 break，if 等等...
 
@@ -1203,7 +1203,7 @@ Abc // ok
 
 1. 包名：保持 package 的名字和目录保持一致，尽量采取有意义的包名，简短，有意义，不要和 标准库不要冲突 fmt
 
-![image-20231014231402629](assets/image-20231014231402629.png?raw=true)
+![image-20231014231402629](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014231402629.png?raw=true)
 
 2. 变量名、函数名、常量名：采用驼峰法 举例： var stuName string = “tom” 形式: xxxYyyyyZzzz ..
 
@@ -1213,11 +1213,11 @@ Abc // ok
 
 ## 3.19 系统保留关键字
 
-![image-20231014231546089](assets/image-20231014231546089.png?raw=true)
+![image-20231014231546089](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014231546089.png?raw=true)
 
 ## 3.20系统的预定义标识符
 
-![image-20231014231603744](assets/image-20231014231603744.png?raw=true)
+![image-20231014231603744](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014231603744.png?raw=true)
 
 # 第四章 运算符
 
@@ -1238,7 +1238,7 @@ Abc // ok
 
 ### 4.2.1算术运算符的一览表
 
-![image-20231014232601330](assets/image-20231014232601330.png?raw=true)
+![image-20231014232601330](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014232601330.png?raw=true)
 
 ### 4.2.2案例演示
 
@@ -1268,7 +1268,7 @@ fmt.Println(n2)
 
 ```
 
-![image-20231014232920089](assets/image-20231014232920089.png?raw=true)
+![image-20231014232920089](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014232920089.png?raw=true)
 
 演示%的使用特点
 
@@ -1283,7 +1283,7 @@ fmt.Println("-10%-3=", -10 % -3) //
 
 ++和--的使用
 
-![image-20231014233613217](assets/image-20231014233613217.png?raw=true)
+![image-20231014233613217](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014233613217.png?raw=true)
 
 ### 4.2.3算术运算符使用注意事项
 
@@ -1292,19 +1292,19 @@ fmt.Println("-10%-3=", -10 % -3) //
 
 3. Golang 的自增自减只能当做一个独立语言使用时，不能这样使用
 
-![image-20231014233915764](assets/image-20231014233915764.png?raw=true)
+![image-20231014233915764](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014233915764.png?raw=true)
 
 4. 
 
 Golang 的++ 和 -- 只能写在变量的后面，不能写在变量的前面，即：只有 a++ a-- 没有 ++a --a
 
-![image-20231014233943354](assets/image-20231014233943354.png?raw=true)
+![image-20231014233943354](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014233943354.png?raw=true)
 
 5. Golang 的设计者去掉 c / java 中的 自增自减的容易混淆的写法，让 Golang 更加简洁，统一。(强 制性的) 
 
 ### 4.2.4课堂练习 
 
-![image-20231014234123886](assets/image-20231014234123886.png?raw=true)
+![image-20231014234123886](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014234123886.png?raw=true)
 
 ### 4.2.5课堂练习2
 
@@ -1323,7 +1323,7 @@ Golang 的++ 和 -- 只能写在变量的后面，不能写在变量的前面，
    }
    ```
 
-   ![image-20231014234825368](assets/image-20231014234825368.png?raw=true)
+   ![image-20231014234825368](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014234825368.png?raw=true)
 
 2. 定义一个变量保存华氏温度，华氏温度转换摄氏温度的公式为：5/9*(华氏温度-100),请求出华氏 温度对应的摄氏温度。
 
@@ -1346,7 +1346,7 @@ Golang 的++ 和 -- 只能写在变量的后面，不能写在变量的前面，
 
    
 
-![image-20231014234929255](assets/image-20231014234929255.png?raw=true)
+![image-20231014234929255](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014234929255.png?raw=true)
 
 ## 4.3关系运算符(比较运算符)
 
@@ -1357,7 +1357,7 @@ Golang 的++ 和 -- 只能写在变量的后面，不能写在变量的前面，
 
 ### 4.3.2关系运算符一览图
 
-![image-20231014235206097](assets/image-20231014235206097.png?raw=true)
+![image-20231014235206097](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014235206097.png?raw=true)
 
 ### 4.3.3案例演示
 
@@ -1381,7 +1381,7 @@ fmt.Println(flag)
 }
 ```
 
-![image-20231014235706841](assets/image-20231014235706841.png?raw=true)
+![image-20231014235706841](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231014235706841.png?raw=true)
 
 ### 4.3.4关系运算符的细节说明
 
@@ -1399,13 +1399,13 @@ fmt.Println(flag)
 
 ### 4.4.2逻辑运算的说明
 
-![image-20231015000134074](assets/image-20231015000134074.png?raw=true)
+![image-20231015000134074](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015000134074.png?raw=true)
 
 ### 4.4.3案例演示
 
-![image-20231015000149817](assets/image-20231015000149817.png?raw=true)
+![image-20231015000149817](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015000149817.png?raw=true)
 
-![image-20231015000215611](assets/image-20231015000215611.png?raw=true)
+![image-20231015000215611](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015000215611.png?raw=true)
 
 ### 4.4.4注意事项和细节说明
 
@@ -1433,7 +1433,7 @@ func main () {
 }
 ```
 
-![image-20231015000608606](assets/image-20231015000608606.png?raw=true)
+![image-20231015000608606](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015000608606.png?raw=true)
 
 ## 赋值运算符
 
@@ -1443,7 +1443,7 @@ func main () {
 
 ### 4.5.2赋值运算符的分类
 
-![image-20231015001050318](assets/image-20231015001050318.png?raw=true)
+![image-20231015001050318](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015001050318.png?raw=true)
 
 ### 4.5.3赋值运算的案例演示：
 
@@ -1474,17 +1474,17 @@ fmt.Printf("交换后a=%v,b=%v",a,b)
 }
 ```
 
-![image-20231015001538233](assets/image-20231015001538233.png?raw=true)
+![image-20231015001538233](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015001538233.png?raw=true)
 
 ### 4.5.4赋值运算符的特点
 
 1. 运算顺序从右向左
 
-   ![image-20231015002232214](assets/image-20231015002232214.png?raw=true)
+   ![image-20231015002232214](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015002232214.png?raw=true)
 
 2. 赋值运算符的左边 只能是变量,右边 可以是变量、表达式、
 
-   ![image-20231015002225030](assets/image-20231015002225030.png?raw=true)
+   ![image-20231015002225030](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015002225030.png?raw=true)
 
    ```go
    package main
@@ -1546,15 +1546,15 @@ func main() {
 }
 ```
 
-![image-20231015002729138](assets/image-20231015002729138.png?raw=true)
+![image-20231015002729138](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015002729138.png?raw=true)
 
 ## 4.6位运算符
 
-![image-20231015002926650](assets/image-20231015002926650.png?raw=true)
+![image-20231015002926650](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015002926650.png?raw=true)
 
 ## 4.7其他运算符索命
 
-![image-20231015003106640](assets/image-20231015003106640.png?raw=true)
+![image-20231015003106640](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003106640.png?raw=true)
 
 ```go
 package main
@@ -1573,27 +1573,27 @@ func main() {
 }
 ```
 
-![image-20231015003608569](assets/image-20231015003608569.png?raw=true)
+![image-20231015003608569](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003608569.png?raw=true)
 
 ### 4.7.1课堂案例
 
-![image-20231015003650682](assets/image-20231015003650682.png?raw=true)
+![image-20231015003650682](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003650682.png?raw=true)
 
 案例 2：求三个数的最大值
 
-![image-20231015003701402](assets/image-20231015003701402.png?raw=true)
+![image-20231015003701402](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003701402.png?raw=true)
 
 ## 4.8 特别说明
 
-![image-20231015003726111](assets/image-20231015003726111.png?raw=true)
+![image-20231015003726111](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003726111.png?raw=true)
 
-![image-20231015003809488](assets/image-20231015003809488.png?raw=true)
+![image-20231015003809488](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003809488.png?raw=true)
 
 ## 4.9运算符的优先级
 
 ### 4.9.1运算符的优先级的一览表
 
- ![image-20231015003849247](assets/image-20231015003849247.png?raw=true)
+ ![image-20231015003849247](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015003849247.png?raw=true)
 
 ### 4.9.2对上图的说明
 
@@ -1621,9 +1621,9 @@ func main() {
 1. 导入fmt包
 2. 调用fmt包的fmt.Scanln()或则fmt.Scanf()
 
-![image-20231015004121563](assets/image-20231015004121563.png?raw=true)
+![image-20231015004121563](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015004121563.png?raw=true)
 
-​					![image-20231015004142185](assets/image-20231015004142185.png?raw=true)
+​					![image-20231015004142185](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015004142185.png?raw=true)
 
 ### 4.10.3案例演示：
 
@@ -1656,7 +1656,7 @@ func main() {
 
 ```
 
-![image-20231015005846067](assets/image-20231015005846067.png?raw=true)
+![image-20231015005846067](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015005846067.png?raw=true)
 
 2. 使用fmt.Scanf()获取
 
@@ -1691,7 +1691,7 @@ fmt.Printf(" 名字是%v \n 年龄是%v \n 薪水是%v \n 是否通过考试%v \
 }
 ```
 
-![image-20231015010822105](assets/image-20231015010822105.png?raw=true)
+![image-20231015010822105](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015010822105.png?raw=true)
 
 ## 4.11进制
 
@@ -1725,31 +1725,31 @@ func main() {
 }
 ```
 
-![image-20231015015659424](assets/image-20231015015659424.png?raw=true)
+![image-20231015015659424](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015015659424.png?raw=true)
 
 ### 4.11.1进制的图示
 
-![image-20231015011329988](assets/image-20231015011329988.png?raw=true)
+![image-20231015011329988](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015011329988.png?raw=true)
 
 ### 4.11.2进制转换的介绍
 
-![image-20231015011350737](assets/image-20231015011350737.png?raw=true)
+![image-20231015011350737](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015011350737.png?raw=true)
 
 ### 4.11.3其他进制转十进制
 
-![image-20231015011447717](assets/image-20231015011447717.png?raw=true)
+![image-20231015011447717](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015011447717.png?raw=true)
 
 ### 4.11.4二进制如何转十进制
 
-![image-20231015015810217](assets/image-20231015015810217.png?raw=true)
+![image-20231015015810217](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015015810217.png?raw=true)
 
 ### 4.11.5 八进制转换成十进制
 
-![image-20231015015852874](assets/image-20231015015852874.png?raw=true)
+![image-20231015015852874](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015015852874.png?raw=true)
 
 ### 4.11.6 16进制转成十进制
 
-![image-20231015020007116](assets/image-20231015020007116.png?raw=true)
+![image-20231015020007116](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020007116.png?raw=true)
 
 ### 4.11.7其他进制转10进制
 
@@ -1787,19 +1787,19 @@ func main() {
 
 ### 4.11.8十进制如何转成其他进制
 
-![image-20231015020501619](assets/image-20231015020501619.png?raw=true)
+![image-20231015020501619](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020501619.png?raw=true)
 
 ### 4.11.9 十进制如何转二进制
 
-![image-20231015020517741](assets/image-20231015020517741.png?raw=true)
+![image-20231015020517741](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020517741.png?raw=true)
 
 ### 4.11.10十进制转成八进制
 
-![image-20231015020552708](assets/image-20231015020552708.png?raw=true)
+![image-20231015020552708](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020552708.png?raw=true)
 
 ### 4.11.11十进制转十六进制
 
-![image-20231015020615001](assets/image-20231015020615001.png?raw=true)
+![image-20231015020615001](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020615001.png?raw=true)
 
 ## 4.11.2课堂练习
 
@@ -1816,27 +1816,27 @@ func main() {
 
 ### 4.11.13二进制转换成八进制、十六进制
 
-![image-20231015020820637](assets/image-20231015020820637.png?raw=true)
+![image-20231015020820637](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020820637.png?raw=true)
 
 ### 4.11.14二进制转换成八进制
 
-![image-20231015020840501](assets/image-20231015020840501.png?raw=true)
+![image-20231015020840501](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015020840501.png?raw=true)
 
 ### 4.11.15二进制转十六进制
 
-![image-20231015021127835](assets/image-20231015021127835.png?raw=true)
+![image-20231015021127835](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015021127835.png?raw=true)
 
 ### 4.11.16 八进制、十六进制转成二进制
 
-![image-20231015021302679](assets/image-20231015021302679.png?raw=true)
+![image-20231015021302679](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015021302679.png?raw=true)
 
 ### 4.11.17 八进制转成二进制
 
-![image-20231015021851175](assets/image-20231015021851175.png?raw=true)
+![image-20231015021851175](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015021851175.png?raw=true)
 
 ### 4.11.18 十六进制转成二进制
 
-![image-20231015021909899](assets/image-20231015021909899.png?raw=true)
+![image-20231015021909899](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015021909899.png?raw=true)
 
 ## 4.12位运算
 
@@ -1862,7 +1862,7 @@ func main() {
    
    ```
 
-   ![image-20231015022523918](assets/image-20231015022523918.png?raw=true)
+   ![image-20231015022523918](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015022523918.png?raw=true)
 
 ```
 a: 1 >> 2，这表示将整数 1 向右移动 2 位。右移操作将数值的二进制位向右移动，丢弃最低位，左边用 0 填充。所以 1 右移 2 位后变为 0，所以 a 的值是 0。
@@ -1876,9 +1876,9 @@ d: -1 << 2，这表示将整数 -1 向左移动 2 位。左移操作会将最高
 
 2. 请回答Golang中，下面的表达式运算结果是：
 
-![image-20231015023234340](assets/image-20231015023234340.png?raw=true)
+![image-20231015023234340](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015023234340.png?raw=true)
 
-![image-20231015023244896](assets/image-20231015023244896.png?raw=true)
+![image-20231015023244896](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015023244896.png?raw=true)
 
 ```go
 package main
@@ -1897,7 +1897,7 @@ fmt.Println(-3^3)
 }   
 ```
 
-![image-20231015023254281](assets/image-20231015023254281.png?raw=true)
+![image-20231015023254281](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015023254281.png?raw=true)
 
 ### 4.12.2 二进制在运算中的说明
 
@@ -1909,7 +1909,7 @@ fmt.Println(-3^3)
 
 ### 4.12.3原码、反码、补码
 
-![image-20231015023404095](assets/image-20231015023404095.png?raw=true)
+![image-20231015023404095](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015023404095.png?raw=true)
 
 ### 4.12.4位运算符和移位运算符
 
@@ -1924,7 +1924,7 @@ Golang 中有 3 个位运算
 
 比如：2&3=2 2|3=3 2^3=1
 
-![image-20231015023835238](assets/image-20231015023835238.png?raw=true)
+![image-20231015023835238](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015023835238.png?raw=true)
 
 
 
@@ -1963,17 +1963,17 @@ c := 1 << 2：这是左移操作，将整数 1 向左移动 2 位。二进制表
 - 程序从上到下逐行地执行，中间没有任何判断和跳转。
 - 一个案例说明，必须下面的代码中，没有判断，也没有跳转.因此程序按照默认的流程执行，即顺 序控制。
 
-![image-20231015093607113](assets/image-20231015093607113.png?raw=true)
+![image-20231015093607113](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015093607113.png?raw=true)
 
 ### 5.2.1顺序控制的一个流程图
 
-![image-20231015093633189](assets/image-20231015093633189.png?raw=true)
+![image-20231015093633189](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015093633189.png?raw=true)
 
 ### 5.2.2顺序控制举例和注意事项
 
 Golang 中定义变量时采用合法的前向引用。如：
 
-![image-20231015094225101](assets/image-20231015094225101.png?raw=true)
+![image-20231015094225101](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094225101.png?raw=true)
 
 ## 5.3 分支控制
 
@@ -1990,27 +1990,27 @@ Golang 中定义变量时采用合法的前向引用。如：
 
 基本语法
 
-![image-20231015094353243](assets/image-20231015094353243.png?raw=true)
+![image-20231015094353243](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094353243.png?raw=true)
 
 单分支的流程图
 
 流程图可以用图形方式来更加清晰的描述程序执行的流程。
 
-![image-20231015094445953](assets/image-20231015094445953.png?raw=true)
+![image-20231015094445953](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094445953.png?raw=true)
 
 单分支的细节说明
 
-![image-20231015094750263](assets/image-20231015094750263.png?raw=true)
+![image-20231015094750263](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094750263.png?raw=true)
 
-![image-20231015094758001](assets/image-20231015094758001.png?raw=true)
+![image-20231015094758001](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094758001.png?raw=true)
 
-![image-20231015094804406](assets/image-20231015094804406.png?raw=true)
+![image-20231015094804406](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094804406.png?raw=true)
 
 ### 5.3.3双分支控制
 
 基本语法
 
-![image-20231015094827381](assets/image-20231015094827381.png?raw=true)
+![image-20231015094827381](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015094827381.png?raw=true)
 
 应用案例
 
@@ -2033,11 +2033,11 @@ func main() {
 }
 ```
 
-![image-20231015095849742](assets/image-20231015095849742.png?raw=true)
+![image-20231015095849742](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015095849742.png?raw=true)
 
 双分支的流程图的分析
 
-![image-20231015100100869](assets/image-20231015100100869.png?raw=true)
+![image-20231015100100869](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015100100869.png?raw=true)
 
 对双分支的总结
 
@@ -2051,13 +2051,13 @@ func main() {
 
 ### 5.3.4单分支和双分支
 
-![image-20231015100154837](assets/image-20231015100154837.png?raw=true)
+![image-20231015100154837](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015100154837.png?raw=true)
 
-![image-20231015100244101](assets/image-20231015100244101.png?raw=true)
+![image-20231015100244101](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015100244101.png?raw=true)
 
-![](assets/image-20231015100224867.png?raw=true)
+![](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015100224867.png?raw=true)
 
-![image-20231015100252293](assets/image-20231015100252293.png?raw=true)
+![image-20231015100252293](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015100252293.png?raw=true)
 
 5. 编写程序，声明 2 个 int32 型变量并赋值。判断两数之和，如果大于等于 50，打印“hello world!
 
@@ -2091,7 +2091,7 @@ func main() {
 }
 ```
 
-![image-20231015105533220](assets/image-20231015105533220.png?raw=true)
+![image-20231015105533220](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015105533220.png?raw=true)
 
 7. 【选作】定义两个变量int32，判断二者的和，是否能被3又被5整除，打印提升信息
 
@@ -2109,7 +2109,7 @@ func main() {
 }
 ```
 
-![image-20231015110018392](assets/image-20231015110018392.png?raw=true)
+![image-20231015110018392](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015110018392.png?raw=true)
 
 8. 判断一个年份是否是闰年，闰年的条件是符合下面二者之一：(1)年份能被 4 整除，但不能被 100 整除；(2)能被 400 整除
 
@@ -2122,13 +2122,13 @@ func main() {
 
    
 
-![image-20231015110312846](assets/image-20231015110312846.png?raw=true)
+![image-20231015110312846](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015110312846.png?raw=true)
 
 ### 5.3.5多分支控制
 
 基本语法
 
-![image-20231015110348857](assets/image-20231015110348857.png?raw=true)
+![image-20231015110348857](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015110348857.png?raw=true)
 
 对上面基本语法的说明
 
@@ -2142,7 +2142,7 @@ func main() {
 
 - 看一个多分支的流程图(更加清晰)
 
-  ![image-20231015110530757](assets/image-20231015110530757.png?raw=true)
+  ![image-20231015110530757](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015110530757.png?raw=true)
 
 多分支的快速入门案例
 
@@ -2180,15 +2180,15 @@ func main() {
 }
 ```
 
-![image-20231015111352338](assets/image-20231015111352338.png?raw=true)
+![image-20231015111352338](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015111352338.png?raw=true)
 
 多分支的课堂练习
 
-![image-20231015111442509](assets/image-20231015111442509.png?raw=true)
+![image-20231015111442509](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015111442509.png?raw=true)
 
 案例3 
 
-![image-20231015111546027](assets/image-20231015111546027.png?raw=true)
+![image-20231015111546027](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015111546027.png?raw=true)
 
 ```go
 package main
@@ -2215,19 +2215,19 @@ func main() {
 }
 ```
 
-![image-20231015111913755](assets/image-20231015111913755.png?raw=true)
+![image-20231015111913755](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015111913755.png?raw=true)
 
 ### 5.3.6嵌套分支
 
 在一个分支结构中又完整的嵌套了另一个完整的分支结构，里面的分支的结构称为内层分 支外面的分支结构称为外层分支。
 
-![image-20231015112025979](assets/image-20231015112025979.png?raw=true)
+![image-20231015112025979](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015112025979.png?raw=true)
 
 应用案例 
 
 参加百米运动会，如果用时 8 秒以内进入决赛，否则提示淘汰。并且根据性别提示进入男子组或女子组。【可以让学员先练习下】, 输入成绩和性别。
 
-![image-20231015112055925](assets/image-20231015112055925.png?raw=true)
+![image-20231015112055925](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015112055925.png?raw=true)
 
 应用案例 2
 
@@ -2241,7 +2241,7 @@ func main() {
 成人：40
 其他：20
 
-![image-20231015112348039](assets/image-20231015112348039.png?raw=true)
+![image-20231015112348039](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015112348039.png?raw=true)
 
 ## switch分支控制
 
@@ -2252,11 +2252,11 @@ func main() {
 
 ### 5.4.2基本语法
 
-![image-20231015112535732](assets/image-20231015112535732.png?raw=true)
+![image-20231015112535732](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015112535732.png?raw=true)
 
 ### 5.4.3switch的流程图
 
-![image-20231015112552518](assets/image-20231015112552518.png?raw=true)
+![image-20231015112552518](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015112552518.png?raw=true)
 
 对上图的说明和总结
 
@@ -2307,19 +2307,19 @@ func main() {
 
 1. case/switch 后是一个表达式( 即：常量值、变量、一个有返回值的函数等都可以)
 
-![image-20231015113205220](assets/image-20231015113205220.png?raw=true)
+![image-20231015113205220](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015113205220.png?raw=true)
 
 2. case 后的各个表达式的值的数据类型，必须和 switch 的表达式数据类型一致
 
-![image-20231015113218115](assets/image-20231015113218115.png?raw=true)
+![image-20231015113218115](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015113218115.png?raw=true)
 
 3. case 后面可以带多个表达式，使用逗号间隔。比如 case 表达式 1, 表达式 2 ...
 
-![image-20231015113243316](assets/image-20231015113243316.png?raw=true)
+![image-20231015113243316](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015113243316.png?raw=true)
 
 4. case 后面的表达式如果是常量值(字面量)，则要求不能重复
 
-![image-20231015113259473](assets/image-20231015113259473.png?raw=true)
+![image-20231015113259473](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015113259473.png?raw=true)
 
 5. case 后面不需要带 break , 程序匹配到一个 case 后就会执行对应的代码块，然后退出 switch，如 果一个都匹配不到，则执行 default
 6. default 语句不是必须的.
@@ -2358,33 +2358,33 @@ switch {
 }
 ```
 
-![image-20231015113835972](assets/image-20231015113835972.png?raw=true)
+![image-20231015113835972](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015113835972.png?raw=true)
 
 8. switch 后也可以直接声明/定义一个变量，分号结束，不推荐。 【案例演示】
 
-![image-20231015114007670](assets/image-20231015114007670.png?raw=true)
+![image-20231015114007670](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114007670.png?raw=true)
 
 9. switch 穿透-fallthrough ，如果在 case 语句块后增加 fallthrough ,则会继续执行下一个 case，也 叫 switch 穿透
 
-![image-20231015114107558](assets/image-20231015114107558.png?raw=true)
+![image-20231015114107558](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114107558.png?raw=true)
 
 9. Type Switch：switch 语句还可以被用于 type-switch 来判断某个 interface 变量中实际指向的 变量类型 【还没有学 interface, 先体验一把】
 
-![image-20231015114127163](assets/image-20231015114127163.png?raw=true)
+![image-20231015114127163](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114127163.png?raw=true)
 
 ### 5.4.6switch课堂练习
 
 1. 使用 switch 把小写类型的 char 型转为大写(键盘输入)。只转换 a, b, c, d, e. 其它的输出 “other”。
 
-![image-20231015114319989](assets/image-20231015114319989.png?raw=true)
+![image-20231015114319989](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114319989.png?raw=true)
 
 2. 对学生成绩大于 60 分的，输出“合格”。低于 60 分的，输出“不合格”。(注：输入的成绩不 能大于 100)
 
-![image-20231015114340697](assets/image-20231015114340697.png?raw=true)
+![image-20231015114340697](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114340697.png?raw=true)
 
 3. 根据用户指定月份，打印该月份所属的季节。3,4,5 春季 6,7,8 夏季 9,10,11 秋季 12, 1, 2
 
-![image-20231015114425625](assets/image-20231015114425625.png?raw=true)
+![image-20231015114425625](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231015114425625.png?raw=true)
 
 ### 5.4.7switch和if比较
 
@@ -2407,7 +2407,7 @@ switch {
 
 使用传统的方式实现
 
-![image-20231018142030520](assets/image-20231018142030520.png?raw=true)
+![image-20231018142030520](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018142030520.png?raw=true)
 
 for循环的快速入门
 
@@ -2423,7 +2423,7 @@ for i :=1; i<=10; i++ {
 }
 ```
 
-![image-20231018142704536](assets/image-20231018142704536.png?raw=true)
+![image-20231018142704536](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018142704536.png?raw=true)
 
 ### 5.5.3for循环的基本语法
 
@@ -2455,11 +2455,11 @@ for 循环变量初始化；循环条件；循环变量迭代 {
 
 #### 5.5.4for循环执行流程分析
 
-![image-20231018143902061](assets/image-20231018143902061.png?raw=true)
+![image-20231018143902061](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018143902061.png?raw=true)
 
 对照代码分析for循环的执行过程
 
-![image-20231018144125048](assets/image-20231018144125048.png?raw=true)
+![image-20231018144125048](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018144125048.png?raw=true)
 
 #### 5.5.5for循环的使用注意事项和细节讨论
 
@@ -2477,7 +2477,7 @@ for 循环变量初始化；循环条件；循环变量迭代 {
 
 3. 案例演示
 
-   ![image-20231018144951805](assets/image-20231018144951805.png?raw=true)
+   ![image-20231018144951805](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018144951805.png?raw=true)
 
    ```go
    //for循环的第二种写法
@@ -2488,7 +2488,7 @@ for 循环变量初始化；循环条件；循环变量迭代 {
    }
    ```
 
-   ![image-20231018145317530](assets/image-20231018145317530.png?raw=true)
+   ![image-20231018145317530](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018145317530.png?raw=true)
 
 3. for循环的第三种使用方式
 
@@ -2515,7 +2515,7 @@ for 循环变量初始化；循环条件；循环变量迭代 {
   }
   ```
 
-![image-20231018151546353](assets/image-20231018151546353.png?raw=true)
+![image-20231018151546353](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018151546353.png?raw=true)
 
 - 上面代码的细节讨论
 
@@ -2569,7 +2569,7 @@ for 循环变量初始化；循环条件；循环变量迭代 {
      }
      ```
 
-​			![image-20231018153412833](assets/image-20231018153412833.png?raw=true)
+​			![image-20231018153412833](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018153412833.png?raw=true)
 
 2. 完成下面的表达式输出，6是可变的。
 
@@ -2580,7 +2580,7 @@ for 循环变量初始化；循环条件；循环变量迭代 {
 	}
 ```
 
-![image-20231018154031768](assets/image-20231018154031768.png?raw=true)
+![image-20231018154031768](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018154031768.png?raw=true)
 
 ## 5.6 while和do..while的实现
 
@@ -2588,7 +2588,7 @@ Go语言没有while和do..while，这一点需要同学们注意一下，如果�
 
 ### 5.6.1while循环的实现
 
-![image-20231018154138226](assets/image-20231018154138226.png?raw=true)
+![image-20231018154138226](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018154138226.png?raw=true)
 
 - 说明上图
 
@@ -2613,11 +2613,11 @@ Go语言没有while和do..while，这一点需要同学们注意一下，如果�
 
   
 
-![image-20231018154437234](assets/image-20231018154437234.png?raw=true)
+![image-20231018154437234](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018154437234.png?raw=true)
 
 ### 5.6.2do..while的实现
 
-![image-20231018154510065](assets/image-20231018154510065.png?raw=true)
+![image-20231018154510065](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018154510065.png?raw=true)
 
 - 对上图说明
 
@@ -2641,7 +2641,7 @@ Go语言没有while和do..while，这一点需要同学们注意一下，如果�
 }
 ```
 
-![image-20231018154953166](assets/image-20231018154953166.png?raw=true)
+![image-20231018154953166](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018154953166.png?raw=true)
 
 ## 5.7 多重循环控制（重点，难点）
 
@@ -2695,7 +2695,7 @@ Go语言没有while和do..while，这一点需要同学们注意一下，如果�
    }	
    ```
 
-   ![image-20231018161907264](assets/image-20231018161907264.png?raw=true)
+   ![image-20231018161907264](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018161907264.png?raw=true)
 
 3. 打印金字塔
 
@@ -2722,7 +2722,7 @@ func main() {
 }
 ```
 
-![image-20231018171158758](assets/image-20231018171158758.png?raw=true)
+![image-20231018171158758](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018171158758.png?raw=true)
 
 - 空心金字塔
 
@@ -2749,7 +2749,7 @@ func main() {
 }
 ```
 
-![image-20231018171220918](assets/image-20231018171220918.png?raw=true)
+![image-20231018171220918](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018171220918.png?raw=true)
 
 4. 打印九九乘法表
 
@@ -2815,13 +2815,13 @@ break ……
 
 ### 5.8.5以for循环使用break为例
 
-![image-20231018210853895](assets/image-20231018210853895.png?raw=true)
+![image-20231018210853895](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018210853895.png?raw=true)
 
 ### 5.8.6break的注意事项和使用细节
 
 1. break 语句出现在多层嵌套的语句块中时，可以通过标签指明要终止的是哪一层语句块
 
-![image-20231018210948167](assets/image-20231018210948167.png?raw=true)
+![image-20231018210948167](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018210948167.png?raw=true)
 
 3. 对上面案例的说明
    - break 默认会跳出最近的 for 循环
@@ -2875,7 +2875,7 @@ for i :=1 ;i <= 3 ;i++ {
 }
 ```
 
-![image-20231018212032046](assets/image-20231018212032046.png?raw=true)
+![image-20231018212032046](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018212032046.png?raw=true)
 
 ### 5.9 跳转控制语句-continue
 
@@ -2893,15 +2893,15 @@ continue ……
 
 ### 5.9.3continue流程图
 
-![image-20231018213327332](assets/image-20231018213327332.png?raw=true)
+![image-20231018213327332](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018213327332.png?raw=true)
 
 ### 5.9.4案例分析continue的使用
 
-![image-20231018213608409](assets/image-20231018213608409.png?raw=true)
+![image-20231018213608409](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018213608409.png?raw=true)
 
 ### 5.9.5continue的课堂练习
 
-![image-20231018213649092](assets/image-20231018213649092.png?raw=true)
+![image-20231018213649092](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018213649092.png?raw=true)
 
 ```go
 package main
@@ -2923,7 +2923,7 @@ for i := 1; i <= 100; i++ {
 }
 ```
 
-![image-20231018213959310](assets/image-20231018213959310.png?raw=true)
+![image-20231018213959310](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018213959310.png?raw=true)
 
 - 从键盘读入个数不确定的整数，并判断读入的正数和负数的个数，输入为 0 时结束程序
 
@@ -2992,7 +2992,7 @@ label:statement
 
 ### 5.10.3goto的流程图
 
-![image-20231018214700730](assets/image-20231018214700730.png?raw=true)
+![image-20231018214700730](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018214700730.png?raw=true)
 
 ### 5.10.4快速入门案例
 
@@ -3028,7 +3028,7 @@ func main() {
 
 ```
 
-![image-20231018215434771](assets/image-20231018215434771.png?raw=true)
+![image-20231018215434771](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018215434771.png?raw=true)
 
 ## 5.11跳转控制语句-retrun
 
@@ -3061,7 +3061,7 @@ E:\goproject\src\gocode\gw\project05\damo14>go run main.go
 哇哇哇 2
 ```
 
-![image-20231018215730857](assets/image-20231018215730857.png?raw=true)
+![image-20231018215730857](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018215730857.png?raw=true)
 
 说明：
 
@@ -3077,7 +3077,7 @@ E:\goproject\src\gocode\gw\project05\damo14>go run main.go
 
 输出两个输出，在输入一个运算符得到结果
 
-![image-20231018221421456](assets/image-20231018221421456.png?raw=true)
+![image-20231018221421456](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018221421456.png?raw=true)
 
 分析上面代码问题
 
@@ -3093,7 +3093,7 @@ E:\goproject\src\gocode\gw\project05\damo14>go run main.go
 
 ## 6.3函数的基本语法
 
-![image-20231018221721608](assets/image-20231018221735095.png?raw=true)
+![image-20231018221721608](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018221735095.png?raw=true)
 
 ## 6.4 快速入门案例
 
@@ -3145,9 +3145,9 @@ func main(){
 
 包的本质实际上就是创建不同的文件夹，来存放程序文件。 画图说明一下包的原理
 
-![image-20231018225625569](assets/image-20231018225625569.png?raw=true)
+![image-20231018225625569](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018225625569.png?raw=true)
 
-![image-20231018225639141](assets/image-20231018225639141.png?raw=true)
+![image-20231018225639141](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018225639141.png?raw=true)
 
 ## 6.7包的基本概念
 
@@ -3170,7 +3170,7 @@ func main(){
 
 包快速入门-Go 相互调用函数，我们将 func Cal 定义到文件 utils.go , 将 utils.go 放到一个包中，当 其它文件需要使用到 utils.go 的方法时，可以 import 该包，就可以使用了. 【为演示：新建项目目录结 构】
 
-![image-20231018230119583](assets/image-20231018230119583.png?raw=true)
+![image-20231018230119583](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018230119583.png?raw=true)
 
 1. utils.go文件
 
@@ -3199,7 +3199,7 @@ func main(){
 
    
 
-![image-20231018230136308](assets/image-20231018230136308.png?raw=true)
+![image-20231018230136308](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018230136308.png?raw=true)
 
 2.main.go文件
 
@@ -3226,7 +3226,7 @@ func main(){
 }
 ```
 
-![image-20231018231146694](assets/image-20231018231146694.png?raw=true)
+![image-20231018231146694](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018231146694.png?raw=true)
 
 ## 6.11包使用的注意事项和细节讨论
 
@@ -3249,28 +3249,28 @@ func main(){
 
 3. 为了让其它包的文件，可以访问到本包的函数，则该函数名的首字母需要大写，类似其它语言 的 
 
-![image-20231018231351077](assets/image-20231018231351077.png?raw=true)
+![image-20231018231351077](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018231351077.png?raw=true)
 
 4. 在访问其它包函数，变量时，其语法是 包名.函数名， 比如这里的 main.go 文件中
 
-![image-20231018231500903](assets/image-20231018231500903.png?raw=true)
+![image-20231018231500903](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018231500903.png?raw=true)
 
 5. 如果包名较长，Go 支持给包取别名， 注意细节：取别名后，原来的包名就不能使用了
 
-![image-20231018231609456](assets/image-20231018231609456.png?raw=true)
+![image-20231018231609456](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018231609456.png?raw=true)
 
 说明: 如果给包取了别名，则需要使用别名来访问该包的函数和变量。
 
 6. 在同一包下，不能有相同的函数名（也不能有相同的全局变量名），否则报重复定义
 7. 如果你要编译成一个可执行程序文件，就需要将这个包声明为 main , 即 package main .这个就 是一个语法规范，如果你是写一个库 ，包名可以自定义
 
-![image-20231018231636948](assets/image-20231018231636948.png?raw=true)
+![image-20231018231636948](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018231636948.png?raw=true)
 
 ## 6.12函数的调用机制
 
 ### 6.12.1 通俗易懂的方式的理解
 
-![image-20231018233928345](assets/image-20231018233928345.png?raw=true)
+![image-20231018233928345](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018233928345.png?raw=true)
 
 ### 6.12.2 函数-调用过程
 
@@ -3296,9 +3296,9 @@ func main () {
 }
 ```
 
-![image-20231018234217697](assets/image-20231018234217697.png?raw=true)
+![image-20231018234217697](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018234217697.png?raw=true)
 
-![image-20231018234243203](assets/image-20231018234243203.png?raw=true)
+![image-20231018234243203](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018234243203.png?raw=true)
 
 - 在调用一个函数时，会给该函数分配一个新的空间，编译器会通过自身的处理让这个新的空间 和其它的栈的空间区分开来
 
@@ -3333,13 +3333,13 @@ func main () {
 }
 ```
 
-![image-20231018234701154](assets/image-20231018234701154.png?raw=true)
+![image-20231018234701154](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018234701154.png?raw=true)
 
 ## 6.12.3 return语句
 
 - 基本语法和说明
 
-![image-20231018234731546](assets/image-20231018234731546.png?raw=true)
+![image-20231018234731546](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018234731546.png?raw=true)
 
 - 案例演示
 
@@ -3379,12 +3379,12 @@ func main () {
   }
   ```
 
-  ![image-20231018235051538](assets/image-20231018235051538.png?raw=true)
+  ![image-20231018235051538](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018235051538.png?raw=true)
 
 - 案例演示2
   - 一个细节说明: 希望忽略某个返回值，则使用 _ 符号表示占位忽略
 
-![image-20231018235505585](assets/image-20231018235505585.png?raw=true)
+![image-20231018235505585](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231018235505585.png?raw=true)
 
 ## 6.13 函数的递归调用
 
@@ -3394,7 +3394,7 @@ func main () {
 
 ### 6.13.2递归调用快速入门
 
-![image-20231019085120247](assets/image-20231019085120247.png?raw=true)
+![image-20231019085120247](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085120247.png?raw=true)
 
 ```go
 package main
@@ -3415,7 +3415,7 @@ func main () {
 }
 ```
 
-![image-20231019085138878](assets/image-20231019085138878.png?raw=true)
+![image-20231019085138878](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085138878.png?raw=true)
 
 ### 6.13.3递归调用的总结
 
@@ -3435,14 +3435,14 @@ func main () {
 2) 当 n >= 2, 返回 前面两个数的和 f(n-1) + f(n-2)
 代码
 
-![image-20231019085434310](assets/image-20231019085434310.png?raw=true)
+![image-20231019085434310](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085434310.png?raw=true)
 
 题 2：求函数值
 已知 f(1)=3; f(n) = 2*f(n-1)+1;
 请使用递归的思想编程，求出 f(n)的值?
 思路：直接使用给出的表达式即可完成
 
-![image-20231019085500305](assets/image-20231019085500305.png?raw=true)
+![image-20231019085500305](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085500305.png?raw=true)
 
 练习题 3
 题 3：猴子吃桃子问题
@@ -3454,9 +3454,9 @@ func main () {
 3) 规律: 第 n 天的桃子数据 peach(n) = (peach(n+1) + 1) * 2
 代码:
 
-![image-20231019085519466](assets/image-20231019085519466.png?raw=true)
+![image-20231019085519466](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085519466.png?raw=true)
 
-![image-20231019085529630](assets/image-20231019085529630.png?raw=true)
+![image-20231019085529630](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085529630.png?raw=true)
 
 ## 6.14函数使用的注意事项和细节讨论
 
@@ -3465,29 +3465,29 @@ func main () {
 3. 函数的命名遵循标识符命名规范，首字母不能是数字，首字母大写该函数可以被本包文件和其 它包文件使用，类似 public , 首字母小写，只能被本包文件使用，其它包文件不能使用，类似 privat
 4. 函数中的变量是局部的，函数外不生效【案例说明】
 
-![image-20231019085713587](assets/image-20231019085713587.png?raw=true)
+![image-20231019085713587](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085713587.png?raw=true)
 
 5. 基本数据类型和数组默认都是值传递的，即进行值拷贝。在函数内修改，不会影响到原来的值。
 
-![image-20231019085738471](assets/image-20231019085738471.png?raw=true)
+![image-20231019085738471](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085738471.png?raw=true)
 
 6. 如果希望函数内的变量能修改函数外的变量(指的是默认以值传递的方式的数据类型)，可以传 入变量的地址&，函数内以指针的方式操作变量。从效果上看类似引用 。
 
-![image-20231019085758492](assets/image-20231019085758492.png?raw=true)
+![image-20231019085758492](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085758492.png?raw=true)
 
 7. Go 函数不支持函数重载
 
-![image-20231019085818904](assets/image-20231019085818904.png?raw=true)
+![image-20231019085818904](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085818904.png?raw=true)
 
 8. 在 Go 中，函数也是一种数据类型，可以赋值给一个变量，则该变量就是一个函数类型的变量 了。通过该变量可以对函数调用
 
-![image-20231019085854441](assets/image-20231019085854441.png?raw=true)
+![image-20231019085854441](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085854441.png?raw=true)
 
 9. 函数既然是一种数据类型，因此在 Go 中，函数可以作为形参，并且调
 
-![image-20231019085913131](assets/image-20231019085913131.png?raw=true)
+![image-20231019085913131](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019085913131.png?raw=true)
 
-![image-20231019110723554](assets/image-20231019110723554.png?raw=true)
+![image-20231019110723554](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019110723554.png?raw=true)
 
 10. 为了简化数据类型定义，Go支持自定义数据类型
 
@@ -3513,11 +3513,11 @@ func main () {
 }
 ```
 
-![image-20231019111150629](assets/image-20231019111150629.png?raw=true)
+![image-20231019111150629](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019111150629.png?raw=true)
 
-![image-20231019111200640](assets/image-20231019111200640.png?raw=true)
+![image-20231019111200640](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019111200640.png?raw=true)
 
-![image-20231019164500674](assets/image-20231019164500674.png?raw=true)
+![image-20231019164500674](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019164500674.png?raw=true)
 
 11. 支持函数返回值命名
 
@@ -3538,25 +3538,25 @@ func main () {
 }
 ```
 
-![image-20231019164826033](assets/image-20231019164826033.png?raw=true)
+![image-20231019164826033](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019164826033.png?raw=true)
 
 12. 使用_标识符，或略返回值
 
-![image-20231019164913639](assets/image-20231019164913639.png?raw=true)
+![image-20231019164913639](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019164913639.png?raw=true)
 
 13. Go支持不可变参数
 
-![image-20231019164930687](assets/image-20231019164930687.png?raw=true)
+![image-20231019164930687](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019164930687.png?raw=true)
 
-![image-20231019165624123](assets/image-20231019165624123.png?raw=true)
+![image-20231019165624123](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019165624123.png?raw=true)
 
-![image-20231019165632376](assets/image-20231019165632376.png?raw=true)
+![image-20231019165632376](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019165632376.png?raw=true)
 
 ## 6.15函数的课堂练习
 
-![image-20231019165655017](assets/image-20231019165655017.png?raw=true)
+![image-20231019165655017](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019165655017.png?raw=true)
 
-![image-20231019165707591](assets/image-20231019165707591.png?raw=true)
+![image-20231019165707591](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019165707591.png?raw=true)
 
 ```go
 package main
@@ -3576,7 +3576,7 @@ func main() {
 }
 ```
 
-![image-20231019170104310](assets/image-20231019170104310.png?raw=true)
+![image-20231019170104310](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019170104310.png?raw=true)
 
 ## 6.16 init函数
 
@@ -3599,7 +3599,7 @@ func init () {
 }
 ```
 
-![image-20231019170431698](assets/image-20231019170431698.png?raw=true)
+![image-20231019170431698](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019170431698.png?raw=true)
 
 ### 6.16.3init函数的注意事项和细节
 
@@ -3625,7 +3625,7 @@ func main(){
 }
 ```
 
-![image-20231019170933019](assets/image-20231019170933019.png?raw=true)
+![image-20231019170933019](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019170933019.png?raw=true)
 
 2, init函数最主要的作用，就是完成一些初始化工作。
 
@@ -3641,7 +3641,7 @@ func init () {
 }
 ```
 
-![image-20231019171006656](assets/image-20231019171006656.png?raw=true)
+![image-20231019171006656](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019171006656.png?raw=true)
 
 ```go
 package main
@@ -3666,7 +3666,7 @@ func main(){
 }
 ```
 
-![image-20231019171633362](assets/image-20231019171633362.png?raw=true)
+![image-20231019171633362](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019171633362.png?raw=true)
 
 3. 细节说明: 面试题：案例如果 main.go 和 utils.go 都含有 变量定义，init 函数时，执行的流程 又是怎么样的呢？
 
@@ -3696,7 +3696,7 @@ func main(){
   }
   ```
 
-![image-20231019172057728](assets/image-20231019172057728.png?raw=true)
+![image-20231019172057728](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019172057728.png?raw=true)
 
 ### 6.17.3 匿名函数使用方式2
 
@@ -3721,7 +3721,7 @@ func main () {
 }
 ```
 
-![image-20231019172321087](assets/image-20231019172321087.png?raw=true)
+![image-20231019172321087](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019172321087.png?raw=true)
 
 ### 6.17.4全局匿名函数
 
@@ -3827,7 +3827,7 @@ E:\goproject\src\gocode\gw\project06\damo10>go run main.go
 -  AddUpper 是一个函数，返回的数据类型是 fun (int) in
 - 闭包的说明
 
-![image-20231019210056466](assets/image-20231019210056466.png?raw=true)
+![image-20231019210056466](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231019210056466.png?raw=true)
 
 返回的是一个匿名函数, 但是这个匿名函数引用到函数外的 n ,因此这个匿名函数就和 n 形成一 个整体，构成闭包。
 
@@ -3932,7 +3932,7 @@ func main() {
 }
 ```
 
-![image-20231020093039781](assets/image-20231020093039781.png?raw=true)
+![image-20231020093039781](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020093039781.png?raw=true)
 
 ### 6.19.3defer的注意事项和细节
 
@@ -3964,13 +3964,13 @@ func main() {
 }
 ```
 
-![image-20231020094715045](assets/image-20231020094715045.png?raw=true)
+![image-20231020094715045](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020094715045.png?raw=true)
 
 ### 6.19.4defer的最佳实践
 
 - defer 最主要的价值是在，当函数执行完毕后，可以及时的释放函数创建的资源。看下模拟代码。。
 
-![image-20231020094816175](assets/image-20231020094816175.png?raw=true)
+![image-20231020094816175](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020094816175.png?raw=true)
 
 1. 在 golang 编程中的通常做法是，创建资源后，比如(打开了文件，获取了数据库的链接，或者是 锁资源)， 可以执行 defer file.Close() defer connect.Close()
 2. 在 defer 后，可以继续使用创建资源
@@ -3997,17 +3997,17 @@ func main() {
 
 ### 6.20.4值传递和引用传递使用特点
 
-![image-20231020095356468](assets/image-20231020095356468.png?raw=true)
+![image-20231020095356468](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020095356468.png?raw=true)
 
 3. 如果希望函数内的变量能修改函数外的变量，可以传入变量的地址&，函数内以指针的方式操 作变量。从效果上看类似引用 。这个案例在前面详解函数使用注意事项的
 
-![image-20231020100300664](assets/image-20231020100300664.png?raw=true)
+![image-20231020100300664](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020100300664.png?raw=true)
 
 ## 6.21变量作用域
 
 1. 函数内部声明/定义的变量叫局部变量，作用域仅限于函数内部
 
-![image-20231020100541007](assets/image-20231020100541007.png?raw=true)
+![image-20231020100541007](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020100541007.png?raw=true)
 
 2. 函数外部声明/定义的变量叫全局变量，作用域在整个包都有效，如果其首字母为大写，则作用 域在整个程序有效
 
@@ -4034,11 +4034,11 @@ func main() {
 }
 ```
 
-![image-20231020100857555](assets/image-20231020100857555.png?raw=true)
+![image-20231020100857555](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020100857555.png?raw=true)
 
 3. 如果变量是在一个代码块，比如 for / if 中，那么这个变量的的作用域就在该代码块
 
-![image-20231020103138400](assets/image-20231020103138400.png?raw=true)
+![image-20231020103138400](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020103138400.png?raw=true)
 
 ### 6.21.1变量作用域的课堂练习
 
@@ -4065,9 +4065,9 @@ func main() {
 }
 ```
 
-![image-20231020104003673](assets/image-20231020104003673.png?raw=true)
+![image-20231020104003673](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020104003673.png?raw=true)
 
-![image-20231020104142305](assets/image-20231020104142305.png?raw=true)
+![image-20231020104142305](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020104142305.png?raw=true)
 
 ## 6.22函数课堂练习（综合）
 
@@ -4153,17 +4153,17 @@ func main() {
 }
 ```
 
-![image-20231020110027939](assets/image-20231020110027939.png?raw=true)
+![image-20231020110027939](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020110027939.png?raw=true)
 
 3. 编写函数,对给定的一个二维数组(3×3)转置，这个题讲数组的时候再完成
 
-![image-20231020110051569](assets/image-20231020110051569.png?raw=true)
+![image-20231020110051569](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020110051569.png?raw=true)
 
 ## 6.23字符串常用的系统函数
 
 - 说明：字符串在我们程序开发中，使用的是非常多的，常用的函数需要掌握【看手册或官方指南】
 
-1. 统计字符串的长度，按字节 `len(str)`![image-20231020142926383](assets/image-20231020142926383.png?raw=true)
+1. 统计字符串的长度，按字节 `len(str)`![image-20231020142926383](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020142926383.png?raw=true)
 
    ```go
    	//统计字符串的长度，按字节len(str)
@@ -4479,7 +4479,7 @@ fmt.Printf("d1=%v\n",d1)
 
 1. 时间和日期相关函数，需要导入time包
 
-![image-20231020161438809](assets/image-20231020161438809.png?raw=true)
+![image-20231020161438809](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020161438809.png?raw=true)
 
 2. time.Time类型，用于表示时间
 
@@ -4499,7 +4499,7 @@ func main (){
 }
 ```
 
-![image-20231020161652760](assets/image-20231020161652760.png?raw=true)
+![image-20231020161652760](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020161652760.png?raw=true)
 
 4. 格式化日期和时间
 
@@ -4525,7 +4525,7 @@ func main (){
 	fmt.Printf(dateStr)
 ```
 
-![image-20231020162800333](assets/image-20231020162800333.png?raw=true)
+![image-20231020162800333](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020162800333.png?raw=true)
 
 方式二：使用time.Format()方法完成:
 
@@ -4579,11 +4579,11 @@ func main (){
 }
 ```
 
-![image-20231020163214802](assets/image-20231020163214802.png?raw=true)
+![image-20231020163214802](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020163214802.png?raw=true)
 
 5. 时间的常量
 
-![image-20231020163231496](assets/image-20231020163231496.png?raw=true)
+![image-20231020163231496](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020163231496.png?raw=true)
 
 - 常量的作用:在程序中可用于获取指定时间单位的时间，比如想得到 100 毫秒 100 * time. Millisecond
 
@@ -4603,7 +4603,7 @@ i := 0
 
 7. time 的 Unix 和 UnixNano 的方
 
-![image-20231020164505030](assets/image-20231020164505030.png?raw=true)
+![image-20231020164505030](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020164505030.png?raw=true)
 
 ```go
 //unix和unixNano的使用
@@ -4636,7 +4636,7 @@ func main () {
 }
 ```
 
-![image-20231020170354815](assets/image-20231020170354815.png?raw=true)
+![image-20231020170354815](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020170354815.png?raw=true)
 
 ## 6.25内置函数
 
@@ -4673,7 +4673,7 @@ fmt.Println()
 
 上面代码对应的内存分析图
 
-![image-20231020172014226](assets/image-20231020172014226.png?raw=true)
+![image-20231020172014226](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020172014226.png?raw=true)
 
 3. make:用来分配内存，主要用来分配引用类型，比如 channel、map、slice。这个我们后面讲解。
 
@@ -4701,7 +4701,7 @@ func main (){
 }
 ```
 
-![image-20231020172334070](assets/image-20231020172334070.png?raw=true)
+![image-20231020172334070](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020172334070.png?raw=true)
 
 1. 在默认情况下，当发生错误后(panic),程序就会退出（崩溃）
 2. 如果我们希望：当发生错误后，可以捕获到错误，并进行处理，保证程序可以继续执行。还可 以在捕获到错误后，给管理员一个提示(邮件,短信。。。）
@@ -4744,7 +4744,7 @@ func main () {
 }
 ```
 
-![image-20231020173542985](assets/image-20231020173542985.png?raw=true)
+![image-20231020173542985](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020173542985.png?raw=true)
 
 ### 6.26.4错误处理的好处
 
@@ -4752,7 +4752,7 @@ func main () {
 
   案例演示：
 
-![image-20231020173714309](assets/image-20231020173714309.png?raw=true)
+![image-20231020173714309](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020173714309.png?raw=true)
 
 ### 6.26.5自定义错误
 
@@ -4799,7 +4799,7 @@ func main (){
 }
 ```
 
-![image-20231020175152589](assets/image-20231020175152589.png?raw=true)
+![image-20231020175152589](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231020175152589.png?raw=true)
 
 # 第七章 数字与切片
 
@@ -4809,7 +4809,7 @@ func main (){
   - 一个养鸡场有 6 只鸡，它们的体重分别是 3kg,5kg,1kg,3.4kg,2kg,50kg 。请问这六只鸡的总体重是 多少?平均体重是多少? 请你编一个程序。=》数组
 
 - 传统的方法解决
-  - ![image-20231114173125749](assets/image-20231114173125749.png?raw=true)
+  - ![image-20231114173125749](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114173125749.png?raw=true)
 
 - 对上面代码的说明
   1) 使用传统的方法不利于数据的管理和维护
@@ -4869,7 +4869,7 @@ E:\goproject\src\gocode\gw\project07\damo01>go run main.go
   - 赋初值 a[0] = 1 a [1] = 30....
 - **数组在内存布局(重要)**
 
-![image-20231114204655251](assets/image-20231114204655251.png?raw=true)
+![image-20231114204655251](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114204655251.png?raw=true)
 
 上图总结:
 
@@ -4877,7 +4877,7 @@ E:\goproject\src\gocode\gw\project07\damo01>go run main.go
 2. 数组的第一个元素的地址，就是数组的首地址
 3. 数组的各个元素的地址间隔是依据数组的类型决定，比如 int64 -> 8 int32->4...
 
-![image-20231114204839364](assets/image-20231114204839364.png?raw=true)
+![image-20231114204839364](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114204839364.png?raw=true)
 
 ```go
 package main
@@ -4928,7 +4928,7 @@ for i :=0;i <len (score);i++{
 
 四种初始化数组的方式
 
-![image-20231114222828547](assets/image-20231114222828547.png?raw=true)
+![image-20231114222828547](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114222828547.png?raw=true)
 
 ```go
 package main
@@ -4973,11 +4973,11 @@ strArr05= [jack tom mary]
 
 for-range的基本语法
 
-![image-20231114223056520](assets/image-20231114223056520.png?raw=true)
+![image-20231114223056520](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114223056520.png?raw=true)
 
 for-range案例
 
-![image-20231114223836778](assets/image-20231114223836778.png?raw=true)
+![image-20231114223836778](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114223836778.png?raw=true)
 
 ```go
 package main
@@ -5007,7 +5007,7 @@ i=2 v=卢俊义
 
 ## 7.7数组使用的注意事项和细节
 
-1. 数组是多个相同类型数据的组合,一个数组一旦声明/定义了,其长度是固定的, 不能动态变化![image-20231114224132500](assets/image-20231114224132500.png?raw=true)
+1. 数组是多个相同类型数据的组合,一个数组一旦声明/定义了,其长度是固定的, 不能动态变化![image-20231114224132500](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114224132500.png?raw=true)
 
 ```go
 package main
@@ -5034,7 +5034,7 @@ fmt.Println(arr01)
    - 字符串数组：默认值为""
    - bool数组：默认值为false
 
-![image-20231114224842925](assets/image-20231114224842925.png?raw=true)
+![image-20231114224842925](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114224842925.png?raw=true)
 
 ```go
 var arr02 [3]float32
@@ -5053,27 +5053,27 @@ arr02=[0 0 0] arr03=[  ] arr04=[false false false]
    3. 使用数组
 6. 数组的下标是从0开始的
 
-![image-20231114225025021](assets/image-20231114225025021.png?raw=true)
+![image-20231114225025021](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114225025021.png?raw=true)
 
 7. 数组下标必须在指定范围内使用，否则报 panic：数组越界，比如 var arr [5]int 则有效下标为 0-4
 
 8. Go 的数组属值类型， 在默认情况下是值传递， 因此会进行值拷贝。数组间不会相互影
 
-   ![image-20231114225437122](assets/image-20231114225437122.png?raw=true)
+   ![image-20231114225437122](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114225437122.png?raw=true)
 
 9. 如想在其它函数中，去修改原来的数组，可以使用引用传递(指针方式)
 
-![image-20231114225446674](assets/image-20231114225446674.png?raw=true)
+![image-20231114225446674](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114225446674.png?raw=true)
 
 10. 长度是数组类型的一部分，在传递函数参数时 需要考虑数组的长度，看下面案例
 
-    ![image-20231114225529389](assets/image-20231114225529389.png?raw=true)
+    ![image-20231114225529389](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114225529389.png?raw=true)
 
 ## 7.8 数组的应用案例
 
 1. ) 创建一个 byte 类型的 26 个元素的数组，分别 放置'A'-'Z‘。使用 for 循环访问所有元素并打印 出来。提示：字符数据运算 'A'+1 -> 'B'
 
-   ![image-20231114230522178](assets/image-20231114230522178.png?raw=true)
+   ![image-20231114230522178](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114230522178.png?raw=true)
 
 ```go
 package main
@@ -5104,7 +5104,7 @@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 
 2. 请求出一个数组的最大值，并得到对应的下标。
 
-   ![image-20231114233522054](assets/image-20231114233522054.png?raw=true)
+   ![image-20231114233522054](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231114233522054.png?raw=true)
 
 ```go
 package main
@@ -5194,7 +5194,7 @@ slice 的容量= 4
 
 - 画出前面的切片内存布局
 
-  ![image-20231115094735344](assets/image-20231115094735344.png?raw=true)
+  ![image-20231115094735344](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115094735344.png?raw=true)
 
 对上面的分析图总结
 
@@ -5217,7 +5217,7 @@ slice 的容量= 4
 - 方式1
   - 第一种方式：定义一个切片，然后让切片去引用一个已经创建好的数组，比如前面的案例就是这样的。
 
-![image-20231115095301446](assets/image-20231115095301446.png?raw=true)
+![image-20231115095301446](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115095301446.png?raw=true)
 
 - 方式2
   - 第二种方式：通过make来创建切片
@@ -5226,7 +5226,7 @@ slice 的容量= 4
 
 案例演示：
 
-![image-20231115095607426](assets/image-20231115095607426.png?raw=true)
+![image-20231115095607426](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115095607426.png?raw=true)
 
 对上面代码的小结：
 
@@ -5239,11 +5239,11 @@ slice 的容量= 4
 
 案例演示：
 
-![image-20231115104127752](assets/image-20231115104127752.png?raw=true)
+![image-20231115104127752](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115104127752.png?raw=true)
 
 **方式1和方式2的区别**
 
-![image-20231115104156100](assets/image-20231115104156100.png?raw=true)
+![image-20231115104156100](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115104156100.png?raw=true)
 
 ## 7.14切片的遍历
 
@@ -5318,9 +5318,9 @@ c 40
 
 5. 切片可以继续切片
 
-   ![image-20231115111015402](assets/image-20231115111015402.png?raw=true)
+   ![image-20231115111015402](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115111015402.png?raw=true)
 
-6. 用 append 内置函数，可以对切片进行动态追加![image-20231115111719580](assets/image-20231115111719580.png?raw=true)
+6. 用 append 内置函数，可以对切片进行动态追加![image-20231115111719580](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115111719580.png?raw=true)
 
    ```go
    package main
@@ -5346,7 +5346,7 @@ c 40
    12
    ```
 
-   ![image-20231115111811372](assets/image-20231115111811372.png?raw=true)
+   ![image-20231115111811372](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115111811372.png?raw=true)
 
 **切片 append 操作的底层原理分析:**
 
@@ -5393,7 +5393,7 @@ E:\goproject\src\gocode\gw\project07\damo13>go run main.go
 
 8. 拷贝注意事项
 
-![image-20231115112846911](assets/image-20231115112846911.png?raw=true)
+![image-20231115112846911](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115112846911.png?raw=true)
 
 ## 7.16string和slice
 
@@ -5418,13 +5418,13 @@ E:\goproject\src\gocode\gw\project07\damo13>go run main.go
 
 2. string和七篇在内存的形式，以“abcd”画出内存示意图
 
-   ![image-20231115113202685](assets/image-20231115113202685.png?raw=true)
+   ![image-20231115113202685](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115113202685.png?raw=true)
 
 3. string是不可变的，也就是说不能通过str[0]='z'方式来修改字符串
 
-   ![image-20231115113906700](assets/image-20231115113906700.png?raw=true)
+   ![image-20231115113906700](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115113906700.png?raw=true)
 
-4. 如果需要修改字符串，可以先将string->[]byte /或则[]rune ->修改 ->重新转成string![image-20231115114854018](assets/image-20231115114854018.png?raw=true)
+4. 如果需要修改字符串，可以先将string->[]byte /或则[]rune ->修改 ->重新转成string![image-20231115114854018](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115114854018.png?raw=true)
 
 ```go
 package main
@@ -5507,11 +5507,11 @@ E:\goproject\src\gocode\gw\project07\damo15>go run main.go
 
 ### 8.1排序的基本介绍
 
-![image-20231115141913400](assets/image-20231115141913400.png?raw=true)
+![image-20231115141913400](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115141913400.png?raw=true)
 
 ### 8.2冒泡排序的思路分析
 
-![image-20231115142417333](assets/image-20231115142417333.png?raw=true)
+![image-20231115142417333](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115142417333.png?raw=true)
 
 ### 8.3冒泡排序实现
 
@@ -5635,7 +5635,7 @@ E:\goproject\src\gocode\gw\project08\damo01>go run main.go
 
   二分查找的思路分析：
 
-  ![image-20231115161351940](assets/image-20231115161351940.png?raw=true)
+  ![image-20231115161351940](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115161351940.png?raw=true)
 
 ```go
 package main
@@ -5694,7 +5694,7 @@ E:\goproject\src\gocode\gw\project08\damo03>go run main.go
 
 比如我们开发了一个五子棋游戏，棋盘就是需要二维数组表示。
 
-![image-20231115164449186](assets/image-20231115164449186.png?raw=true)
+![image-20231115164449186](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115164449186.png?raw=true)
 
 ## 8.8二维数组快速入门
 
@@ -5758,7 +5758,7 @@ E:\goproject\src\gocode\gw\project08\damo04>go run main.go
 
 - 二维数组再内存的存在形式(重点)
 
-  ![image-20231115170032551](assets/image-20231115170032551.png?raw=true)
+  ![image-20231115170032551](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115170032551.png?raw=true)
 
 ## 8.10使用方式2：直接初始化
 
@@ -5975,21 +5975,21 @@ map[no1:宋江 no2:吴用 no3:卢俊义 no4:公孙胜]
   - map的key-value是无序
   - make内置函数数目
 
-![image-20231115212739774](assets/image-20231115212739774.png?raw=true)
+![image-20231115212739774](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115212739774.png?raw=true)
 
 ## 9.3map的使用
 
 - 方式1
 
-![image-20231115214401091](assets/image-20231115214401091.png?raw=true)
+![image-20231115214401091](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115214401091.png?raw=true)
 
 - 方式2
 
-![image-20231115214456840](assets/image-20231115214456840.png?raw=true)
+![image-20231115214456840](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115214456840.png?raw=true)
 
 - 方式3
 
-  ![image-20231115214921279](assets/image-20231115214921279.png?raw=true)
+  ![image-20231115214921279](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115214921279.png?raw=true)
 
 ```go
 package main
@@ -6060,11 +6060,11 @@ map[address:北京长安街 age:21 name:李四 sex:女]
 
 - delete(map,"key"),delete是一个内置函数，如果key存在，就是删除该key-value，如果key不存在，不操作，但是也不会报错
 
-  ![image-20231115225715391](assets/image-20231115225715391.png?raw=true)
+  ![image-20231115225715391](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115225715391.png?raw=true)
 
 案例演示：
 
-![image-20231115230656599](assets/image-20231115230656599.png?raw=true)
+![image-20231115230656599](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115230656599.png?raw=true)
 
 ```go
 package main
@@ -6215,7 +6215,7 @@ map[]
 
 ### map的长度
 
-![image-20231115232056428](assets/image-20231115232056428.png?raw=true)
+![image-20231115232056428](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231115232056428.png?raw=true)
 
 ## 9.6map切片
 
@@ -6456,7 +6456,7 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
 
 ### 10.1.1看一个问题
 
-![image-20231116111307228](assets/image-20231116111307228.png?raw=true)
+![image-20231116111307228](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116111307228.png?raw=true)
 
 ### 10.1.2使用现有技术解决
 
@@ -6464,13 +6464,13 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
 
 - 代码演示：
 
-  ![image-20231116111449515](assets/image-20231116111449515.png?raw=true)
+  ![image-20231116111449515](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116111449515.png?raw=true)
 
 2. 使用数组解决
 
 - 代码演示：
 
-  ![image-20231116111523079](assets/image-20231116111523079.png?raw=true)
+  ![image-20231116111523079](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116111523079.png?raw=true)
 
 ### 10.1.3现有技术解决的缺点分析
 
@@ -6480,7 +6480,7 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
 
 ### 10.1.14一个程序就是一个世界，有很多对象(变量)
 
-![image-20231116111824597](assets/image-20231116111824597.png?raw=true)
+![image-20231116111824597](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116111824597.png?raw=true)
 
 ### 10.1.5Golang语言面向对象编程说明
 
@@ -6492,7 +6492,7 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
 
 ### 10.1.6结构体与结构体变量(实例/对象)的关系示意图
 
-![image-20231116141520596](assets/image-20231116141520596.png?raw=true)
+![image-20231116141520596](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116141520596.png?raw=true)
 
 - 对上图的说明
 
@@ -6500,13 +6500,13 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
   - 通过这个结构体，我们可以创建多个变量(实例/对象)
   - 事物可以以猫类，也可以是Person，Fish或是某个工具类。。。
 
-  ![image-20231116141717317](assets/image-20231116141717317.png?raw=true)
+  ![image-20231116141717317](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116141717317.png?raw=true)
 
 ### 10.1.7快速入门-面向对象的方式(struct)解决养猫问题
 
 - 代码演示：
 
-  ![image-20231116142612783](assets/image-20231116142612783.png?raw=true)
+  ![image-20231116142612783](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116142612783.png?raw=true)
 
   ### 10.1.8结构体和结构体变量(实例)的区别和联系
 
@@ -6517,7 +6517,7 @@ map[mary:map[nickname:匿名mary pwd:888888] smith:map[nickname:小花猫 pwd:88
 
   ### 10.1.9 结构体变量(实例)在内存的布局(重要!)
 
-  ![image-20231116142858901](assets/image-20231116142858901.png?raw=true)
+  ![image-20231116142858901](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116142858901.png?raw=true)
 
   ### 10.1.10如何声明结构体
 
@@ -6620,28 +6620,28 @@ ok3
 
 4. 不同结构体变量的字段是独立，互不影响，一个结构体变量字段的更改，不影响另外一个, 结构体 是值类型。
 
-![image-20231116150525681](assets/image-20231116150525681.png?raw=true)
+![image-20231116150525681](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116150525681.png?raw=true)
 
-![image-20231116150542943](assets/image-20231116150542943.png?raw=true)
+![image-20231116150542943](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116150542943.png?raw=true)
 
 ### 10.1.12创建结构体变量和访问结构体字段
 
 - 方式1-直接声明
   - 案例演示：var person Person
 - 方式2-{ }
-  - 案例演示：var person Person = Person{ }![image-20231116152053615](assets/image-20231116152053615.png?raw=true)
+  - 案例演示：var person Person = Person{ }![image-20231116152053615](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116152053615.png?raw=true)
 
 - 方式3-&
 
   - 案例: var person *Person = new (Person)
 
-    ![image-20231116152131454](assets/image-20231116152131454.png?raw=true)
+    ![image-20231116152131454](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116152131454.png?raw=true)
 
 - 方式4-{ }
 
   - 案例：var person *Person = &Person { }
 
-    ![image-20231116153350720](assets/image-20231116153350720.png?raw=true)
+    ![image-20231116153350720](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116153350720.png?raw=true)
 
 ```go
 package main
@@ -6707,15 +6707,15 @@ E:\goproject\src\gocode\gw\project010\damo02>go run main.go
 
   - 我们定义一个Person结构体(包括 名字,年龄)。
 
-    ![image-20231116153735217](assets/image-20231116153735217.png?raw=true)
+    ![image-20231116153735217](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116153735217.png?raw=true)
 
 输出的结构体是：p2.Name = tom p1.Name= 小明
 
 - 基本说明
-  - ![image-20231116153928196](assets/image-20231116153928196.png?raw=true)
+  - ![image-20231116153928196](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116153928196.png?raw=true)
 
 - 结构体在内存种示意图
-  - ![image-20231116154001218](assets/image-20231116154001218.png?raw=true)
+  - ![image-20231116154001218](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116154001218.png?raw=true)
 
 - 代码演示：
 
@@ -6767,7 +6767,7 @@ E:\goproject\src\gocode\gw\project010\damo02>go run main.go
   p2的地址本身0xc00000a028 p2值的地址0xc000008078
   ```
 
-  ![image-20231116165202267](assets/image-20231116165202267.png?raw=true)
+  ![image-20231116165202267](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116165202267.png?raw=true)
 
 ### 10.1.14结构体使用注意事项和细节
 
@@ -6818,7 +6818,7 @@ r1.leftup.x地址=0xc00000e100
 r1.leftup.y 地址=0xc00000e108
 ```
 
-![image-20231116220600092](assets/image-20231116220600092.png?raw=true)
+![image-20231116220600092](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116220600092.png?raw=true)
 
 2. 结构体是用户单独定义的类型，和其它类型进行转换时需要有完全相同的字段(名字、个数和类 型)
 
@@ -6847,13 +6847,13 @@ E:\goproject\src\gocode\gw\project010\damo05>go run main.go
 
 3. 结构体进行 type 重新定义(相当于取别名)，Golang 认为是新的数据类型，但是相互间可以强转
 
-![image-20231116220840672](assets/image-20231116220840672.png?raw=true)
+![image-20231116220840672](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116220840672.png?raw=true)
 
 4. struct 的每个字段上，可以写上一个 tag, 该 tag 可以通过反射机制获取，常见的使用场景就是序 列化和反序列化。
 
 - 序列化使用场景
 
-  - ![image-20231116220929971](assets/image-20231116220929971.png?raw=true)
+  - ![image-20231116220929971](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116220929971.png?raw=true)
 
   - 举例
 
@@ -6939,35 +6939,35 @@ test()name= zhangsan
 
   2. test方法法只能通过 Person 类型的变量来调用，而不能直接调用，也不能使用其它类型变量来调 用
 
-     ![image-20231116222804609](assets/image-20231116222804609.png?raw=true)
+     ![image-20231116222804609](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116222804609.png?raw=true)
 
   3. func (p Person) test() {}... p 表示哪个 Person 变量调用，这个 p 就是它的副本, 这点和函数传参非 常相似。
 
   4. p 这个名字，有程序员指定，不是固定, 比如修改成 person 也是可以
 
-     ![image-20231116223047594](assets/image-20231116223047594.png?raw=true)
+     ![image-20231116223047594](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116223047594.png?raw=true)
 
 ### 10.2.3方法快速入门
 
 1. 给Person结构体添加speak方法，输入 xxx是一个好人
 
-![image-20231116223201197](assets/image-20231116223201197.png?raw=true)
+![image-20231116223201197](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116223201197.png?raw=true)
 
 2. 给Person结构体添加jisuan方法，可以计算从1+..+1000的结果，说明方法体内可以函数一样，进行各种运算
 
-![image-20231116223449251](assets/image-20231116223449251.png?raw=true)
+![image-20231116223449251](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116223449251.png?raw=true)
 
 3. 给 Person 结构体 jisuan2 方法,该方法可以接收一个数 n，计算从 1+..+n 的结
 
-![image-20231116225817917](assets/image-20231116225817917.png?raw=true)
+![image-20231116225817917](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116225817917.png?raw=true)
 
 4.  给 Person 结构体添加 getSum 方法,可以计算两个数的和，并返回结果
 
-![image-20231116225835722](assets/image-20231116225835722.png?raw=true)
+![image-20231116225835722](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116225835722.png?raw=true)
 
 5. 方法调用
 
-![image-20231116225848177](assets/image-20231116225848177.png?raw=true)
+![image-20231116225848177](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116225848177.png?raw=true)
 
 ```go
 package main
@@ -7025,7 +7025,7 @@ E:\goproject\src\gocode\gw\project010\damo07>go run main.go
   - 方法的调用和传参机制和函数基本一样，不一样的地方是方法调用时，会将调用方法的变量，当做 实参也传递给方法。下面我们举例说明。
 - 案例1：
   - 画出前面 getSum 方法的执行过程+说明
-  - ![image-20231116230018595](assets/image-20231116230018595.png?raw=true)
+  - ![image-20231116230018595](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116230018595.png?raw=true)
 
 - 说明：
   1. 在通过一个变量去调用方法时，其调用机制和函数一样
@@ -7059,7 +7059,7 @@ E:\goproject\src\gocode\gw\project010\damo08>go run main.go
 面积是= 50.24
 ```
 
-![image-20231116231127335](assets/image-20231116231127335.png?raw=true)
+![image-20231116231127335](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116231127335.png?raw=true)
 
 ### 10.2.5 方法的声明(定义)
 
@@ -7082,7 +7082,7 @@ func (recevier type) methodName (参数列表) (返回值列表){
 ### 10.2.6方法的注意事项和细节
 
 1. **结构体类型是值类型，在方法调用中，遵守值类型的传递机制，是值拷贝传递方式**
-2. **如程序员希望在方法中，修改结构体变量的值，可以通过结构体指针的方式来处理**![image-20231116232027398](assets/image-20231116232027398.png?raw=true)
+2. **如程序员希望在方法中，修改结构体变量的值，可以通过结构体指针的方式来处理**![image-20231116232027398](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231116232027398.png?raw=true)
 
 ```go
 package main
@@ -7274,9 +7274,9 @@ E:\goproject\src\gocode\gw\project010\damo11>go run main.go
 
 1. 在MethodUtils结构体编个方法，从键盘接收整数(1-9),打印对应乘法表:
 
-![image-20231117153845293](assets/image-20231117153845293.png?raw=true)
+![image-20231117153845293](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231117153845293.png?raw=true)
 
-![image-20231117153858048](assets/image-20231117153858048.png?raw=true)
+![image-20231117153858048](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231117153858048.png?raw=true)
 
 ### 10.2.9 方法和函数区别
 
@@ -7286,9 +7286,9 @@ E:\goproject\src\gocode\gw\project010\damo11>go run main.go
 
    方法的调用方式: 变量.方法名(实参列表)
 
-2. 对于普通函数，接收者为值类型时，不能将指针类型的数据直接传递，反之亦然![image-20231117154357818](assets/image-20231117154357818.png?raw=true)
+2. 对于普通函数，接收者为值类型时，不能将指针类型的数据直接传递，反之亦然![image-20231117154357818](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231117154357818.png?raw=true)
 
-![image-20231117154343102](assets/image-20231117154343102.png?raw=true)
+![image-20231117154343102](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231117154343102.png?raw=true)
 
 3. 对于方法（如 struct 的方法），接收者为值类型时，可以直接用指针类型的变量调用方法，反 过来同样也可以
 
@@ -7560,7 +7560,7 @@ n
 
 - 方式1
 
-  - ![image-20231120105112841](assets/image-20231120105112841.png?raw=true)
+  - ![image-20231120105112841](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120105112841.png?raw=true)
 
   - ```go
     package main
@@ -7602,7 +7602,7 @@ n
 
 - 方式2
 
-  - ![image-20231120105923201](assets/image-20231120105923201.png?raw=true)
+  - ![image-20231120105923201](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120105923201.png?raw=true)
 
   - ```go
     package main
@@ -7683,9 +7683,9 @@ n
 
   如果 model 包的 结构体变量首字母大写，引入后，直接使用, 没有问题
 
-  ![image-20231120111844882](assets/image-20231120111844882.png?raw=true)
+  ![image-20231120111844882](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120111844882.png?raw=true)
 
-![image-20231120111939307](assets/image-20231120111939307.png?raw=true)
+![image-20231120111939307](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120111939307.png?raw=true)
 
 ```cmd
 E:\go\goproject\src\gocode\gw\project010\damo14>go run main.go
@@ -7694,7 +7694,7 @@ E:\go\goproject\src\gocode\gw\project010\damo14>go run main.go
 
 - 如果 model 包的 结构体变量首字母小写，引入后，不能直接使用, 可以工厂模式解决
 
-  ![image-20231120113124850](assets/image-20231120113124850.png?raw=true)
+  ![image-20231120113124850](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120113124850.png?raw=true)
 
 ```go
 package main
@@ -7723,7 +7723,7 @@ E:\go\goproject\src\gocode\gw\project010\damo14>go run main.go
 ```
 
 - 如果 model 包的 student 的结构体的字段 Score 改成 score，我们还能正常访问 吗？又应该如何解决这个问题呢？
-  - ![image-20231120144611466](assets/image-20231120144611466.png?raw=true)
+  - ![image-20231120144611466](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120144611466.png?raw=true)
 
 ```go
 package model
@@ -7779,7 +7779,7 @@ os\model.go:14:9: cannot use s.score (variable of type float32) as string value 
 
 - 我们在前面去定义一个结构体时候，实际上就是把一类事物的共有的属性(字段)和行为(方法)提取 出来，形成一个物理模型(结构体)。这种研究问题的方法称为抽象。
 
-![image-20231120144801386](assets/image-20231120144801386.png?raw=true)
+![image-20231120144801386](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120144801386.png?raw=true)
 
 ### 11.2.2代码实现
 
@@ -7910,7 +7910,7 @@ func ( var 结构体类型名)Get Xxx() {
 
 - 代码实现
 
-  ![image-20231120172010530](assets/image-20231120172010530.png?raw=true)
+  ![image-20231120172010530](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120172010530.png?raw=true)
 
   - model/Person.go
 
@@ -7996,7 +7996,7 @@ func ( var 结构体类型名)Get Xxx() {
   3. 通过 SetXxx 的方法给 Account 的字段赋值。(同学们自己完成
   4. 在 main 函数中测
 
-![image-20231120214143838](assets/image-20231120214143838.png?raw=true)
+![image-20231120214143838](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120214143838.png?raw=true)
 
 main
 
@@ -8102,7 +8102,7 @@ E:\go\goproject\src\gocode\gw\project010\damo17\main>go run main.go
 
 - 一个小问题,看个学生考试系统的程序 extends01.go，提出代码复用的问题
 
-![image-20231120214253290](assets/image-20231120214253290.png?raw=true)
+![image-20231120214253290](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120214253290.png?raw=true)
 
 ```go
 package main
@@ -8184,7 +8184,7 @@ E:\go\goproject\src\gocode\gw\project010\damo18>go run main.go
 - 继承可以解决代码复用,让我们的编程更加靠近人类思维。
 - 当多个结构体存在相同的属性(字段)和方法时,可以从这些结构体中抽象出结构体(比如刚才的Student),在该结构体中定义这些相同的属性和方法。
 - 其它的结构体不需要重新定义这些属性(字段)和方法，只需嵌套一个 Student 匿名结构体即可。 
-  - ![image-20231120225631463](assets/image-20231120225631463.png?raw=true)
+  - ![image-20231120225631463](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120225631463.png?raw=true)
 
 ​	`也就是说：在 Golang 中，如果一个 struct 嵌套了另一个匿名结构体，那么这个结构体可以直接访 问匿名结构体的字段和方法，从而实现了继承特性。`
 
@@ -8206,7 +8206,7 @@ Writer string
 
 - 我们对 extends01.go 改进，使用嵌套匿名结构体的方式来实现继承特性,请大家注意体会这样编程的好处
 
-![image-20231120225816586](assets/image-20231120225816586.png?raw=true)
+![image-20231120225816586](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120225816586.png?raw=true)
 
 ```go
 package main
@@ -8326,7 +8326,7 @@ OK
 
 2. 匿名结构体字段访问可以简化，如图
 
-![image-20231120232014976](assets/image-20231120232014976.png?raw=true)
+![image-20231120232014976](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120232014976.png?raw=true)
 
 - 对上面的代码小结
   1. 当我们直接通过 b 访问字段或方法时，其执行流程如下比如 b.Nam
@@ -8335,15 +8335,15 @@ OK
 
 3. 当结构体和匿名结构体有相同的字段或者方法时，编译器采用就近访问原则访问，如希望访问 匿名结构体的字段和方法，可以通过匿名结构体名来区分【举例说明】
 
-   ![image-20231120232146277](assets/image-20231120232146277.png?raw=true)
+   ![image-20231120232146277](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120232146277.png?raw=true)
 
 4. 结构体嵌入两个(或多个)匿名结构体，如两个匿名结构体有相同的字段和方法(同时结构体本身没有同名的字段和方法)，在访问时，就必须明确指定匿名结构体名字，否则编译报错。【举例说明】
 
-​		![image-20231120232643423](assets/image-20231120232643423.png?raw=true)
+​		![image-20231120232643423](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120232643423.png?raw=true)
 
 5. 如果一个 struct 嵌套了一个有名结构体，这种模式就是组合，如果是组合关系，那么在访问组合 的结构体的字段或方法时，必须带上结构体的名字
 
-![image-20231120232738585](assets/image-20231120232738585.png?raw=true)
+![image-20231120232738585](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120232738585.png?raw=true)
 
 6. 嵌套匿名结构体后，也可以在创建结构体变量(实例)时，直接指定各个匿名结构体字段的值
 
@@ -8465,13 +8465,13 @@ e= {{狐狸精 300} 20 40}
 
 - 案例演示
   - 通过一个案例来说明多重继承使用
-  - ![image-20231120234718834](assets/image-20231120234718834.png?raw=true)
+  - ![image-20231120234718834](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120234718834.png?raw=true)
 
 -  多重继承细节说明
 
   1. 如嵌入的匿名结构体有相同的字段名或者方法名，则在访问时，需要通过匿名结构体类型名来 区分。【案例演示】
 
-  - ![image-20231120234748279](assets/image-20231120234748279.png?raw=true)
+  - ![image-20231120234748279](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231120234748279.png?raw=true)
 
   2. 为了保证代码的简洁性，建议大家尽量不使用多重继承
 
@@ -8483,7 +8483,7 @@ e= {{狐狸精 300} 20 40}
 
 ### 11.5.2为什么有结构
 
-![image-20231121171031765](assets/image-20231121171031765.png?raw=true)
+![image-20231121171031765](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121171031765.png?raw=true)
 
 ### 11.5.3接口快速入门
 
@@ -8562,14 +8562,14 @@ E:\go\goproject\src\gocode\gw\project010\damo22>go run main.go
 
 ### 11.5.5基本语法
 
-![image-20231121215652934](assets/image-20231121215652934.png?raw=true)
+![image-20231121215652934](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121215652934.png?raw=true)
 
 1. 接口里的所有方法都没有方法体，即接口的方法都是没有实现的方法。接口体现了程序设计的 多态和高内聚低偶合的思想。
 2. Golang 中的接口，不需要显式的实现。只要一个变量，含有接口类型中的所有方法，那么这个 变量就实现这个接口。因此，Golang 中没有 implement 这样的关键字
 
 ### 11.5.6接口使用的应用场景
 
-![image-20231121215831034](assets/image-20231121215831034.png?raw=true)
+![image-20231121215831034](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121215831034.png?raw=true)
 
 ### 11.5.7注意事项和细节
 
@@ -8610,7 +8610,7 @@ stu say()
 2. 接口中所有的方法都没有方法体,即都是没有实现的方法。
 3. 在 Golang 中，一个自定义类型需要将某个接口的所有方法都实现，我们说这个自定义类型实现 了该接口。
 4. 一个自定义类型只有实现了某个接口，才能将该自定义类型的实例(变量)赋给接口类型
-5. 只要是自定义数据类型，就可以实现接口，不仅仅是结构体类型。![image-20231121222633446](assets/image-20231121222633446.png?raw=true)
+5. 只要是自定义数据类型，就可以实现接口，不仅仅是结构体类型。![image-20231121222633446](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121222633446.png?raw=true)
 
 ```go
 package main
@@ -8723,7 +8723,7 @@ Monster Hello()
 
 7. Golang接口中不能有任何变量
 
-![image-20231121223055458](assets/image-20231121223055458.png?raw=true)
+![image-20231121223055458](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121223055458.png?raw=true)
 
 8. 一个接口(比如 A 接口)可以继承多个别的接口(比如 B,C 接口)，这时如果要实现 A 接口，也必 须将 B,C接口的方法也全部实现。
 
@@ -8777,13 +8777,13 @@ test02
 9. interface 类型默认是一个指针(引用类型)，如果没有对 interface 初始化就使用，那么会输出 nil
 10. 空接口 interface{} 没有任何方法，所以所有类型都实现了空接口, 即我们可以把任何一个变量 赋给空接口
 
-![image-20231121224054105](assets/image-20231121224054105.png?raw=true)
+![image-20231121224054105](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121224054105.png?raw=true)
 
 ### 11.5.8课堂练习
 
-![image-20231121224210072](assets/image-20231121224210072.png?raw=true)![image-20231121224216988](assets/image-20231121224216988.png?raw=true)
+![image-20231121224210072](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121224210072.png?raw=true)![image-20231121224216988](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121224216988.png?raw=true)
 
-![image-20231121224223694](assets/image-20231121224223694.png?raw=true)
+![image-20231121224223694](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231121224223694.png?raw=true)
 
 ### 11.5.9接口编程的最佳实践
 
@@ -8924,7 +8924,7 @@ i= 20 j= 10
 
 - 大家听到现在，可能对实现接口和继承比较迷茫了
 
-![image-20231122145841271](assets/image-20231122145841271.png?raw=true)
+![image-20231122145841271](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231122145841271.png?raw=true)
 
 ```go
 package main
@@ -8984,7 +8984,7 @@ E:\go\goproject\src\gocode\gw\project010\damo26>go run main.go
   2. 当 A 结构体需要扩展功能，同时不希望去破坏继承关系，则可以去实现某个接口即可，因此我 们可以认为：实现接口是对继承机制的补充.
 - 实现接口可以看作是对 继承的一种补充
 
-![image-20231122150858957](assets/image-20231122150858957.png?raw=true)
+![image-20231122150858957](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231122150858957.png?raw=true)
 
 - 接口和继承解决的解决的问题不同
 
@@ -9008,7 +9008,7 @@ E:\go\goproject\src\gocode\gw\project010\damo26>go run main.go
 
 - 在前面的 Usb 接口案例，Usb usb ，既可以接收手机变量，又可以接收相机变量，就体现了 Usb 接 口 多态特性。[点明]
 
-![image-20231122151158006](assets/image-20231122151158006.png?raw=true)
+![image-20231122151158006](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231122151158006.png?raw=true)
 
 ## 11.6.3 接口体现多态的两种形式
 
@@ -9072,12 +9072,12 @@ E:\go\goproject\src\gocode\gw\project010\damo27>go run main.go
 
 ### 11.7.1由一个具体的需要，引出了类型断言，
 
-![image-20231122152455692](assets/image-20231122152455692.png?raw=true)
+![image-20231122152455692](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231122152455692.png?raw=true)
 
 ### 11.7.2基本介绍
 
 - 类型断言，由于接口是一般类型，不知道具体类型，如果要转成具体类型，就需要使用类型断言， 具体的如下
-  - ![image-20231122152518478](assets/image-20231122152518478.png?raw=true)
+  - ![image-20231122152518478](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231122152518478.png?raw=true)
 
 - 对上面代码的说明：
   - 在进行类型断言时，如果类型不匹配，就会报 panic, 因此进行类型断言时，要确保原来的空接口 指向的就是断言的类型.
@@ -9271,7 +9271,7 @@ E:\go\goproject\src\gocode\gw\project010\damo30>go run main.go
 
 ## 12.1项目开发流程说明
 
-![image-20231123095700398](assets/image-20231123095700398.png?raw=true)
+![image-20231123095700398](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123095700398.png?raw=true)
 
 ## 12.2项目需求说明
 
@@ -9280,11 +9280,11 @@ E:\go\goproject\src\gocode\gw\project010\damo30>go run main.go
 
 ## 12.3项目的界面
 
-![image-20231123095747626](assets/image-20231123095747626.png?raw=true)
+![image-20231123095747626](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123095747626.png?raw=true)
 
-![image-20231123095759440](assets/image-20231123095759440.png?raw=true)
+![image-20231123095759440](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123095759440.png?raw=true)
 
-![image-20231123095808960](assets/image-20231123095808960.png?raw=true)
+![image-20231123095808960](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123095808960.png?raw=true)
 
 其它的界面，我们就直接参考 项目效果图.txt
 
@@ -9296,7 +9296,7 @@ E:\go\goproject\src\gocode\gw\project010\damo30>go run main.go
 
 - 思路分析：
 
-  更加给出的界面完成，主菜单的显示, 当用户输入 4 时，就退出该程序![image-20231123104532604](assets/image-20231123104532604.png?raw=true)
+  更加给出的界面完成，主菜单的显示, 当用户输入 4 时，就退出该程序![image-20231123104532604](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123104532604.png?raw=true)
 
 #### 功能2：完成收入登记
 
@@ -9308,7 +9308,7 @@ E:\go\goproject\src\gocode\gw\project010\damo30>go run main.go
 
   还需要定义变量来记录余额(balance),每次收支的金额(money),每次收支的说明（note)
 
-  ![image-20231123104550236](assets/image-20231123104550236.png?raw=true)
+  ![image-20231123104550236](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123104550236.png?raw=true)
 
 #### 功能3：完成了登记支出的功能
 
@@ -9316,21 +9316,21 @@ E:\go\goproject\src\gocode\gw\project010\damo30>go run main.go
 
   登记支出的功能和登录收入的功能类似。
 
-  ![image-20231123104602128](assets/image-20231123104602128.png?raw=true)
+  ![image-20231123104602128](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123104602128.png?raw=true)
 
 ### 12.4.2 项目代码实现改进
 
 1. 用户退出时，给出提示“你确定要退出吗?y/n",必须输入正确y/n，否则循环输入指令，直到输入y或者n
 
-   ![image-20231123105550593](assets/image-20231123105550593.png?raw=true)
+   ![image-20231123105550593](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123105550593.png?raw=true)
 
-2. 当没有任何收支明细时，提示”当前没有收支明细..来一笔吧!"![image-20231123110944542](assets/image-20231123110944542.png?raw=true)
+2. 当没有任何收支明细时，提示”当前没有收支明细..来一笔吧!"![image-20231123110944542](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123110944542.png?raw=true)
 
-   ![image-20231123111051641](assets/image-20231123111051641.png?raw=true)
+   ![image-20231123111051641](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123111051641.png?raw=true)
 
 3. 在支出时，判断余额是否够，并给出相应的提示
 
-   ![image-20231123112223530](assets/image-20231123112223530.png?raw=true)
+   ![image-20231123112223530](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123112223530.png?raw=true)
 
 ```go
 package main 
@@ -9499,7 +9499,7 @@ y
 
   - 代码不需要重写，只需要重写组织一下
 
-  ![image-20231123152403802](assets/image-20231123152403802.png?raw=true)
+  ![image-20231123152403802](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123152403802.png?raw=true)
 
 utils/utils.go
 
@@ -10041,27 +10041,27 @@ E:\go\goproject\src\gocode\gw\project12\familyaccount\main>go run main.go
 
 - 主菜单界面
 
-  ![image-20231123164622602](assets/image-20231123164622602.png?raw=true)
+  ![image-20231123164622602](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164622602.png?raw=true)
 
 - 添加客户界面
 
-  ![image-20231123164642483](assets/image-20231123164642483.png?raw=true)
+  ![image-20231123164642483](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164642483.png?raw=true)
 
 - 修改客户界面
 
-  ![image-20231123164657428](assets/image-20231123164657428.png?raw=true)
+  ![image-20231123164657428](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164657428.png?raw=true)
 
 - 删除客户界面
 
-  ![image-20231123164708331](assets/image-20231123164708331.png?raw=true)
+  ![image-20231123164708331](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164708331.png?raw=true)
 
 - 客户列表界面
 
-  ![image-20231123164727362](assets/image-20231123164727362.png?raw=true)
+  ![image-20231123164727362](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164727362.png?raw=true)
 
 ## 13.3客户关系管理系统和程序框架图
 
-![image-20231123164808564](assets/image-20231123164808564.png?raw=true)
+![image-20231123164808564](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123164808564.png?raw=true)
 
 ## 13.4项目功能实现-显示主菜单和完成退出软件功能
 
@@ -10070,7 +10070,7 @@ E:\go\goproject\src\gocode\gw\project12\familyaccount\main>go run main.go
 - 思路分析
   - 编写customerView，另外可以把customer.go和custerService.go写上
 
-![image-20231123172904157](assets/image-20231123172904157.png?raw=true)
+![image-20231123172904157](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123172904157.png?raw=true)
 
 - 代码实现
 
@@ -10187,11 +10187,11 @@ E:\go\goproject\src\gocode\gw\project12\familyaccount\main>go run main.go
 
 - 功能说明
 
-  ![image-20231123221151775](assets/image-20231123221151775.png?raw=true)
+  ![image-20231123221151775](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123221151775.png?raw=true)
 
 - 思路分析
 
-  ![image-20231123221215109](assets/image-20231123221215109.png?raw=true)
+  ![image-20231123221215109](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123221215109.png?raw=true)
 
 - 代码实现
 
@@ -10203,18 +10203,18 @@ customerManager/model/customer.go
 
 - 功能说明
 
-  ![image-20231123224036324](assets/image-20231123224036324.png?raw=true)
+  ![image-20231123224036324](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123224036324.png?raw=true)
 
 - 思路分析
-  - ![image-20231123224058223](assets/image-20231123224058223.png?raw=true)
+  - ![image-20231123224058223](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123224058223.png?raw=true)
 
 ## 13.7项目功能实现-完成删除用户的功能
 
 - 功能说明
 
-  ![image-20231123225907660](assets/image-20231123225907660.png?raw=true)
+  ![image-20231123225907660](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123225907660.png?raw=true)
 
-- 思路分析![image-20231123225922851](assets/image-20231123225922851.png?raw=true)
+- 思路分析![image-20231123225922851](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231123225922851.png?raw=true)
 
 ## 13.8项目功能实现-完善退出确认功能
 
@@ -10228,7 +10228,7 @@ customerManager/model/customer.go
 
 ## 13.9客户关系管理系统
 
-![image-20231124095700290](assets/image-20231124095700290.png?raw=true)
+![image-20231124095700290](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231124095700290.png?raw=true)
 
 # 第十四章文件操作
 
@@ -10240,4 +10240,4 @@ customerManager/model/customer.go
 
 - 输入流和输出流
 
-  ![image-20231124100025440](assets/image-20231124100025440.png?raw=true)
+  ![image-20231124100025440](https://github.com/liuzhenhua1223/Image/blob/master/CCEimage/image-20231124100025440.png?raw=true)
