@@ -48,13 +48,12 @@
 - 人工管理阶段
 
   - 20世纪50年代，主要通过手动的方式进行数据处理，一切靠人
-
     1. 数据不保存
        - 一组数据对应一个成勋，数据空间随着空间一切被释放
-
+    
     2. 应用成勋管理数据
        - 当时没有数据库管理软件，数据库的设计工作，有应用程序的编写人员来完成。
-
+    
     3. 数据面向应用
        - 一个数据只能对应一个程序，当多个应用程序 涉及某些数据时，必须各自定义，不能共享，因此程序与程序之间存在大量的冗余数据，数据的独立性差。
 
@@ -955,7 +954,7 @@ Referential Integrity Constraint
 
 # Postgresql
 
-## 第一章 安装与配置基础
+# 第一章 安装与配置基础
 
 ## 1.1 初识Postgresql
 
@@ -1065,3 +1064,5255 @@ anaconda-ks.cfg  postgresql-15.5  postgresql-15.5.tar.gz
    ```
 
 ![image-20240606162518354](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606162518354.png?raw=true)
+
+![image-20240606233711109](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606233711109.png?raw=true)
+
+3. 编译安装
+
+   执行gmake或gmake world程序进行编译
+
+   ```apl
+   gmake
+   ```
+
+   执行gmake install或gmake install-world进行安装
+
+   ```apl
+   gmake install
+   ```
+
+   ![image-20240606233917360](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240606233917360.png?raw=true)
+
+查看安装的PostgreSQL版本的命令如下所示
+
+```apl
+[root@pgsql postgresql-15.5]# /data/pg-15/bin/postgres --version
+postgres (PostgreSQL) 15.5
+```
+
+### 1.2.3设置一个软连接
+
+- 有时候为了方便工作，会自己写一些shell或Python脚本，经常会通过类似/data/pg15.x这样的全路径调用一些工具，如何尽可能避免麻烦，就需要通过软连接
+
+```apl
+[root@pgsql postgresql-15.5]# ln -s /data/pg-15/ /data/pgsql
+```
+
+- 当版本变更之后，不需要调整大量的脚本，只需要修改这个软连接即可。下文也会使用它。
+
+## 1.3 客户端程序和服务器程序
+
+- 目前已经成功安装了PostgreSQL数据库
+
+  ```apl
+  [root@pgsql postgresql-15.5]# tree -L 1 /data/pg-15/
+  /data/pg-15/
+  ├── bin //是PG应用程序
+  ├── include //是PG的C、C++的头文件
+  ├── lib 
+  └── share //存放文档、man、实列、以及扩展
+  4 directories, 0 files
+  ```
+
+---
+
+PG本身就是一个C/S架构的程序，这些程序分为两类，客户端程序和服务器程序。
+
+### 1.3.1 客户端程序
+
+- 客户端程序也可以分为
+
+1. 封装SQL命令的客户端程序
+
+   **clusterdb**
+
+   clusterdb 是 SQL CLUSTER命令的一个封装。PostgreSQL是 堆表存储的，clusterdb通过索引对数据库中基于堆表的物理文件进行重新排序，一定场景下可以`节省磁盘空间`、`加快查询速度`
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/clusterdb -h pghost1 -p1921 -d mydb
+     ```
+
+   **reindexdb**
+
+   reindexdb是 SQL REINDEX命令的一个封装。在索引物理文件发生损坏或索引膨胀情况方式时，可以使用reindex命令对指定的表或数据库进行重建索引并且删除旧的索引。
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/reindexdb -h pghost1 -p1921 -d mydb
+     ```
+
+   **vacuumdb**
+
+   vacuumdb 是 PostgreSQL数据库独有的VACUUM、VACUUM FREEZE和VACUUM FULL、VACUUM ANALYZE这几个SQL命令封装。主要是对数据的物理文件等垃圾回收。是PostgreSQL中非常重要的一些列命令
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/vacuumdb -h pghost1 -p 1921 mydb
+     ```
+
+   **vacuumlo**
+
+   vacuumlo 用来清理数据库中未引用的大对象。
+
+   - 举例：
+
+     ```apl
+     /data/pgsql/bin/vacuumlo -h pghost1 -p 1921 mydb
+     ```
+
+   **createdb和dropdb**
+
+   他们本别是SQL命令CREATE DATABASE和DEOP DATABASE的封装。
+
+   - 举例
+
+     ```apl
+     /data/pgsql/bin/createdb -h pghost1 -p 1921 newdb "New database."
+     
+     ```
+
+     ```apl
+     /data/pgsql/bin/drop -h pghost1 -p 1921 newdb "New database."
+     
+     ```
+
+   例如：创建一个名为newuser的非超级用户，newuser继承自pg_monitor系统角色，自由1个连接，没有创建数据库的权限，没有创建用户的权限，并且立即给他设置密码，如下：
+
+   ```apl
+   /data/pgsql/bin/createuser -h pghost1 -p 1921 -c 1 -g pg_monitor -D -R -S -P -e newuser
+   Enter password for new role:
+   Enter it again:
+   ```
+
+
+
+## 1.4 创建数据库实例
+
+- 在PostgreSQL中一台数据库服务器可以管理多个数据库实例，也可以通过目录的位置和这个数据的集合实例的端口引用它
+
+### 1.4.1 创建操作系统用户
+
+- 在创建数据库之前，要先创建按一个独立的操作系统用户，也可以称为本地用户。目的是为例防止因为软件的BUG被攻击者利用。
+
+```apl
+groupadd -g 1000 postgres
+useradd -g 1000 -u 1000 postgres
+mkdir /data/pgdata
+chown postgres.postgres /data/pgdata/
+chown 0700 /data/pgdata/
+su postgres
+```
+
+---
+
+注意事项：
+
+- 出于安全考虑，这个操作系统用户不能是root或具有系统管理员权限的用户如：sudo提权的用户。
+
+### 1.4.2 创建数据目录
+
+- 有时候可能会遇到多实例并存的情况，为例区分不同版本的数据，通常建立如/pgdata/9.x/xxx_data作为数据库实例的的目录，这样在进行大版本升级或多版本并存时，目录条理更清晰，同时可以减少出错。
+
+- 例子：创建/data/pgdata目录作为数据目录，在pgdata的同级目录创建backups、scripts、archive_wals目录
+
+  ```apl
+  [root@pgsql postgresql-15.5]# mkdir -p /data/{backups,scripts,archive_wals}
+  [root@pgsql postgresql-15.5]# chown postgres.postgres /data/ -R
+  [root@pgsql data]# chmod 0700 /data/pgdata/
+  
+  ```
+
+### 1.4.3初始化数据目录
+
+- 实例化数据目录使用initdb工具。initdb工具将创建一个新数据库目录(这个目录包括存放数据的目录)，创建template1和postgres数据库，默认区域和字符编码。
+
+  ![image-20240607132837989](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240607132837989.png?raw=true)
+
+  ```apl
+  [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/initdb -D /data/pgdata/ -W
+  
+  The files belonging to this database system will be owned by user "postgres".
+  This user must also own the server process.
+  
+  The database cluster will be initialized with locale "zh_CN.UTF-8".
+  The default database encoding has accordingly been set to "UTF8".
+  initdb: could not find suitable text search configuration for locale "zh_CN.UTF-8"
+  The default text search configuration will be set to "simple".
+  
+  Data page checksums are disabled.
+  
+  Enter new superuser password:
+  Enter it again:
+  
+  fixing permissions on existing directory /data/pgdata ... ok
+  creating subdirectories ... ok
+  selecting dynamic shared memory implementation ... posix
+  selecting default max_connections ... 100
+  selecting default shared_buffers ... 128MB
+  selecting default time zone ... Asia/Shanghai
+  creating configuration files ... ok
+  running bootstrap script ... ok
+  performing post-bootstrap initialization ... ok
+  syncing data to disk ... ok
+  
+  initdb: warning: enabling "trust" authentication for local connections
+  initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+  
+  Success. You can now start the database server using:
+  
+      /data/pgsql/bin/pg_ctl -D /data/pgdata/ -l logfile start
+  ```
+
+- 因为使用了-W 参数，所以在初始化过程中，initdb工具要求为数据库超级用户创建密码
+
+- 需要注意除了使用initdb来初始化数据目录，`pg_ctl`工具进行数据库目录的初始化，自持，初始化完成。
+
+  ```apl
+  /data/pgsql/bin/initdb -D /data/pgdata/ -W
+  ```
+
+## 1.5 启动和停止数据库服务器
+
+- 在使用数据库服务器之前，必须先启动数据库服务器。可以通过service方式PostgreSQL的命令工具启动或停止数据库。
+
+### 1.5.1 使用service方式
+
+- 启动数据库服务的命令
+
+  ```apl
+  service postgresql start
+  ## 查看运行状态
+  service postgresql status
+  ##停止数据库
+  service postgresql stop
+  ```
+
+### 1.5.2 使用pg_ctl进行管理
+
+- pg_ctl是postgreSQL中初始化数据目录，启动、停止、重启、数据库或查看数据库服务状态的工具，相比service或systemctl，pg_ctl提供了丰富的控制选项，`执行pg_ctl命令`需要系统用户使用`su`命令切换到`postgres`用户。
+
+- 修改监听的主机
+
+  vim /data/pgdata/postgresql.conf
+
+  ```apl
+  listen_addresses = '*'          # what IP address(es) to listen on;
+  ```
+
+- 配置远程连接认证
+
+  vim /data/pgdata/pg_hba.conf
+
+  ```apl
+  host    all             postgres        192.168.71.10/32        md5
+  ```
+
+1. 启动数据库服务的命令
+
+   ```apl
+   su - postgres
+   
+   [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ start
+   waiting for server to start....2024-06-07 20:33:20.326 CST [38948] LOG:  starting PostgreSQL 15.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44), 64-bit
+   2024-06-07 20:33:20.330 CST [38948] LOG:  listening on IPv6 address "::1", port 1921
+   2024-06-07 20:33:20.330 CST [38948] LOG:  listening on IPv4 address "127.0.0.1", port 1921
+   2024-06-07 20:33:20.331 CST [38948] LOG:  listening on Unix socket "/tmp/.s.PGSQL.1921"
+   2024-06-07 20:33:20.333 CST [38951] LOG:  database system was shut down at 2024-06-07 19:25:12 CST
+   2024-06-07 20:33:20.335 CST [38948] LOG:  database system is ready to accept connections
+    done
+   server started
+   
+   #####查看启动状态
+   [postgres@pgsql postgresql-15.5]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ status
+   
+   pg_ctl: server is running (PID: 38948)
+   /data/pg-15/bin/postgres "-D" "/data/pgdata"
+   
+   #####重启
+   /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w restart
+   #####重启
+   /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w stop
+   ```
+
+2. 停止数据库
+
+   使用pg_ctl停止数据库命令为：
+
+   支持三种停止数据库的模式：smart、fast、immediate，默认为fast模式。
+
+   - smart 模式会等待活动的事物提交结束，并等待客户端主动断开连接之后关闭数据库。
+   - fast 模式则会回滚所有活动的事物，并强制断开客户的连接之后关闭数据库。
+   - immediate模式立即终止所有服务器进程，当下次数据库启动时，他会首先进入恢复状态，一般不推荐使用
+   - 这三个值简写为：`-ms -mf -mi`，例如使用smart模式停止数据库
+
+   ```apl
+   [postgres@pgsql data]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ -ms stop
+   waiting for server to shut down....2024-06-07 23:32:32.411 CST [39561] LOG:  received smart shutdown request
+   2024-06-07 23:32:32.412 CST [39561] LOG:  background worker "logical replication launcher" (PID 39567) exited with exit code 1
+   2024-06-07 23:32:32.412 CST [39562] LOG:  shutting down
+   2024-06-07 23:32:32.412 CST [39562] LOG:  checkpoint starting: shutdown immediate
+   2024-06-07 23:32:32.413 CST [39562] LOG:  checkpoint complete: wrote 0 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.001 s, sync=0.001 s, total=0.002 s; sync files=0, longest=0.000 s, average=0.000 s; distance=0 kB, estimate=0 kB
+   2024-06-07 23:32:32.415 CST [39561] LOG:  database system is shut down
+    done
+   server stopped
+   ```
+
+### 1.5.3 配置开机启动
+
+- 如果使用官方yum源安装，会自动配置服务脚本，如果通过源码编译安装，则需要手动配置
+
+1. 配置服务脚本
+
+   在源码包的contrib目录中有linux、FreeBSD、OSX使用的服务脚本
+
+   ```apl
+   [root@pgsql postgresql-15.5]# ls contrib/start-scripts/
+   freebsd  linux  macos
+   ```
+
+   我们将名称为linux的脚本拷贝到/etc/init.d/目录中，将脚本重命名为postgresql-15，并赋予可执行权限。
+
+   ```apl
+   root@pgsql postgresql-15.5]# chmod +x /etc/init.d/postgresql-15
+   [root@pgsql postgresql-15.5]# ls -lh /etc/init.d/postgresql-15
+   -rwxr-xr-x. 1 root root 3.5K 6月   7 23:41 /etc/init.d/postgresql-15
+   ```
+
+2. 设置开机启动
+
+   chkcinfig命令将启用或禁止PostgreSQL开机启动项目
+
+   chkconfig --list命令可以查看PostgreSQL是否开机启动
+
+   ```apl
+   [root@pgsql postgresql-15.5]# chkconfig postgresql-15 off
+   [root@pgsql postgresql-15.5]# chkconfig --list|grep postgresql
+   
+   注：该输出结果只显示 SysV 服务，并不包含
+   原生 systemd 服务。SysV 配置数据
+   可能被原生 systemd 配置覆盖。
+   
+         要列出 systemd 服务，请执行 'systemctl list-unit-files'。
+         查看在具体 target 启用的服务请执行
+         'systemctl list-dependencies [target]'。
+   
+   postgresql-15   0:关    1:关    2:关    3:关    4:关    5:关    6:关
+   ```
+
+## 1.6数据库配置基础
+
+- 在数据库实例中，有些配置会影响到整个实例，有些配置只对一个数据库实例中当个database生效，或支队当前会话数据库用户生效，称为非全局配置。
+- 两个重要的配置文件：postgresql.conf和pg_hba.conf。这些参数从不同层面影响数据库系统的行为，
+- postgresql.conf配置文件主要负责配置文件的位置、资源限制、集群复制等
+- pg_hba.conf文件负责客户端的连接和认证。
+  - 这两个文件都位于初始化数据目录中。
+
+### 1.6.1 配置文件的位置
+
+- 在实例化数据目录之后，在数据目录下会有postgresql.conf、postgresql.auto.conf、pg_hba.conf和pg_ident.conf这几个配置文件。除身份认证以外数据库系统行为都由postgresql.cnf文件配置
+
+### 1.6.2 pg_hba.conf
+
+pg_hba.conf是它所在数据库实例的”防火墙“文件格式如下
+
+```apl
+# TYPE  DATABASE        USER            ADDRESS                 METHOD
+
+# "local" is for Unix domain socket connections only
+local   all             all                                     trust
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            trust
+# IPv6 local connections:
+host    all             all             ::1/128                 trust
+# Allow replication connections from localhost, by a user with the
+# replication privilege.
+local   replication     all                                     trust
+host    replication     all             127.0.0.1/32            trust
+host    replication     all             ::1/128                 trust
+host    all             postgres        192.168.71.10/32        md5
+```
+
+1. 连接方式
+
+   TYPE 可用的值有：local、host、hostssl、hostnossl
+
+   - local：匹配使用Unix，如果别有表示local的条目不允许通过Unix域套接字连接
+   - host：匹配使用TCP/IP建立的连接，同时匹配SSL和非SSL连接。默认安装只监听本地回环地址localhost的连接，其用`远程连接`需要修改`postgresql.conf`中的`listen_address`参数
+   - hostssl：匹配必须是使用ssl的TCP/IP连接。配置hostssl有三个前提条件
+     - 客户端和服务端都安装OpenSSL
+     - 编译PostgreSQL的时候指定configure参数--with-openssl打开SSL支持
+     - 在postgresql.conf中配置ssl=on
+   - hostnossl和hostssl相反，它只匹配使用非ssl的TCP/IP连接。
+
+2. 目标数据库
+
+   DATABSE 列表示该行设置对那个数据库生效；
+
+3. 目标用户
+
+   USER 列表示改行设置对哪个数据库用户生效
+
+4. 访问来源
+
+   ADDRESS 列标识该行设置对那个IP地址或IP地址段生效；
+
+5. 认证方法：
+
+   METHOD 列标识客户端认证方法，常见的认证方法有trust、reject、md5和password等。
+
+   - reject认证方式：允许某一网段的大多数主机访问数据库，但拒绝这一网段少数特定主机
+   - md5 和password 认证方式在于，md5认证方式为双重md5加密，password指明文密码，所以不要在非信任网络使用password认证方式。
+   - scram-sha-256是PostgreSQL10中新增的基于SASL的认证方式，是PostgreSQL目前提供最安全的认证方式。
+   - ```apl
+     [postgres@pgsql bin]$ /data/pgsql/bin/psql -h pghost1 -p 1921 -U postgres mydb
+     Password for user postgres:
+     psql (15.5)
+     Type "help" for help.
+     
+     mydb=#
+     ```
+   
+
+### 1.6.3 Postgresql.conf
+
+- postgresql.conf配置文件由多个configparameter = value形式的行组成，value支持的数据库类型由布尔、整数、浮点数、字符串、枚举，value的值还支持各种单位，MB、GB和ms、min、d。等还支持include和include_if_exists指令和嵌套
+
+1. 全局配置修改方法
+
+   修改全局配置方法由：
+
+   - 修改postgresql.conf配置文件
+
+   - 通过ALTER SYSTEM命令修改全局配置例如：
+
+     ```apl
+     mydb=# ALTER SYSTEM SET listen_addresses = '*';
+     ALTER SYSTEM
+     ```
+
+   - 通过ALTER SYSTEM SQL命令修改的全局配置参数，会自动编辑postgresql.auto.conf文件，并在数据库启动时自动加载postgresql.auto.conf文件，并用它覆盖postgresql.conf中已有的配置。这个文件不建议修改它。
+
+   - 启动数据库时进行设置，例如：
+
+     ```apl
+     [postgres@pgsql bin]$ /data/pgsql/bin/postgres -D /data/pgdata/ -c port=1922 &
+     
+     [1] 8473
+     [postgres@pgsql bin]$ 2024-06-09 01:44:05.282 CST [8473] LOG:  starting PostgreSQL 15.5 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-44), 64-bit
+     2024-06-09 01:44:05.282 CST [8473] LOG:  listening on IPv4 address "0.0.0.0", port 1922
+     2024-06-09 01:44:05.282 CST [8473] LOG:  listening on IPv6 address "::", port 1922
+     2024-06-09 01:44:05.283 CST [8473] LOG:  listening on Unix socket "/tmp/.s.PGSQL.1922"
+     2024-06-09 01:44:05.284 CST [8476] LOG:  database system was shut down at 2024-06-09 01:43:36 CST
+     2024-06-09 01:44:05.285 CST [8473] LOG:  database system is ready to accept connections
+     
+     [postgres@pgsql bin]$ !ss
+     ss -anptlu | grep postgre
+     tcp    LISTEN     0      128       *:1922                  *:*                   users:(("postgres",pid=8473,fd=5))
+     tcp    LISTEN     0      128    [::]:1922               [::]:*                   users:(("postgres",pid=8473,fd=6))
+     ```
+
+### 1.6.4允许远程访问数据库
+
+- 默认情况PostgreSQL不允许通过远程访问数据库
+
+1. 修改监听地址
+
+   管理监听地址的配置项为postgresql.conf文件中的listen_addresses。默认localhost连接，不允许使用TCP/IP
+
+   ```apl
+   vim /data/pgdata/postgresql.conf
+   
+   找到监听项进行修改
+   listen_addresses = '*'         
+   ```
+
+   监听项解释：
+
+   - what IP address(es) to listen on; 
+     - 监听什么IP地址，允许那些IP地址方位，可用是一个IP，也可以是多个IP
+   - comma-separated list of addresses;
+     - 以逗号分隔地址列表
+   - defaults to 'localhost'; use '*' for all
+     - 默认localhost，使用“*”允许所有地址，大多数的高可用架构使用VIP方式访问时一般设置为“*”
+   - (change requires restart)
+     - 修改这个参数时需要重启数据库，去掉listen前面的#号，并把它的值修改为“*”
+
+   ```apl
+   重启
+   [postgres@pgsql bin]$ /data/pgsql/bin/pg_ctl -D /data/pgdata/ -m fast -w restart
+   ```
+
+# 第二章pgAdmin 4 
+
+- pgAdmin是最流行的PostgreSQL图形化客户端工具，由于pgAdmin4 工具简单这里简单介绍
+
+### 2.1.1 安装
+
+官网下载地址：[PostgreSQL: File Browser](https://www.postgresql.org/ftp/pgadmin/pgadmin4/v8.7/windows/)
+
+### 2.1.2 pgAdmin 4 使用
+
+- pgAdmin 4 的使用非常简单，这一小节将演示pgAdmin 4 连接PostgreSQL数据库以及日常数据库操作
+
+![image-20240608185616549](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185616549.png?raw=true)
+
+![image-20240608185637870](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185637870.png?raw=true)
+
+![image-20240608185702507](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185702507.png?raw=true)
+
+![image-20240608185710751](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185710751.png?raw=true)
+
+2. 查询工具使用
+
+- 在pgAdmin 4 面板上点击Tools菜单中的QuseryTool进行日常数据库DDL、DML操作
+
+![](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608185710751.png?raw=true)
+
+![image-20240608190050553](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608190050553.png?raw=true)
+
+3. 使用pgAdmin 4 显示统计信息
+
+pgAdmin 4 具有丰富的监控功能，显示了数据库进程、每秒事物数、记录数据变化等相关信息。
+
+![image-20240608190237759](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240608190237759.png?raw=true)
+
+## 2.2 psql功能及应用
+
+- psql是PostgreSQL自带的命令行客户端工具，具有非常丰富的功能，类似于Oracle命令行客户端工具sqlplus，这一节将介绍psql常用功能和特殊功能，熟练掌握psql处理日常维护工作
+
+### 2.2.1 使用psql连接数据库
+
+- 可以在数据接口服务端执行，可以远程连接数据库，在数据库服务端连接本地库
+
+  psql 后面第一个postgres表示库名，第二个为用户，端口为默认1921
+
+  ```apl
+  数据库服务端连接本地[root@pgsql ~]# psql postgres postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# 
+  ```
+
+- 创建用户pguser
+
+  ```apl
+  postgres=# create role pguser with encrypted password  'qianyi12!';
+  CREATE ROLE
+  ```
+
+- 创建表空间目录
+
+  ```apl
+  [postgres@pgsql ~]$ mkdir -p /data/pg-15/tbs_mydb
+  [postgres@pgsql ~]$ psql postgres postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# create tablespace tbs_mydb OWNER pguser LOCATION '/data/pg-15/tbs_mydb';
+  CREATE TABLESPACE
+  
+  ```
+
+- 创建数据库
+
+  ```apl
+  查看当前来连接
+  SELECT pid, usename, application_name, client_addr, client_port, backend_start, state
+  FROM pg_stat_activity
+  WHERE datname = 'mydb';
+  
+  创建数据库
+  postgres=# CREATE DATABASE mydb WITH OWNER = pguser TEMPLATE = template0 ENCODING = 'UTF8' TABLESPACE = tbs_mydb;
+  CREATE DATABASE
+  
+  ```
+
+- 赋权
+
+  ```apl
+  postgres=# grant all on database mydb TO pguser with grant option;
+  GRANT
+  postgres=# grant all on tablespace tbs_mydb TO pguser;
+  GRANT
+  ```
+
+CREATE DATABASE命令中的owner选项表示数据库属主，TEMPLATE表示数据库模板，默认有template0和templte1模板，也能自定义数据库模板，ENCODING表示数据库字符集，这里设置为UTF8，TABLESPACE表示数据库默认表空间。
+
+- 服务器pghost1的IP为192.168.71.10，pghost2IP为192.168.71.11，在pghost1连接pghost2上的mydb数据库命令如下：
+
+  ```apl
+  [root@pgsql ~]# psql -h 192.168.71.11 -p 1921 mydb  -U postgres
+  Password for user postgres:
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# 
+  ```
+
+### 2.2.2psql元命令介绍
+
+- psql中的元命令是指以反斜线开头给的命令，能够便捷的管理数据库，比如查看数据库对象定义、查看数据库占用空间大小、列出数据库各种对象名称、数据导入到出等。
+
+- 查看数据库列表
+
+  ```apl
+  [root@pgsql ~]# psql -h pghost1 -p 1921 mydb  -U postgres
+  Password for user postgres:
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# \l
+                                                   List of databases
+     Name    |  Owner   | Encoding |   Collate   |    Ctype    | ICU Locale | Locale Provider |   Access privileges
+  -----------+----------+----------+-------------+-------------+------------+-----------------+-----------------------
+   mydb      | pguser   | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =Tc/pguser           +
+             |          |          |             |             |            |                 | pguser=C*T*c*/pguser
+   postgres  | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            |
+   template0 | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =c/postgres          +
+             |          |          |             |             |            |                 | postgres=CTc/postgres
+   template1 | postgres | UTF8     | zh_CN.UTF-8 | zh_CN.UTF-8 |            | libc            | =c/postgres          +
+             |          |          |             |             |            |                 | postgres=CTc/postgres
+  (4 rows)
+  
+  mydb=#
+  
+  ```
+
+  1. \db查看空间列表
+
+  ```apl
+  mydb=# d\db
+               List of tablespaces
+      Name    |  Owner   |       Location
+  ------------+----------+----------------------
+   pg_default | postgres |
+   pg_global  | postgres |
+   tbs_mydb   | pguser   | /data/pg-15/tbs_mydb
+  (3 rows)
+  ```
+
+  2. \dt查看表列表
+
+     ```apl
+     mydb=# \dt;
+                List of relations
+      Schema |   Name    | Type  |  Owner
+     --------+-----------+-------+----------
+      public | table_1   | table | postgres
+      public | test_1    | table | postgres
+      public | test_copy | table | postgres
+     (3 rows)
+     ```
+
+  3. \d查看表定义
+
+  - 先创建一张测试表：
+
+  ```apl
+  CREATE TABLE test_1 (
+      id int4,
+      name text,
+      create_time timestamp without time zone DEFAULT clock_timestamp()
+  );
+  ALTER TABLE test_1 ADD PRIMARY KEY (id);
+  ALTER TABLE
+  ```
+
+  `create_time` 是列名。
+
+  `timestamp without time zone` 是数据类型，表示不带时区的时间戳。它用于存储日期和时间。
+
+  `DEFAULT clock_timestamp()` 是默认值，指定如果插入行时未提供值，将使用当前的时间戳。
+
+  `clock_timestamp()` 是一个内置函数，返回当前的日期和时间。
+
+- generate_series函数产生连续的整数，使用这个函数能非常方便地产生测试数据，查看表test_1定义只需要执行\d后跟表名
+
+  ```apl
+  mydb=# \d test_1;
+                                  Table "public.test_1"
+     Column    |            Type             | Collation | Nullable |      Default
+  -------------+-----------------------------+-----------+----------+-------------------
+   id          | integer                     |           | not null |
+   name        | text                        |           |          |
+   create_time | timestamp without time zone |           |          | clock_timestamp()
+  Indexes:
+      "test_1_pkey" PRIMARY KEY, btree (id)
+  ```
+
+  4. 查看表、索引占用空间大小
+
+  ```apl
+  mydb=# INSERT INTO test_1(id, name)
+  SELECT n, n || '_francs'
+  FROM generate_series(1, 5000000) n;
+  INSERT 0 5000000
+  ```
+
+  查看表大小执行\dt+ 表名：
+
+  ```apl
+  mydb=# \dt+ test_1
+                                      List of relations
+   Schema |  Name  | Type  |  Owner   | Persistence | Access method |  Size  | Description
+  --------+--------+-------+----------+-------------+---------------+--------+-------------
+   public | test_1 | table | postgres | permanent   | heap          | 287 MB |
+  (1 row)
+  ```
+
+  查看索引大小执行\di+ 表名：
+
+  ```apl
+  mydb=# \di+ test_1_pkey;
+                                             List of relations
+   Schema |    Name     | Type  |  Owner   | Table  | Persistence | Access method |  Size  | Description
+  --------+-------------+-------+----------+--------+-------------+---------------+--------+-------------
+   public | test_1_pkey | index | postgres | test_1 | permanent   | btree         | 107 MB |
+  (1 row)
+  ```
+
+5. \sf查看函数代码
+
+```apl
+CREATE OR REPLACE FUNCTION random_range(integer, integer)
+RETURNS integer
+LANGUAGE sql
+AS $function$
+    SELECT ($1 + FLOOR(($2 - $1 + 1) * random()))::int4;
+$function$;
+```
+
+range(integer,integer),postgreSQL支持名称相同但输入参数类型不同的函数，如果有同名函数，\sf必须指定函数的参数类型。
+
+6. \x设置查询结果输出
+
+使用\x可用设置查询结果输出模式
+
+```apl
+mydb=# select * from test_1 limit 2;
+  id  |    name     |        create_time
+------+-------------+----------------------------
+ 7537 | 7537_francs | 2024-06-09 23:42:43.06093
+ 7538 | 7538_francs | 2024-06-09 23:42:43.060938
+(2 rows)
+```
+
+7. 获取元命令对应的SQL代码
+
+psql提供的元命令实质上向数据库发出相应的SQL查询，当使用psql连接数据库时，-E选项可用获取命令的SQL代码。
+
+```apl
+[root@pgsql ~]# psql -E mydb postgres
+psql (15.5)
+Type "help" for help.
+
+mydb=# \db;
+********* QUERY **********
+SELECT spcname AS "Name",
+  pg_catalog.pg_get_userbyid(spcowner) AS "Owner",
+  pg_catalog.pg_tablespace_location(oid) AS "Location"
+FROM pg_catalog.pg_tablespace
+ORDER BY 1;
+**************************
+
+             List of tablespaces
+    Name    |  Owner   |       Location
+------------+----------+----------------------
+ pg_default | postgres |
+ pg_global  | postgres |
+ tbs_mydb   | pguser   | /data/pg-15/tbs_mydb
+(3 rows)
+```
+
+8. \?元命令
+
+当忘记具体的命令名称可用查询手册
+
+```apl
+mydb=# \?
+General
+  \copyright             show PostgreSQL usage and distribution terms
+  \crosstabview [COLUMNS] execute query and display result in crosstab
+  \errverbose            show most recent error message at maximum verbosity
+  \g [(OPTIONS)] [FILE]  execute query (and send result to file or |pipe);
+                         \g with no arguments is equivalent to a semicolon
+  \gdesc                 describe result of query, without executing it
+  \gexec                 execute query, then execute each value in its result
+  \gset [PREFIX]         execute query and store result in psql variables
+  \gx [(OPTIONS)] [FILE] as \g, but forces expanded output mode
+  \q                     quit psql
+  \watch [SEC]           execute query every SEC seconds
+
+Help
+  \? [commands]          show help on backslash commands
+  \? options             show help on psql command-line options
+  \? variables           show help on special variables
+
+```
+
+9. 便捷的HELP命令
+
+使用元命令\h后接SQL命令关键字能将sql命令的语法列车，对日常的数据库管理带来方便。
+
+```apl
+mydb=# \h create tablespace
+Command:     CREATE TABLESPACE
+Description: define a new tablespace
+Syntax:
+CREATE TABLESPACE tablespace_name
+    [ OWNER { new_owner | CURRENT_ROLE | CURRENT_USER | SESSION_USER } ]
+    LOCATION 'directory'
+    [ WITH ( tablespace_option = value [, ... ] ) ]
+
+URL: https://www.postgresql.org/docs/15/sql-createtablespace.html
+```
+
+### 2.2.3 psql导入、导出表数据
+
+- psql支持文件数据导入到数据库，也支持数据库表数据导出到文件中。COPY命令和\copy命令都支持
+  - COPY命令是SQL命令，\copy是元命令
+  - COPY命令具有SUPERUSER超级权限(将数据通过stdin、stdout)方式导入导出情况除外),而 \copy元命令不是SUPERUSER权限
+  - COPY命令读取和写入数据库服务端主机上的文件，而\copy元命令是从psql客户端主机读取或写入文件。
+
+1. 使用COPY命令导入导出数据
+
+   先来看看COPY命令如何将文本文件数据导入到数据库表中，首先在mydb库中创建测试表test_copy
+
+   ```apl
+   mydb=# create table test_copy(id int4,name text);
+   CREATE TABLE
+   ```
+
+   编写数据文件test_copy_in.txt字段分隔符用TAB键，也可用设置其他分隔符，导入再指定已设置的字段分割符号
+
+   ```apl
+   [root@pgsql scripts]# ls
+   [root@pgsql scripts]# pwd
+   /data/scripts
+   [root@pgsql scripts]# vim test_copy_in.txt
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   sudo chown postgres:postgres /data/scripts/test_copy_in.txt
+   sudo chmod 644 /data/scripts/test_copy_in.txt
+   ```
+
+   之后根据postgres用户登录mydb数据库，并将test_copy_in.txt文件中的数据导入到test_copy表中。
+
+   ```apl
+   mydb=# \dt public.test_copy
+              List of relations
+    Schema |   Name    | Type  |  Owner
+   --------+-----------+-------+----------
+    public | test_copy | table | postgres
+   (1 row)
+   
+   mydb=# \dt
+              List of relations
+    Schema |   Name    | Type  |  Owner
+   --------+-----------+-------+----------
+    public | table_1   | table | postgres
+    public | test_1    | table | postgres
+    public | test_copy | table | postgres
+   (3 rows)
+   
+   mydb=# COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   COPY 3
+   mydb=# select * from public.test_copy;
+    id | name
+   ----+------
+     1 | a
+     2 | b
+     3 | c
+   (3 rows)
+   ```
+
+   如果使用普通用户pguser导入文件数据，则报错
+
+   ```apl
+   [root@pgsql scripts]# psql -U postgres -d mydb
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# ALTER ROLE pguser LOGIN;
+   ALTER ROLE
+   
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   2024-06-10 00:57:07.055 CST [1961] ERROR:  must be superuser or have privileges of the pg_read_server_files role to COPY from a file
+   2024-06-10 00:57:07.055 CST [1961] HINT:  Anyone can COPY to stdout or from stdin. psql's \copy command also works for anyone.
+   2024-06-10 00:57:07.055 CST [1961] STATEMENT:  COPY public.test_copy FROM '/data/scripts/test_copy_in.txt';
+   ERROR:  must be superuser or have privileges of the pg_read_server_files role to COPY from a file
+   HINT:  Anyone can COPY to stdout or from stdin. psql's \copy command also works for anyone.
+   ##提示需要使用超级用户而\copy元命令普通用户即可使用。
+   ```
+
+   COPY将表test_copy中的数据导出到文件，同样使用postgres用户
+
+   ```apl
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   [root@pgsql scripts]# psql mydb postgres
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# copy public.test_copy TO '/data/scripts/test_copy_in.txt'
+   mydb-# ;
+   COPY 15
+   mydb=# exit
+   [root@pgsql scripts]# cat test_copy_in.txt
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   ```
+
+   也可以将表数据输出到表中输出，不需要超级用户权限
+
+   ```apl
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> copy test_copy TO stdout;
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   1       a
+   2       b
+   3       c
+   ```
+
+2. 导出为csv格式
+
+   将数据导出为csv格式，并且with csv header 是指导出格式为csv，并显示字段名称，可用使用ofice execl打开。
+
+   ```apl
+   mydb=# COPY public.test_copy TO '/data/scripts/test_copy.csv' with csv header;
+   COPY 15
+   ```
+
+3. 筛选导出ID为1的数据记录
+
+   ```apl
+   mydb=# COPY (SELECT * FROM public.test_copy where id=1) to '/data/scripts/test_copy2.csv' with csv header;
+   COPY 5
+   mydb=# exit
+   [root@pgsql scripts]# cat test_copy2.csv
+   id,name
+   1,a
+   1,a
+   1,a
+   1,a
+   1,a
+   ```
+
+4. \COPY元命令导入导出数据
+
+   如果需要导出小表数据，通过\copy元命令，如果是大表则使用主机COPY命令，效率更高。
+
+   COPY命令是从数据库服务端主机读取或写入文件数据，并且\copy不需要超级用户权限
+
+   ```apl
+   mydb=> DELETE FROM public.test_copy;
+   DELETE 15
+   mydb=> \copy public.test_copy FROM '/data/scripts/test_copy.csv' CSV HEADER;
+   COPY 15
+   mydb=> \q
+   [root@pgsql scripts]# cat test_copy2.csv
+   [root@pgsql scripts]# psql mydb pguser
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=> \copy public.test_copy to '/data/scripts/test_copy2.csv' CSV HEADER;
+   COPY 15
+   mydb=> \q
+   [root@pgsql scripts]# cat test_copy2.csv
+   id,name
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   1,a
+   2,b
+   3,c
+   ```
+
+### 2.2.4 psql语法和选项介绍
+
+1. -A 设置非对齐输出模式
+
+   ```apl
+   [root@pgsql scripts]# psql -c "SELECT * FROM test_1 where id=1" mydb postgres
+    id |   name   |        create_time
+   ----+----------+----------------------------
+     1 | 1_francs | 2024-06-09 23:42:43.047825
+   (1 row)
+   ## 添加-A选项
+   [root@pgsql scripts]# psql -A -c "SELECT * FROM test_1 where id=1" mydb postgres
+   id|name|create_time
+   1|1_francs|2024-06-09 23:42:43.047825
+   (1 row)
+   
+   ```
+
+2. -t 只现实记录数据
+
+   注意：通常-A和-t一起使用因为单独-t每个字段后空格无法省略。通过添加-A就可以去除空格
+
+   ```apl
+   [root@pgsql scripts]# psql -t -c  "SELECT * FROM test_1 where id=1" mydb postgres
+     1 | 1_francs | 2024-06-09 23:42:43.047825
+   [root@pgsql scripts]# psql -At -c  "SELECT * FROM test_1 where id=1" mydb postgres
+   1|1_francs|2024-06-09 23:42:43.047825
+   ```
+
+3. -q不显示输出信息
+
+   ![image-20240609173849453](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240609173849453.png?raw=true)
+
+### 2.2.5psql执行sql脚本
+
+-c 支持在操作系统层面通过psql向数据库发起sql命令
+
+```apl
+[root@pgsql scripts]# psql -c "select current_user;" -U postgres
+ current_user
+--------------
+ postgres
+(1 row)
+[root@pgsql scripts]# psql -At -c "select current_user;" -U postgres
+postgres
+```
+
+通过-f选项导入脚本
+
+```apl
+[root@pgsql scripts]# cat test_2.sql
+create table test_2(id int4);
+insert into test_2 values (1);
+insert into test_2 values (2);
+insert into test_2 values (3);
+[root@pgsql scripts]# psql mydb postgres -f test_2.sql
+CREATE TABLE
+INSERT 0 1
+INSERT 0 1
+INSERT 0 1
+```
+
+### 2.2.6 psql如何传递变量到SQL
+
+1. \set元命令方式传递变量
+
+   ```apl
+   mydb=# \set name value
+   mydb=# \set v_id 2
+   mydb=# select * from test_copy where id=:v_id
+   mydb-# ;
+    id | name
+   ----+------
+     2 | b
+   ```
+
+   取消之前设置的变量值，\set 命令后，参数名即可
+
+   ```apl
+   mydb=# \set v_id
+   ```
+
+2. psql的-v参数传递变量：查询id为1的行数
+
+   通过-v参数传递变量，首先编写select_1.sql脚本
+
+   ```apl
+   [root@pgsql scripts]# cat select_1.sql
+   select * from test_copy where id=:v_id;
+   [root@pgsql scripts]# psql -v v_id=1 mydb postgres -f select_1.sql
+    id | name
+   ----+------
+     1 | a
+     1 | a
+     1 | a
+     1 | a
+     1 | a
+   (5 rows)
+   
+   ```
+
+#### 2.2.7 使用sql定制日常维护脚本
+
+1. 定制维护脚本，查询活动会话
+
+   - .psqlrc文件，如果psql没有带-X选项，psql尝试读取和执行用户~/.psqlrc启动文件中的命令，结合这个文件预先定制维护脚本。例如查询活动会话的SQL
+   - PID：指进程号
+   - usename：指数据库用户名称
+   - datname：指数据库名称
+   - query：显示进程最近执行的SQL
+   - state：为active则query显示当前执行的sql
+     - active：后台进程正在执行
+     - idle：后台进程为空闲状态，等待后续客户端发出命令
+     - idle in transaction：后台进程正在事物中，并不是指正在执行SQL
+     - idle in transaction(aborted)：类似上面一个，只是事物中的部分SQL异常。
+   - client_addr是进程的客户端IP
+
+   ```apl
+   mydb=# select * from pg_stat_activity limit 1;
+   
+   mydb=# 
+    pid  | usename  | datname |                                query                                 | client_addr
+   ------+----------+---------+----------------------------------------------------------------------+-------------
+    1652 |          |         |                                                                      |
+    1653 | postgres |         |                                                                      |
+    2232 | postgres | mydb    | select pid,usename,datname,query,client_addr from pg_stat_activity ; |
+    1649 |          |         |                                                                      |
+    1648 |          |         |                                                                      |
+    1651 |          |         |                                                                      |
+   (6 rows)
+   ```
+
+- 之后，重新连接数据库，执行active_session命令，冒号后边接变量名即可
+
+  ```apl
+  [root@pgsql ~]# pwd
+  /root
+  [root@pgsql ~]# cat .psqlrc
+  \set active_session 'select pid,usename,datname,query,client_addr from pg_stat_activity where pid <> pg_backend_pid () and state=\'active\' order by query;';
+  
+  [root@pgsql ~]# psql -U postgres -d mydb
+  psql (15.5)
+  Type "help" for help.
+  
+  mydb=# :active_session
+   pid | usename | datname | query | client_addr
+  -----+---------+---------+-------+-------------
+  (0 rows)
+  ```
+
+2. 定制维护脚本：查询等待事件
+
+   PostgreSQL也有等待事件的概念，对于问题诊断有较大的参考作用，查询等待事件SQL
+
+   查看会话等待事件
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set active_session 'select pid,usename,datname,query,client_addr from pg_stat_activity where pid <> pg_backend_pid () and state=\'active\' order by query;';
+   \set wait_event  'SELECT pid, usename, datname, query, client_addr, wait_event_type, wait_event FROM pg_stat_activity WHERE pid <> pg_backend_pid() AND wait_event IS NOT NULL ORDER BY wait_event_type;'
+   
+   [root@pgsql ~]# psql -U postgres -d mydb
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# :wait_event
+    pid  | usename  | datname | query | client_addr | wait_event_type |     wait_event
+   ------+----------+---------+-------+-------------+-----------------+---------------------
+    1652 |          |         |       |             | Activity        | AutoVacuumMain
+    1653 | postgres |         |       |             | Activity        | LogicalLauncherMain
+    1649 |          |         |       |             | Activity        | BgWriterHibernate
+    1648 |          |         |       |             | Activity        | CheckpointerMain
+    1651 |          |         |       |             | Activity        | WalWriterMain
+   (5 rows)
+   ```
+
+   查看连接数
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set connections  'SELECT datname, usename, client_addr, count(*) FROM pg_stat_activity WHERE pid <> pg_backend_pid() GROUP BY 1, 2, 3 ORDER BY 1, 4 DESC;'
+   mydb=# :connections
+    datname | usename  | client_addr | count
+   ---------+----------+-------------+-------
+            |          |             |     4
+            | postgres |             |     1
+   (2 rows)
+   ```
+
+   
+
+   1. **条件 1: `pid <> pg_backend_pid()`**：
+      - `pid` 是 `pg_stat_activity` 表中的列，表示每个活动会话的进程 ID。
+      - `pg_backend_pid()` 是一个 PostgreSQL 内置函数，用于获取当前会话的后端进程 ID。
+      - `pid <> pg_backend_pid()` 表示选择那些进程 ID 不等于当前后端进程 ID 的行。这个条件确保查询不会返回当前执行查询的会话自身的信息。
+   2. **条件 2: `wait_event IS NOT NULL`**：
+      - `wait_event` 是 `pg_stat_activity` 表中的列，它表示当前会话正在等待的事件类型。
+      - `IS NOT NULL` 是一个条件运算符，用于检查列的值是否不为 `NULL`。
+      - `wait_event IS NOT NULL` 表示选择那些等待事件不为空的会话。这个条件确保只返回正在等待某种事件的活动会话信息。
+
+   ### ORDER BY 子句解释：
+
+   - ORDER BY 子句
+
+     ：
+
+     - `ORDER BY` 子句用于对查询结果进行排序。在您的查询中，`ORDER BY wait_event_type` 表示按照 `wait_event_type` 列的值对结果进行升序排序。
+     - `wait_event_type` 是 `pg_stat_activity` 表中的列，表示当前会话正在等待的事件的类型。
+     - `ORDER BY 1`: 结果集会首先按照数据库名称 (`datname`) 的字母顺序进行升序排列。
+     - `ORDER BY 4 DESC`: 如果有多行具有相同的 `datname`，那么这些行会按照它们的 `count(*)` 的值进行降序排列。也就是说，在每个数据库名称组合下，会把拥有最多连接数的会话放在前面。
+
+### 2.2.8 psql亮点功能
+
+1. \timing显示SQL执行时间
+
+   ```apl
+   mydb=# \timing
+   Timing is on.
+   mydb=# select count(*) FROM test_copy ;
+    count
+   -------
+       15
+   (1 row)
+   
+   Time: 0.555 ms
+   ```
+
+   以上显示count语句执行的时间为0.5毫秒，如果需要关闭再次执行\timing元命令即可
+
+   ```apl
+   mydb=# \timing
+   Timing is on.
+   mydb=# select count(*) FROM test_copy ;
+    count
+   -------
+       15
+   (1 row)
+   
+   Time: 0.555 ms
+   mydb=# \timing
+   Timing is off.
+   ```
+
+2. \watch反复执行当前sql
+
+   \watch 元命令会反复执行当前查询缓冲区的SQL命令，知道SQL被中止或失败
+
+   语法：
+
+   \watch [ seconds ]
+
+   seconds表示两次执行间隔的时间，以秒为单位，默认为2秒，例如每个一秒反复执行now()函数查询当前时间
+
+   ```apl
+   mydb=# select now();
+                 now
+   -------------------------------
+    2024-06-10 03:17:45.571675+08
+   (1 row)
+   
+   mydb=# \watch 1
+   2024年06月10日 星期一 03时17分51秒 (every 1s)
+   
+                now
+   ------------------------------
+    2024-06-10 03:17:51.51207+08
+   (1 row)
+   
+   2024年06月10日 星期一 03时17分52秒 (every 1s)
+   
+                 now
+   -------------------------------
+    2024-06-10 03:17:52.512406+08
+   (1 row)
+   
+   2024年06月10日 星期一 03时17分53秒 (every 1s)
+   
+                 now
+   -------------------------------
+    2024-06-10 03:17:53.512246+08
+   (1 row)
+   ```
+
+3. 客户端提示符
+
+   以下命令显示了psql客户端提示符“postgresql=#”是默认的客户端提示符
+
+   ```apl
+   [root@pgsql ~]# psql -U postgres
+   psql (15.5)
+   Type "help" for help.
+   
+   postgres=#
+   
+   ```
+
+   可用根据喜好设置psql客户端提示符
+
+   %M：数据库服务器别名，不是指主机名，显示的是psql的-h参数设置的值；当连接建立在Unix域套接字上时则是[local]
+
+   %>：数据库服务器的端口号
+
+   %n：数据库会话的用户名，在数据库会话期间，这个值可能会应为命令SET SESSIONAUTHORIZATION的结构而改变。
+
+   %/：当前数据库名称。
+
+   %#：如果是超级用户则显示“#”，其他用户“>"
+
+   %p：当前数据库连接的后台进程号。
+
+   %R：在PROMPT1中通常显示”=“如果进程被断开则显示”！“
+
+   ```
+   postgres=# \echo :PROMPT1
+   %/%R%x%#
+   
+   postgres=# \set PROMPT1 '%M%R%#'
+   [local]=#
+   
+   ```
+
+   在pghost1远程pghost2主机设置PROMPT1变量值为 "%M%R%#"
+
+   ```apl
+   [root@pgsql ~]# psql -U postgres -h 192.168.71.11
+   Password for user postgres:
+   psql (15.5)
+   Type "help" for help.
+   
+   postgres=# \set PROMPT1 '%M%R%#'
+   192.168.71.11=#
+   
+   [root@pgsql ~]# psql -U pguser -h 192.168.71.11 -d mydb
+   Password for user pguser:
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb=# \set PROMPT1 '%/@%M%R%#'
+   mydb@192.168.71.11=#
+   
+   ```
+
+   将PROMPT1设置为"%/@%M:%>%R%#"
+
+   ```apl
+   [root@pgsql ~]# cat .psqlrc
+   \set PROMPT1 '%/@%M:%>%R%#'
+   
+   [root@pgsql ~]# psql -U pguser -h 192.168.71.11 mydb -p 1921
+   Password for user pguser:
+   psql (15.5)
+   Type "help" for help.
+   
+   mydb@192.168.71.11:1921=#
+   ```
+
+# 第三章 数据类型
+
+## 3.1数字类型
+
+- PostgreSQL支持的数据类型有整数类型，用户指定精度类型、浮点类型、serial类型
+
+### 3.1.1数字类型列表
+
+| 类型名称         | 存储长度 | 描述           | 范围                                                     |
+| ---------------- | -------- | -------------- | -------------------------------------------------------- |
+| smallint         | 2 字节   | 小范围整数类型 | -32,768 到 +32,767                                       |
+| integer          | 4 字节   | 整数类型       | -2,147,483,648 到 +2,147,483,647                         |
+| bigint           | 8 字节   | 大范围整数类型 | -9,223,372,036,854,775,808 到 +9,223,372,036,854,775,807 |
+| decimal          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| numeric          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| real             | 4 字节   | 变长，不精确   | 6 位十进制精度                                           |
+| double precision | 8 字节   | 变长，不精确   | 15 位十进制精度                                          |
+
+- smallint、integer、bigint都是整数类型，存储一定范围的整数，超出范围将报错。
+- smallint存储2字节整数，字段定义时可以写成int2，integer存储4字节整数，支持的数值范围比smallint大，字段写成int4，是最常用的整数类型，bigint存储8字节整数，支持的发呢我i比integer大，写成int8.
+
+| 类型名称         | 存储长度 | 描述           | 范围                                                     |
+| ---------------- | -------- | -------------- | -------------------------------------------------------- |
+| smallint         | 2 字节   | 小范围整数类型 | -32,768 到 +32,767                                       |
+| integer          | 4 字节   | 整数类型       | -2,147,483,648 到 +2,147,483,647                         |
+| bigint           | 8 字节   | 大范围整数类型 | -9,223,372,036,854,775,808 到 +9,223,372,036,854,775,807 |
+| decimal          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| numeric          | 可变     | 用户指定精度   | 小数点前 131,072 位；小数点后 16,383 位                  |
+| real             | 4 字节   | 变长，不精确   | 6 位十进制精度                                           |
+| double precision | 8 字节   | 变长，不精确   | 15 位十进制精度                                          |
+
+### 其他数据类型
+
+| 类型名称    | 存储长度 | 描述              | 范围                           |
+| ----------- | -------- | ----------------- | ------------------------------ |
+| smallserial | 2 字节   | smallint 自增序列 | 1 到 32,767                    |
+| serial      | 4 字节   | integer 自增序列  | 1 到 2,147,483,647             |
+| bigserial   | 8 字节   | bigint 自增序列   | 1 到 9,223,372,036,854,775,807 |
+
+定义一张使用integer类型的表：
+
+```apl
+mydb@192.168.71.11:1921=#create table test_integer (id1 integer,id2 int4);
+CREATE TABLE
+```
+
+- decimal和numeric是等效的，可以存储指定精度的多位数据，比如小数位的数据和要求计算精度的运算
+
+  precision是指numeric数字里面的所有数字，scale是指小数为，比如：
+
+  18.222，precision=5为，scale=3位，numeric类型运算相比整数类型性能低些
+
+- real和double precision是指浮点数据类型，real支持4字节，double precision支持8字节。
+
+- smallserial、serial和bigserial类型是指自增serial类型，严格意义上不能称之为一种数据类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#create table test_serial (id serial,falg text);
+  CREATE TABLE
+  ```
+
+  查看test_serial的表结构
+
+  ```apl
+  mydb@192.168.71.11:1921=#\d test_serial
+                              Table "public.test_serial"
+   Column |  Type   | Collation | Nullable |                 Default
+  --------+---------+-----------+----------+-----------------------------------------
+   id     | integer |           | not null | nextval('test_serial_id_seq'::regclass)
+   falg   | text    |           |          |
+  ```
+
+  以上显示id字段使用了序列test_serial_id_seq,插入表数据时可以不指定serial字段名称，将自动使用序列值填充
+
+  ```apl
+  mydb@192.168.71.11:1921=#\d test_serial
+                              Table "public.test_serial"
+   Column |  Type   | Collation | Nullable |                 Default
+  --------+---------+-----------+----------+-----------------------------------------
+   id     | integer |           | not null | nextval('test_serial_id_seq'::regclass)
+   falg   | text    |           |          |
+  
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('a');
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('a');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('b');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#insert into test_serial(falg) values ('c');
+  INSERT 0 1
+  mydb@192.168.71.11:1921=#select * from test_serial
+  ;
+   id | falg
+  ----+------
+    1 | a
+    2 | b
+    3 | c
+  (3 rows)
+  ```
+
+### 3.1.2 数字类型操作符和数学函数
+
+- PostgreSQL支持数字类型操作和丰富的数学函数，列入：加、减、乘、除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 1+2,2*3,4/2,8%3,22*2;
+   ?column? | ?column? | ?column? | ?column? | ?column?
+  ----------+----------+----------+----------+----------
+          3 |        6 |        2 |        2 |       44
+  (1 row)
+  ```
+
+  按模取余8除3余2
+
+  ```apl
+  mydb@192.168.71.11:1921=#select mod(8,3);
+   mod
+  -----
+     2
+  ```
+
+  四舍五入函数如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#select round(10.2),round(10.9);
+   round | round
+  -------+-------
+      10 |    11
+  (1 row)
+  ```
+
+  返回大于或等于给出参数的最小整数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select ceil(3.6),ceil(-3.6);
+   ceil | ceil
+  ------+------
+      4 |   -3
+  ```
+
+  返回小于或等于给出参数的最大整数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select floor(3.6),floor(-3.6);
+   floor | floor
+  -------+-------
+       3 |    -4
+  ```
+
+## 3.2字符类型
+
+- PostgreSQL支持的字符类型，并且介绍常用的字符类型函数。
+
+### 3.2.1字符类型列表
+
+| 字符类型名称                     | 描述                                   |
+| -------------------------------- | -------------------------------------- |
+| character varying(n), varchar(n) | 变长，字符最大数有限制                 |
+| character(n), char(n)            | 定长，字符数没达到最大值则使用空白填充 |
+| text                             | 变长，无长度限制                       |
+
+character varying(n) 存储的是变长字符类型，n是一个正整数，如果存储的字符串长度超出n则报错：如果存储的字符串比n小，character varying(n)进存储实际位数，如何小则用空格填充。
+
+```apl
+mydb@192.168.71.11:1921=#create table test_char(coll varchar(4),coll2 character(4));
+CREATE TABLE
+INSERT 0 1
+```
+
+表test_char的字段coll类型为character varying(4),col2类型为character(4),接下来计算两个字段值的字符串长度。
+
+```apl
+mydb@192.168.71.11:1921=#select char_length(coll),char_length(coll2) FROM test_char;
+ char_length | char_length
+-------------+-------------
+           1 |           1
+(1 row)
+```
+
+char_length(string)显示字符串字符数，从上面结果可以看出字符串长度为1，接着查看两字段实际占用物理空间大小。
+
+```apl
+mydb@192.168.71.11:1921=#select octet_length(coll),octet_length(coll2) FROM test_char ;
+ octet_length | octet_length
+--------------+--------------
+            1 |            4
+(1 row)
+```
+
+test字符类型存储任意长度的字符串，和没有声明字符长度的character varying类型几乎没有差别。
+
+### 3.2.2 字符类型函数
+
+- PostgreSQL支持丰富的字符函数
+
+- 字符数：char_length
+
+  ```apl
+  mydb@192.168.71.11:1921=#select char_length('a释');
+   char_length
+  -------------
+             2
+  ```
+
+- 字节数：octet_length
+
+  ```apl
+  mydb@192.168.71.11:1921=#select octet_length('a释');
+   octet_length
+  --------------
+              4
+  ```
+
+- 指定字符在字符串的位置：position
+
+  ```apl
+  mydb@192.168.71.11:1921=#select position('a' in 'bacd');
+   position
+  ----------
+          2
+  ```
+
+- 提前字符串中的子串
+
+  ```apl
+  mydb@192.168.71.11:1921=#select substring('franc释放' from 3 for 5);
+   substring
+  -----------
+   anc释放
+  ```
+
+- 拆分字符串，split_part
+
+  ```apl
+  mydb@192.168.71.11:1921=#select split_part('abc@def1@cnb','@',2);
+   split_part
+  ------------
+   def1
+  
+  mydb@192.168.71.11:1921=#select split_part('abc@def1@cnb','c',2);
+   split_part
+  ------------
+   @def1@
+  ```
+
+## 3.3时间/日期类型
+
+PostgreSQL对时间、日期数据类型支持丰富灵活。
+
+### 3.3.1 时间/日期类型列表
+
+| 字符类型名称                        | 存储长度 | 描述                                       |
+| ----------------------------------- | -------- | ------------------------------------------ |
+| timestamp [(p)] [without time zone] | 8 字节   | 包括日期和时间，不带时区，简写成 timestamp |
+| timestamp [(p)] with time zone      | 8 字节   | 包括日期和时间，带时区，简写成 timestamptz |
+| date                                | 4 字节   | 日期，但不包含一天中的时间                 |
+| time [(p)] [without time zone]      | 8 字节   | 一天中的时间，不包含日期，不带时区         |
+| time [(p)] with time zone           | 12 字节  | 一天中的时间，不包含日期，带时区           |
+| interval [fields] [(p)]             | 16 字节  | 时间间隔                                   |
+
+- 系统自带的now()
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now();
+                now
+  -------------------------------
+   2024-06-10 08:59:00.716041+08
+  ```
+
+- timestamp和timestamptz
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::timestamp;
+              now
+  ----------------------------
+   2024-06-10 09:01:18.417413
+  
+  mydb@192.168.71.11:1921=#select now()::timestamp without time zone;
+              now
+  ----------------------------
+   2024-06-10 09:01:20.374325
+  
+  mydb@192.168.71.11:1921=#select now()::timestamp with time zone;
+  mydb@192.168.71.11:1921=#select now()::timestamptz;
+                now
+  -------------------------------
+   2024-06-10 09:01:52.010901+08
+  ```
+
+  转换成data格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::date;
+      now
+  ------------
+   2024-06-10
+  ```
+
+  转换成time with time zone格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now()::time without time zone;
+         now
+  -----------------
+   09:05:47.112888
+  
+  mydb@192.168.71.11:1921=#select now()::time with time zone;
+          now
+  --------------------
+   09:05:48.801075+08
+  
+  mydb@192.168.71.11:1921=#select now()::timetz;
+          now
+  --------------------
+   09:05:59.646271+08
+  
+  ```
+
+  interval指时间间隔，间隔单位可以是hour、day、month、year等
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now(),now()+interval'1 day';
+                now              |           ?column?
+  -------------------------------+-------------------------------
+   2024-06-10 09:10:05.685558+08 | 2024-06-11 09:10:05.685558+08
+  (1 row)
+  ```
+
+  没声明精度默认值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now(),now()::timestamp(0);
+                now              |         now
+  -------------------------------+---------------------
+   2024-06-10 09:12:03.945239+08 | 2024-06-10 09:12:04
+  ```
+
+### 3.3.2 时间/日期类型操作符
+
+- 时间、日期数据类型支持的操作符有加减乘除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select date '2017-07-29' + interval '1 days,1 year';
+        ?column?
+  ---------------------
+   2018-07-30 00:00:00
+  ```
+
+- 日期相乘
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 100* interval '1 second';
+   ?column?
+  ----------
+   00:01:40
+  ```
+
+- 日期相除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select interval '1 hour' / double precision '3';
+   ?column?
+  ----------
+   00:20:00
+  ```
+
+### 3.3.3 日期/日期类型常用函数
+
+- 显示当前时间、日期常用函数
+
+  ```apl
+  mydb@192.168.71.11:1921=#select current_date,current_time;
+   current_date |    current_time
+  --------------+--------------------
+   2024-06-10   | 09:23:54.679631+08
+  ```
+
+  ![image-20240610012451176](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610012451176.png?raw=true)
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(year from now());
+   extract
+  ---------
+      2024
+  ```
+
+- 对于timestamp类型，取月份和月份里的第几天
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(month from now()),extract(day from now());
+   extract | extract
+  ---------+---------
+         6 |      10
+  ```
+
+- 取小时、分钟
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract( hour from now()),extract(minute from now());
+   extract | extract
+  ---------+---------
+         9 |      28
+  ```
+
+- 取秒
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(second from now());
+   extract
+  ----------
+   9.786804
+  ```
+
+- 取当前日期所在年份中第几周
+
+  ```apl
+  mydb@192.168.71.11:1921=#select extract(week from now());
+   extract
+  ---------
+        24
+  ```
+
+- 当天属于当年的第几天
+
+  ```apl
+  mydb@192.168.71.11:1921=#select now();
+                now
+  -------------------------------
+   2024-06-10 09:32:39.584523+08
+  
+  mydb@192.168.71.11:1921=#select extract(doy from now());
+   extract
+  ---------
+       162
+  
+  ```
+
+## 3.4布尔类型
+
+- PostgreSQL还支持很多非常规数据类型，比如布尔类型、网络地址类型、数组类型、范围类型、json/isonb类型等，从这一节开始将介绍PostgreSQL支持的非常规数据类型，本节介绍布尔类型，PostgreSQL支持的布尔类
+
+| 字符类型名称 | 存储长度 | 描述              |
+| ------------ | -------- | ----------------- |
+| boolean      | 1字节    | 状态为true或false |
+
+true状态的有效值可以是TRUE、t、true、y、yes、on、1、false状态的有效值FALSE、f、false、n、no、off、0
+
+```apl
+mydb@192.168.71.11:1921=#create table test_boolean(cola boolean,colb boolean);
+CREATE TABLE
+
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('true','false');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('t','f');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('TRUE','FALSE');
+
+INSERT 0 1
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('yes','no');
+
+INSERT 0 1                                                       ^
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values ('1','0');
+
+INSERT 0 1                                                    ^
+mydb@192.168.71.11:1921=#insert into test_boolean (cola,colb) values (null,null);
+INSERT 0 1
+
+```
+
+```apl
+mydb@192.168.71.11:1921=#select * from test_boolean;
+ cola | colb
+------+------
+ t    | f
+ t    | f
+ t    | f
+ t    | f
+ t    | f
+      |
+```
+
+## 3.5 网络地址类型
+
+- 当有存储IP地址需求的业务场景时，postgresql提供用于ipv4、ipv6、mac网络地址的转有网络地址数据类型，使用网络地址数据类型存储IP地址要由于字符类型，因为网络地址类型一方面会对数据合法性进行检查，另一方面也提供了网络数据类型操作和函数方便应用程序开发
+
+### 3.5.1网络地址类型列表
+
+| 字符类型名称 | 存储长度     | 描述                   |
+| ------------ | ------------ | ---------------------- |
+| cidr         | 7 或 19 字节 | IPv4 和 IPv6 网络      |
+| inet         | 7 或 19 字节 | IPv4 和 IPv6 网络      |
+| macaddr      | 6 字节       | MAC 地址               |
+| macaddr8     | 8 字节       | MAC 地址 (EUI-64 格式) |
+
+- inet和cidr类型存储的网络地址格式为address/y,其中address表示ipv4或ipv6网络地址，y表示网络掩码位数，如果省略y，则表示ipv4掩码为32为，对于ipv6为128，所以改该值表示一台主机
+
+  ![image-20240610015429951](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610015429951.png?raw=true)
+
+inet和cid网络类型存在一下差别
+
+1. cidr类型输出默认带子网掩码，而inet不一定。
+
+```apl
+mydb@192.168.71.11:1921=#select '192.168.1.100'::inet;
+     inet
+---------------
+ 192.168.1.100
+(1 row)
+
+mydb@192.168.71.11:1921=#select '192.168.1.100/32'::inet;
+     inet
+---------------
+ 192.168.1.100
+(1 row)
+
+mydb@192.168.71.11:1921=#select '192.168.1.100/16'::inet;
+       inet
+------------------
+ 192.168.1.100/16
+(1 row)
+```
+
+2. cidr类型对IP地址和子网掩码合法性进行检查，inet不会
+
+```apl
+mydb@192.168.71.11:1921=#select '192.168.2.0/8'::cidr;
+ERROR:  invalid cidr value: "192.168.2.0/8"
+LINE 1: select '192.168.2.0/8'::cidr;
+               ^
+DETAIL:  Value has bits set to right of mask.
+
+mydb@192.168.71.11:1921=#select '192.168.2.0/8'::inet;
+     inet
+---------------
+ 192.168.2.0/8
+ 
+ mydb@192.168.71.11:1921=#select '192.168.2.0/24'::inet;
+      inet
+----------------
+ 192.168.2.0/24
+```
+
+- 因此，从这个层面来说cidr比inet网络类型更严谨。
+
+### 3.5.2 网络地址操作符
+
+![image-20240610020144165](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610020144165.png?raw=true)
+
+### 3.5.3网络地址函数
+
+- PostgreSQL网络地址类型支持一系列函数
+
+- 取IP地址，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select host(cidr '192.168.1.0/24');
+      host
+  -------------
+   192.168.1.0
+  ```
+
+- 取IP地址和网络掩码，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select text(cidr '192.168.1.0/24');
+        text
+  ----------------
+   192.168.1.0/24
+  ```
+
+- 取网络地址和子网掩码，返回文本格式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select netmask(cidr '192.168.1.0/24');
+      netmask
+  ---------------
+   255.255.255.0
+  ```
+
+## 3.6 数组类型
+
+- PostgreSQL支持一系列数组和多数组，常用的数据类型为数字类型数组和字符型数组，也就是枚举类型，复合类型数组
+
+### 3.6.1 数组类型定义
+
+![image-20240610020701114](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610020701114.png?raw=true)
+
+```apl
+mydb@192.168.71.11:1921=#create table test_array1 ( id integer,array_i integer[],array_t text[]);
+CREATE TABLE
+```
+
+### 3.6.2 数据类型值输入
+
+- 数组类型的插入有两种方式，第一种方式使用花括号方式
+
+  ```apl
+  ‘{vall delim val2 delim...}
+  ```
+
+- 将数组元素值用花括号“{}“包围并用delim分隔符分开，数组元素值可以用双引号引用，delim分隔符通常为逗号
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{1,2,3}';
+   ?column?
+  ----------
+   {1,2,3}
+  ```
+
+- 往表test_array1中插入一条记录的代码
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_array1(id,array_i,array_t) values (1,'{1,2,3}','{"a","b","c"}');
+  INSERT 0 1
+  ```
+
+- 数组类型插入的第二种方式为使用ARRAY关键字
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,3];
+    array
+  ---------
+   {1,2,3}
+  (1 row)
+  ```
+
+- 往test_array1表中插入另一条记录
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_array1 (id,array_i,array_t) values (2,array[4,5,6],array['d','e','f']);
+  INSERT 0 1
+  ```
+
+- 表arrary1数据如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_array1
+  ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  ```
+
+### 3.6.3
+
+查询数组元素
+
+- 如果查询素组所有元素值，只需查询数组字段名即可
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_i from test_array1 where id=1;
+   array_i
+  ---------
+   {1,2,3}
+  ```
+
+- 数组元素的引用通过方括号”[]"方式
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_i[1],array_t[3] from test_array1 where id=1;
+   array_i | array_t
+  ---------+---------
+         1 | c
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select * from test_array1
+  ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  (2 rows)
+  
+  ```
+
+### 3.6.4 数组元素的追加、删除、更新
+
+- PostgreSQL数组类型支持数组元素的追加、删除与更新操作，数据元素的追加使用array_append
+
+  ```apl
+  array_append(anyarray,anyelement)
+  ```
+
+- array_append函数向数组末端加一个元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_append(array[1,2,3],4);
+   array_append
+  --------------
+   {1,2,3,4}
+  ```
+
+- 数据元素最佳到数组也可以使用||
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,3] || 4;
+   ?column?
+  -----------
+   {1,2,3,4}
+  ```
+
+- 数组元素的删除使用array_remove函数
+
+  ```apl
+  array_remove(anyarray,anylement)
+  ```
+
+- array_remove函数将移除函数中值等于给定值的所有数组元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array[1,2,2,3],array_remove(array[1,2,2,3],2);
+     array   | array_remove
+  -----------+--------------
+   {1,2,2,3} | {1,3}
+  ```
+
+- 数组元素的修改
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {1,2,3} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  (2 rows)
+  
+  mydb@192.168.71.11:1921=#update test_array1 set array_i[3]=4 where id=1;
+  UPDATE 1
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+   1 | {1,2,4} | {a,b,c}
+   2 | {4,5,6} | {d,e,f}
+  ```
+
+- 真个数组也能被更新
+
+  ```apl
+  mydb@192.168.71.11:1921=#update test_array1 set array_i=array[7,8,9] where id =1;
+  UPDATE 1
+  mydb@192.168.71.11:1921=#select * from test_array1 ;
+   id | array_i | array_t
+  ----+---------+---------
+    1 | {7,8,9} | {a,b,c}
+    2 | {4,5,6} | {d,e,f}
+  ```
+
+### 3.6.5 数组操作符
+
+![image-20240610023449649](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610023449649.png?raw=true)
+
+### 3.6.6数组函数
+
+- PostgreSQL支持丰富的数组函数，给数组添加元素或删除元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_append(array[1,2,3],3),array_remove(array[1,2],2);
+   array_append | array_remove
+  --------------+--------------
+   {1,2,3,3}    | {1}
+  ```
+
+- 获取数组维度
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_ndims(array[1,2]);
+   array_ndims
+  -------------
+             1
+  ```
+
+- 获取数组长度
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_length(array[1,2],1);
+   array_length
+  --------------
+              2
+  ```
+
+- 返回数组中某个数组元素第一次出现的位置
+
+  ```apl
+  mydb@192.168.71.11:1921=#select array_position(array['a','d','c','d','c'],'d');
+   array_position
+  ----------------
+                2
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select array_position(array['a','d','c','d','c'],'c');
+   array_position
+  ----------------
+                3
+  ```
+
+## 3.7 范围类型
+
+- 范围类型包含一个范围内的数据，常见的范围数据类型有日期范围类型、整数范围类型等，对于日期安排、价格范围应用场景比较适用。
+
+### 3.7.1 范围类型列表
+
+- PostgreSQL 系统提供内置的范围类型如下
+  int4range--integer范围类型
+  int8range--bigint 范围类型
+  numrange--numeric范围类型
+  --不带时区的timestamp范围类型tsrangetstzrange--带时区的timestamp范围类型
+  daterange--date 范围类型
+
+- 用户可以通过CREATE TYPE命令自定义范围数据类型，integer举例如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,5);
+   int4range
+  -----------
+   [1,5)
+  ```
+
+- 以上定义 1到5的整数范围，date范围举例如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select daterange('2017-07-01','2017-07-30');
+          daterange
+  -------------------------
+   [2017-07-01,2017-07-30)
+  ```
+
+### 3.7.2 范围类型边界
+
+- 每一个范围类型都包含下界和上界，方括号“[”表示包含下界，圆括号“(”表示排除下界，方括号“]”表示包含上界，圆括号“)”表示排除上界，也就是说方括号表示边界点包含在内，圆括号表示边界点不包含在内，范围类型值的输人有以下几种模式:
+  (lower-bound,upper-bound)
+  (lower-bound,upper-bound]
+  [lower-bound,upper-bound)
+  [lower-bound,upper-bound]
+  empty
+
+- 主要empty表示空范围，不包含任何元素
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7);
+   int4range
+  -----------
+   [4,7)
+  ```
+
+- 以上表示包含4，5，6，但不包含7，表中的范围类型为下界包含同时上节排除如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,3);
+   int4range
+  -----------
+   [1,3)
+  ```
+
+- 以上没有指定数据类型边界模式，指定上界为“]"
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(1,3,'[]');
+   int4range
+  -----------
+   [1,4)
+  ```
+
+### 3.7.3 范围类型操作
+
+- 包含元素操作如下
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7) @> 4;
+   ?column?
+  ----------
+   t
+  ```
+
+- 包含范围操作符
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7)@>int4range(4,6);
+   ?column?
+  ----------
+   t
+  ```
+
+- 等于操作符
+
+  ```apl
+  mydb@192.168.71.11:1921=#select int4range(4,7)=int4range(4,6,'[]');
+   ?column?
+  ----------
+   t
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select int4range(4,7)=int4range(4,7,'[]');
+   ?column?
+  ----------
+   f
+  ```
+
+- 其中@> 操作符在范围数据类型中比较常用，常用查询范围数据类型是否包含莫格指定元素。
+
+### 3.7.4 范围类型函数
+
+- 一下列举范围类型常用函数
+
+- 区范围下界
+
+  ```apl
+  mydb@192.168.71.11:1921=#select lower(int4range(1,10));
+   lower
+  -------
+       1
+  ```
+
+- 取范围类型上界
+
+  ```apl
+  mydb@192.168.71.11:1921=#select upper(int4range(1,10));
+   upper
+  -------
+      10
+  ```
+
+- 范围是否为空
+
+  ```apl
+  mydb@192.168.71.11:1921=#select isempty(int4range(1,10));
+   isempty
+  ---------
+   f
+  ```
+
+### 3.7.5 给范围类型创建索引
+
+- 范围类型数据支持创建GiST索引，GiST索引支持的操作符有 = && <@  @>   <<  >>  -|-  &<  &>  
+
+  ```apl
+  create index idx_ip_address_range ON ip_address USING gist (ip_range);
+  ```
+
+## 3.8 json/sjonb类型
+
+- PostgreSQL不只是一个关系数据库，同时还支持非关系数据库类型json（非常规化数据类型），本章介绍，json类型，json与jsonb差异，json与jsonb操作符和函数，以及jsonb键值的追加、删除、更新。
+
+### 3.8.1 json类型简介
+
+- PG对json的支持趋于完善，提供多个json函数和操作符便于开发
+
+  ```apl
+  mydb@192.168.71.11:1921=#SELECT '{"a":1,"b":2}'::json;
+       json
+  ---------------
+   {"a":1,"b":2}
+  ```
+
+- 更好的演示，创建一张表
+
+  ```apl
+  mydb@192.168.71.11:1921=#create table test_json1 (id serial primary key,name json);
+  CREATE TABLE
+  ```
+
+- 以上定义字段name为json，插入数据如下：
+
+  ```apl
+  mydb@192.168.71.11:1921=#insert into test_json1 (name) values ('{"coll":1,"coll2":"francs","coll3":"male"}');
+  INSERT 0 1
+  
+  mydb@192.168.71.11:1921=#insert into test_json1 (name) values ('{"coll":2,"coll2":"fp","coll3":"female"}');
+  INSERT 0 1
+  ```
+
+- 查询表test_json1数据
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from test_json1;
+   id |                           name
+  ----+-----------------------------------------------------------
+    1 | {"coll":1,"coll2":"francs","coll3":"male"}
+    2 | {"coll":2,"coll2":"fp","coll3":"female"}
+  ```
+
+### 3.8.2 查询json数据
+
+- 通过 ”->"操作符可以查询json数据的键值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name -> 'coll2' from test_json1 where id=1;
+   ?column?
+  ----------
+   "francs"
+  ```
+
+- 如果想以文本格式返回json字段，可以使用>>
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name ->> 'coll2' from test_json1 where id = 1;
+   ?column?
+  ----------
+   francs
+  ```
+
+### 3.8.3 jsonb于json差异
+
+- 几乎相同，json存储格式为文本，而jsonb存储格式为二进制，jsonb写入比jsonb快，但减少比jsonb慢
+
+- 输出顺序对比
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"bar":"baz","banlance":7.77,"active":false}'::jsonb;
+                         jsonb
+  ---------------------------------------------------
+   {"bar": "baz", "active": false, "banlance": 7.77}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"bar":"baz","banlance":7.77,"active":false}'::json;
+                       json
+  ----------------------------------------------
+   {"bar":"baz","banlance":7.77,"active":false}
+  (1 row)
+  ```
+
+- 另外jsonb类型会去掉输入数据中键值空格
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"id":1,          "name":"france"}'::jsonb;
+              jsonb
+  -----------------------------
+   {"id": 1, "name": "france"}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"id":1,          "name":"france"}'::json;
+                  json
+  ------------------------------------
+   {"id":1,          "name":"france"}
+  (1 row)
+  ```
+
+- 另外jsonb会删除重复的键，仅保留最后一个
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"id":1,"name":"france","remark":"a good guy!","name":"test"}'::jsonb;
+                         jsonb
+  ----------------------------------------------------
+   {"id": 1, "name": "test", "remark": "a good guy!"}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"id":1,"name":"france","remark":"a good guy!","name":"test"}'::json;
+                               json
+  ---------------------------------------------------------------
+   {"id":1,"name":"france","remark":"a good guy!","name":"test"}
+  (1 row)
+  ```
+
+- 大多场景建议使用jsonb，除非特殊需求，比如json的键顺序由特殊要求
+
+### 3.8.4 jsonb与json操作符
+
+- 以文本格式返回json类型的字段键值可以使用 "->>"
+
+  ```apl
+  mydb@192.168.71.11:1921=#select name ->>  'coll2' from test_json1 where id =1 ;
+   ?column?
+  ----------
+   francs
+  ```
+
+- 字符串是否作为顶层键值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb ? 'a';
+   ?column?
+  ----------
+   t
+  ```
+
+- 删除json数据值的键 / 值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb - 'b';
+   ?column?
+  ----------
+   {"a": 1}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"a":1,"b":2}'::jsonb - 'a';
+   ?column?
+  ----------
+   {"b": 2}
+  (1 row)
+  ```
+
+### 3.8.5 jsonb与json函数
+
+- 扩展主最外层的json对象成为一组键 /值结果集
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from json_each('{"a":"foo","b":"bar"}');
+   key | value
+  -----+-------
+   a   | "foo"
+   b   | "bar"
+  ```
+
+- 以文本形式返回结果
+
+  ```apl
+  mydb@192.168.71.11:1921=#select * from json_each_text('{"a":"foo","b":"bar"}');
+   key | value
+  -----+-------
+   a   | foo
+   b   | bar
+  ```
+
+- 一个非常重要的函数 row_to_json()，能够将行为作为json对象返回，此函数用来生产json测试数据，比如将一个普通表转为json类型表
+
+  ![image-20240610035559024](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610035559024.png?raw=true)
+
+  
+
+### 3.8.6 jsonb键/值的追加、删除、更新
+
+- jsonb键/值追加可通过“||”操作符，类如增加sex键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"france","age":31}'::jsonb || '{"sex":"male"}'::jsonb;
+                     ?column?
+  ----------------------------------------------
+   {"age": 31, "sex": "male", "name": "france"}
+  (1 row)
+  ```
+
+- jsonb键/值的删除有两种方法，一种是通过操作符“_"删除，另一种是通过操作符"#_"删除指定键/值
+
+- 通过操作符"_"删除
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"james","email":"Lzh_888888_1223@163.com"}'::jsonb - 'email';
+       ?column?
+  -------------------
+   {"name": "james"}
+   
+   mydb@192.168.71.11:1921=#select '["red","green","bule"]'::jsonb -0;
+       ?column?
+  -------------------
+   ["green", "bule"]
+  (1 row)
+  ```
+
+- 第二种方法通过操作符"#-"删除嵌套contact中的fax键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#SELECT '{"name": "James", "contact": {"phone": "01234 567890", "fax": "01987 543210"}}'::jsonb #- '{contact,fax}'::text[];
+                          ?column?
+  ---------------------------------------------------------
+   {"name": "James", "contact": {"phone": "01234 567890"}}
+  (1 row)
+  ```
+
+- 删除嵌套aliases中位置为1的键/值
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"James","aliases":["Jamie","The Jamester","J MAN"]}'::jsonb #- '{aliases,0}'::text[];
+                          ?column?
+  ---------------------------------------------------------
+   {"name": "James", "aliases": ["The Jamester", "J MAN"]}
+  (1 row)
+  
+  mydb@192.168.71.11:1921=#select '{"name":"James","aliases":["Jamie","The Jamester","J MAN"]}'::jsonb #- '{aliases,1}'::text[];
+                       ?column?
+  --------------------------------------------------
+   {"name": "James", "aliases": ["Jamie", "J MAN"]}
+  (1 row)
+  ```
+
+- 键/值的更新两种方式，第一种通过 “||"操作符，||操作符可以连接到json键，可以覆盖
+
+  ```apl
+  mydb@192.168.71.11:1921=#select '{"name":"franche","age":"31"}'::jsonb || '{"age":"21"}'::jsonb;
+               ?column?
+  ----------------------------------
+   {"age": "21", "name": "franche"}
+  ```
+
+- 第二种是通过jsonb_set函数
+
+  ```apl
+  jsonb set(target jsonb, path text[],new value jsonb[, create missing boolean])
+  ```
+
+- target指源jsonb数据，path指路径，new_value指更新后的键值，create_missing值为true表示如果键值不存在则添加，create_missing值为false表示如果键不存在则不添加
+
+  ```apl
+  mydb@192.168.71.11:1921=#select jsonb_set('{"name":"france","age":"31"}'::jsonb,'{age}','"21"'::jsonb,false);
+              jsonb_set
+  ---------------------------------
+   {"age": "21", "name": "france"}
+   
+  mydb@192.168.71.11:1921=#select jsonb_set('{"name":"france","age":"31"}'::jsonb,'{sex}','"male"'::jsonb,true);
+                     jsonb_set
+  ------------------------------------------------
+   {"age": "31", "sex": "male", "name": "france"}
+  ```
+
+## 3.9 数据类型转换
+
+- 前面几个小节介绍了PostgreSQL常规数据类型和非常规数据类型，本节将数据转换，转换有三种方式：
+  - 格式化函数
+  - CAST函数
+  - :: 操作符
+
+![image-20240610042430710](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610042430710.png?raw=true)
+
+### 3.9.2 通过CAST函数进行转换
+
+- 将varchar字符串转换成text类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#select CAST(varchar'123' as int4);
+   int4
+  ------
+    123
+  ```
+
+### 3.9.3 通过 ::操作符进行转换
+
+- 转换成int4或numeric类型
+
+  ```apl
+  mydb@192.168.71.11:1921=#select 1::int4, 3/2::numeric;
+   int4 |      ?column?
+  ------+--------------------
+      1 | 1.5000000000000000
+  ```
+
+- 通过SQL查询给定表的字段名称，现根据表名在系统表pg_class找到表OID，其中OID为隐藏的系统字段
+
+  ```apl
+  mydb@192.168.71.11:1921=#select oid,relname from pg_class where relname='test_json1';
+    oid  |  relname
+  -------+------------
+   32795 | test_json1
+  ```
+
+- 之后根据test_json1表示的 OLD，在系统表pg_attribute中根据attrelid(即表的OID)找到表的字段
+
+  ```apl
+  mydb@192.168.71.11:1921=#select attname from pg_attribute where attrelid='32795' and attnum > 0;
+   attname
+  ---------
+   id
+   name
+  ```
+
+- 上述操作需通过两步完成，但通过类型转换一步即可
+
+  ```apl
+  mydb@192.168.71.11:1921=#select attname from pg_attribute where attrelid='test_json1'::regclass and attnum >0;
+   attname
+  ---------
+   id
+   name
+  ```
+
+  ![image-20240610043858289](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240610043858289.png?raw=true)
+
+# 第四章 SQL高级特性
+
+- 本章将介绍PostgreSQL在SQL方面的高级特性，例如WHERE查询，批量插入，RET-urning返回修改的数据、upsert、数据抽样、聚合函数、窗口函数。
+
+## 4.1 WITH查询
+
+- with查询是PostgreSQL支持的高级SQL特性之一，这一特性常称为CTE，with查询在复杂的查询中定义一个辅助语句（可以理解成一个查询中定义的临时表），通常用于递归查询或复杂查询。
+
+### 4.1.1 复杂查询使用CTE
+
+- 简单的CTE了解WITH
+
+  ```apl
+  mydb@192.168.71.11:1921=#with t as ( select generate_series(1,3)) select * from t;
+   generate_series
+  -----------------
+                 1
+                 2
+                 3
+  ```
+
+  CTE示例中，一开始定义了一条辅助语句t取数，之后在主查询语句中查询 t，定义的辅助语句就像是定义了一张临时表，对于复杂查询如果不使用CTE，可以通过创建视图方式简化SQL
+
+- CTE可以简化SQL并且减少嵌套，因为可以预先定义辅助语句，之后在主查询中多次调用。接着看一个稍复杂CTE例子
+
+  ```apl
+  with regional_sales as (
+      select region, sum(amount) as total_sales
+      from sales.orders
+      group by region
+  ),
+  top_regions as (
+      select region
+      from regional_sales
+      where total_sales > (select sum(total_sales) / 10 from regional_sales)
+  )
+  select region, product, sum(quantity) as product_units, sum(amount) as product_sales
+  from sales.orders
+  where region in (select region from top_regions)
+  group by region, product;
+  ```
+
+  这个例子首先定义了regional_sales和top_regions两个辅助语句，regional_sales算出每个区域的总销量，top_regions算出销量占总销量10%以上的所有区域，主查询语句通过辅助语句与orders表关联，算出了顶级区域每件商品的销量和销售额。
+
+### 4.1.2 递归查询使用CTE
+
+- with查询的一个重要属性是recursive，使用recursive属性可以引用自己的输出，从而实现递归，一般用于层次结构或树形结构的应用场景，一个简单的recursive
+
+  ```apl
+  mydb@192.168.71.11:1921=#WITH recursive t (x) AS (
+      SELECT 1
+      UNION ALL
+      SELECT x + 1 //1+2+3+4+5
+      FROM t
+      WHERE x < 5
+  )
+  SELECT sum(x) FROM t;
+   sum
+  -----
+    15
+  ```
+
+- 递归查询案例，当给定一个id是能够得到他完整的域名，例如当id=7时，地名是：中国辽宁沈阳和平区，当id=5是，地名是：`中国辽宁大连`，这是一个典型的层次数据递归应用场景，恰好通过PostgreSQL的WITH查询实现，首先创建测试表并插入数据：
+
+  ```apl
+  postgres=# create table test_area(id int4,name varchar(32),fatherid int4);
+  
+  insert into test_area values (1,'中国' ,0);
+  insert into test_area values (2,'辽宁' ,1);
+  insert into test_area values (3,'山东' ,1);
+  insert into test_area values (4,'沈阳' ,2);
+  insert into test_area values (5,'大连' ,2);
+  insert into test_area values (6,'济南' ,3);
+  insert into test_area values (7,'和平区' ,4);
+  insert into test_area values (8,'沈河区' ,4);
+  
+  postgres=# select * from test_area;
+   id |  name  | fatherid
+  ----+--------+----------
+    1 | 中国   |        0
+    2 | 辽宁   |        1
+    3 | 山东   |        1
+    4 | 沈阳   |        2
+    5 | 大连   |        2
+    6 | 济南   |        3
+    7 | 和平区 |        4
+    8 | 沈河区 |        4
+  ```
+
+- 使用PostgreSQL我WITH查询检索ID为7以及以上的所有父节点：
+
+  - **UNION ALL**: 将前一个查询的结果与下一个查询的结果合并。`UNION ALL` 保留所有重复行，而 `UNION` 会去除重复行。这里使用 `UNION ALL` 是因为我们希望保留所有找到的行。
+  - **FROM test_area, r**: 从 `test_area` 表和递归CTE `r` 中选择数据。
+  - **WHERE test_area.id = r.fatherid**: 仅选择 `test_area` 表中 `id` 等于 `r` 表中 `fatherid` 的行
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area, r where test_area.id = r.fatherid )
+  select * from r order by id;\
+  
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area, r where test_area.id = r.fatherid )
+  select * from r order by id;
+   id |  name  | fatherid
+  ----+--------+----------
+    1 | 中国   |        0
+    2 | 辽宁   |        1
+    4 | 沈阳   |        2
+    7 | 和平区 |        4
+  ```
+
+  ![image-20240611100226784](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611100226784.png?raw=true)
+
+- 查询结果正好是ID=7 节点以及它所有父节点，将输出的name字段合并成 "中国辽宁沈阳和平区"，方法很多，这里通过string_agg函数实现
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id =7
+  union all
+  select test_area.* from test_area,r where test_area.id = r.fatherid)
+  select string_agg(name,'<<-') from (select name from r order by id )n;
+           string_agg
+  -----------------------------
+   中国<<-辽宁<<-沈阳<<-和平区
+  ```
+
+- 以上是查询当前节点以及当前节点的所有父节点，也可以查询当前节点以及其下的所有子节点，需要修改where条件，如果查找沈阳市及管辖区
+
+  ```postgresql
+  postgres=# with recursive r as (
+  select * from test_area where id = 3
+  union all
+  select test_area.* from test_area,r where test_area.fatherid = r.id
+  )
+  select * from r order by id;
+   id | name | fatherid
+  ----+------+----------
+    3 | 山东 |        1
+    6 | 济南 |        3
+  (2 rows)
+  
+  postgres=# with recursive r as (
+  select * from test_area where id = 4
+  union all
+  select test_area.* from test_area,r where test_area.fatherid = r.id
+  )
+  select * from r order by id;
+   id |  name  | fatherid
+  ----+--------+----------
+    4 | 沈阳   |        2
+    7 | 和平区 |        4
+    8 | 沈河区 |        4
+  ```
+
+---
+
+以上给出了CTE的两个应用场景：复杂查询中的应用和递归查询中的应用，通过示例，很容易知道CTE有以下有点：
+
+- CTE可以简化SQL代码，减少SQL嵌套层数，提高SQL代码的可读性。
+- CTE可以辅助语句只需要计算一次，在主查询中可以多次使用
+- 当不需要共享查询结果时，相比视图更轻量。
+
+## 4.2批量插入
+
+- 批量插入是指一次性插入多条数据，主要用于提升数据库插入效率，PostgreSQL有多种方法实现批量插入。
+
+### 4.2.1 方式一：INSERT INTO SELECT
+
+通过表数据或函数批量插入
+
+```apol
+insert into table_name select...from source_table
+```
+
+1. 创建一张表结构和user_ini相同的表并插入user_ini表的全量数据
+
+```
+create table tb1_batch1(user_id int8,user_name text);
+
+create table user_ini (user_id integer,user_name varchar(255));
+insert into user_ini (user_id,user_name) values (0,'alice');
+insert into user_ini (user_id,user_name) values (1,'text');
+
+
+postgres=# insert into tb1_batch1 (user_id,user_name)
+select user_id,user_name from user_ini;
+INSERT 0 2
+postgres=# select * from tb1_batch1 ;
+ user_id | user_name
+---------+-----------
+       0 | alice
+       1 | text
+```
+
+2. 指定where进行插入
+
+```apl
+postgres=# insert into tb1_batch1 (user_id,user_name)
+postgres-# select * from user_ini where user_id=0;
+INSERT 0 1
+postgres=# select * from tb1_batch1 ;
+ user_id | user_name
+---------+-----------
+       0 | alice
+       1 | text
+       0 | alice
+```
+
+3. 函数进行批量插入
+
+   - **generate_series(1,5)**：这是一个生成序列函数，它会生成一个从 1 到 5 的序列。
+   - **'batch2'**：这是一个字符串常量 `'batch2'`，每次生成的记录都将包含这个字符串。
+
+   创建tab1_batch2库
+
+   ```apl
+   create table tb1_batch2 (id int8,info text)
+   ```
+
+   通过select表数据批量插入的方式大多关系型数据库都不支持，接下来看看PostgreSQL支持的其他批量插入方式。
+
+   ```postgresql
+   postgres=# insert into tb1_batch2 (id,info)
+   postgres-# select generate_series(1,5),'徐梦云';
+   INSERT 0 5
+   
+   postgres=# select * from tb1_batch2 ;
+    id |  info
+   ----+--------
+     1 | 徐梦云
+     2 | 徐梦云
+     3 | 徐梦云
+     4 | 徐梦云
+     5 | 徐梦云
+   ```
+
+### 4.2.2 方式二 INSERT INTO VALUES(),(),...
+
+- PostgreSQL的另一种支持批量插入的方法在一条INSERT语句中通过VALUES关键字插入多条记录，通过一个例子就很容易理解。
+
+  ```postgresql
+  postgres=# create table tb1_batch3(id int4,info text);
+  CREATE TABLE
+  postgres=# insert into tb1_batch3(id,info) values (1,'a'),(2,'b'),(3,'c');
+  INSERT 0 3
+  postgres=# select * from tb1_batch3 ;
+   id | info
+  ----+------
+    1 | a
+    2 | b
+    3 | c
+  ```
+
+- 这种批量插入方式非常独特，一条sql插入多行数据，相比一条SQL插入一条数据方式能减少和数据的交互，减少数据库WAL日志的生成。
+
+### 4.2.3 方式三：COPY或\COPY元命令
+
+- 创建一张测算表，并插入一千万数据，如下
+
+  - **default clock_timestamp()**：是一个 PostgreSQL 内置函数，它返回当前的日期和时间，包括时区。不同于 `current_timestamp` 或 `now()`，`clock_timestamp()` 在一个事务中每次调用都会返回不同的值（精确到微秒）
+
+  ```apl
+  create table tb1_batch4(
+  id int4,
+  info text,
+  create_time timestamp(6) with time zone default clock_timestamp());
+  
+  insert into tb1_batch4(id,info) select n,n||'_batch4' from generate_series(1.10000000) as n;
+  ```
+
+- 通过insert插入一千万数据，将一千万数据导出到文件
+
+  ```apl
+  [postgres@pgsql root]$ psql postgres
+  psql (15.5)
+  Type "help" for help.
+  
+  postgres=# \timing
+  Timing is on.
+  
+  postgres=# copy public.tb1_batch4 TO '/data/scripts/tb1_batch4.txt';
+  COPY 10000000
+  Time: 3978.851 ms (00:03.979)
+  ```
+
+- 一千万数据导出花了3978毫秒，之后情况tb1_batch4并将tb1_batch4.txt数据导入到表中。
+
+  ```postgresql
+  postgres=# truncate table tb1_batch4 ;
+  TRUNCATE TABLE
+  Time: 61.340 ms
+  postgres=# select * from tb1_batch4;
+   id | info | create_time
+  ----+------+-------------
+  (0 rows)
+  
+  Time: 0.693 ms
+  
+  postgres=# copy public.tb1_batch4 from '/data/scripts/tb1_batch4.txt';
+  COPY 10000000
+  Time: 10560.340 ms (00:10.560)
+  ```
+
+## 4.3 RETURNING返回的数据
+
+- Postgresql的returning可以返回DML修改的数据，具体三个场景：
+
+  insert语句后接returning属性返回插入的数据
+
+  update语句后接returning属性返回更新后的数据
+
+  delete语句后接returning属性后返回删除的数据。
+
+  这个特性的优点在于不需要额外的SQL获取这些值，能够便于应用开发
+
+### 4.3.1 RETURNING返回插入的数据
+
+- insert语句后接returning属性返回插入的值，下面的代码创建测试表，并返回已插入的整行数据。
+
+  ```postgresql
+  postgres=# create table test_r1(id serial,flag char(1));
+  CREATE TABLE
+  
+  postgres=# insert into test_r1(flag) values ('a') returning *;
+   id | flag
+  ----+------
+    1 | a
+  ```
+
+  `RETURNING *`表示返回表插入的所有字段数据，也可以返回指定字段，RETURNING后接字段名即可，如下代码仅返回插入的id字段：
+
+  ```apl
+  postgres=# insert into test_r1(flag) values ('b') returning id;
+   id
+  ----
+    2
+  ```
+
+### 4.3.2 RETURNING 返回更新后数据
+
+- UPdate后接RETURNING属性返回UPDATE语句更行后的值：
+
+  ```apl
+  postgres=# update test_r1 set flag ='p' where id =1 returning *;
+   id | flag
+  ----+------
+    1 | p
+  ```
+
+### 4.3.3 RETURNING 返回删除的数据
+
+- DELETE后接RETURNING属性返回删除的数据
+
+  ```apl
+  postgres=# delete from test_r1 where id =2 returning *;
+   id | flag
+  ----+------
+    2 | b
+  (1 row)
+  
+  DELETE 1
+  postgres=# select * from test_r1;
+   id | flag
+  ----+------
+    1 | p
+  ```
+
+## 4.4 UPSERT
+
+- UPSERT特性是指INSERT....ON CONFLICT UPSERT，解决插入过程数据冲突，如违反用户自定义约束，并且在日志场景中，批量插入日志数据，如果其中一条数据违反表上的约束，整个插入事件将会回滚。UPSERT能解决这一问题。
+
+### 4.4.1 UPSERT 场景演示：
+
+- 定义一张用户登录日志表并插入一条数据
+
+  ```postgresql
+  create table user_logins(user_name text primary key,
+  login_cat int4,
+  last_login_time timestamp(0) without time zone);
+  CREATE TABLE
+  
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('francs',1);
+  INSERT 0 1
+  
+  postgres=# select * from user_logins ;
+   user_name | login_cat | last_login_time
+  -----------+-----------+-----------------
+   francs    |         1 |
+  ```
+
+  ---
+
+  在user_logins表user_name字段上定义主键，批量插入数据中如果有重复会报错
+
+  ```apl
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('matiler',1),('francs',1);
+  ERROR:  duplicate key value violates unique constraint "user_logins_pkey"
+  DETAIL:  Key (user_name)=(francs) already exists.
+  ```
+
+  ---
+
+  上述SQL试图插入两条数据，其中matiler这条数据不违反主键冲突，而francs这条数据违反主键冲突，结果两台数据都不能插入。
+
+- PostgreSQL的UPSERT可以处理冲突的数据比如当掺入的数据的冲突是不报错，同时更新冲突的数据
+
+  - **ON CONFLICT**: 指定当插入操作导致唯一约束冲突时的处理方式。
+  - **(user_name)**: 指定用于检测冲突的列，这里是 `user_name` 列。它通常是一个唯一约束或主键。
+
+  - `DO UPDATE SET login_cat = user_logins.login_cat + EXCLUDED.login_cat, last_login_time = now()`
+
+  - **DO UPDATE SET**: 指定在冲突发生时需要执行的更新操作。
+
+  - login_cat = user_logins.login_cat + EXCLUDED.login_cat
+
+    :
+
+    - **user_logins.login_cat**: 表示现有表中对应冲突行的 `login_cat` 列的值。
+    - **EXCLUDED.login_cat**: 表示试图插入但引发冲突的行的 `login_cat` 列的值。
+    - **user_logins.login_cat + EXCLUDED.login_cat**: 将现有行的 `login_cat` 值与新行的 `login_cat` 值相加。
+
+  - **last_login_time = now()**: 将 `last_login_time` 列设置为当前时间。
+
+  ```postgresql
+  postgres=# insert into user_logins(user_name,login_cat)
+  values ('matiler',1),('francs',1)
+  on conflict(user_name)
+  do update set login_cat=user_logins.login_cat+EXCLUDED.login_cat,
+  postgres-# last_login_time=now()::timestamp with time zone;
+  INSERT 0 2
+  
+  postgres=# select * from user_logins;
+   user_name | login_cat |   last_login_time
+  -----------+-----------+---------------------
+   matiler   |         1 |
+   francs    |         2 | 2024-06-12 01:09:32
+  (2 rows)
+  ```
+
+---
+
+一方面冲突的francs这条数据被更新了login_cat和last_login_time字段另一方面新的数据matiler记录已经正常插入。
+
+- 指定数据冲突后啥也不干，这时需要指定DO nothing属性
+
+  ```apl
+  postgres=# insert into user_logins (user_name,login_cat)
+  postgres-# values ('true',1),('francs',1)
+  postgres-# on conflict(user_name)
+  postgres-# do nothing;
+  INSERT 0 1
+  postgres=# select * from user_logins;
+   user_name | login_cat |   last_login_time
+  -----------+-----------+---------------------
+   matiler   |         1 |
+   francs    |         2 | 2024-06-12 01:09:32
+   true      |         1 |
+  ```
+
+### 4.4.2 UPSERT语法
+
+- PostgreSQL的UPSERT语法比较复杂，通过以上演示后再来查看语法会轻松些。
+
+![image-20240611172112973](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611172112973.png?raw=true)
+
+## 4.5 数据抽样
+
+- 数据抽样 TABLESAMPLE(tablesample)数据处理经常用，特别是表数据量比较大时，随机查询表中一定数量记录操作很常见，但新能很低。
+
+  ```apl
+  postgres=# create table user_ini (id int4,user_id int4 ,user_name varchar(100),create_time timestamp without time zone default clock_timestamp());
+  CREATE TABLE
+  postgres=# insert into user_ini (id,user_id,user_name)                                           select n,n,n ||'_francs'
+  from generate_series(1,500000) n;
+  INSERT 0 500000
+  ```
+
+  ```apl
+  postgres=# select * from user_ini limit 2;
+   id | user_id | user_name |        create_time
+  ----+---------+-----------+----------------------------
+    1 |       1 | 1_francs  | 2024-06-12 01:37:41.010486
+    2 |       2 | 2_francs  | 2024-06-12 01:37:41.010583
+  (2 rows)
+  
+  postgres=# select * from user_ini order by random() limit 2;
+     id   | user_id |   user_name   |        create_time
+  --------+---------+---------------+----------------------------
+   286380 |  286380 | 286380_francs | 2024-06-12 01:37:41.406446
+    51589 |   51589 | 51589_francs  | 2024-06-12 01:37:41.084805
+    
+  postgres=# select * from user_ini order by random() limit 2;
+     id   | user_id |   user_name   |        create_time
+  --------+---------+---------------+----------------------------
+   174038 |  174038 | 174038_francs | 2024-06-12 01:37:41.249593
+   471258 |  471258 | 471258_francs | 2024-06-12 01:37:41.664831
+  ```
+
+- 执行计划如下：
+
+  ```apl
+  postgres=# EXPLAIN ANALYZE select * from user_ini order by random() limit 1;
+                                                           QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ----------------------------
+   Limit  (cost=12427.00..12427.00 rows=1 width=37) (actual time=111.123..111.125 rows=1 loops=1)
+     ->  Sort  (cost=12427.00..13677.00 rows=500000 width=37) (actual time=111.121..111.122 rows=1
+  loops=1)
+           Sort Key: (random())
+           Sort Method: top-N heapsort  Memory: 25kB
+           ->  Seq Scan on user_ini  (cost=0.00..9927.00 rows=500000 width=37) (actual time=0.012..
+  52.569 rows=500000 loops=1)
+   Planning Time: 0.078 ms
+   Execution Time: 111.146 ms
+  (7 rows)
+  ```
+
+  表user_ini数据量为50万，从50万随机取一条上述SQL的执行事件为111ms这种方式进行了全表扫描和排序，效率非常低，当表数据量大时，性能几乎无法接受。
+  
+- PostgreSQL支持TABLESAMPLE数据抽样
+
+  ![image-20240611232407774](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240611232407774.png?raw=true)
+  
+  sampling_method指抽样方法，主要有两种：SYSTEM和BERNOULLI，接下来详细解释这两种抽样方式，argument指抽样百分比。
+
+### 4.5.1 SYSTEM抽样方式
+
+- SYSTEM抽样方式随机抽取表上数据库上的数据，SYSTEM抽样方式基于数据块级别，后接抽样参数，的所有数据将被检索。
+
+  ```postgresql
+  postgres=# create table test_sample(id int4,message text,
+  create_time timestamp(6) without time zone default clock_timestamp());
+  
+  postgres=# insert into test_sample (id,message)
+  select n, md5(random()::text) from generate_series(1,1500000) n;
+  
+  postgres=# select * from test_sample limit 1;
+   id |             message              |        create_time
+  ----+----------------------------------+----------------------------
+    1 | 1cc563b206c6ad324daa0d7cd684d3fd | 2024-06-12 02:10:23.671603
+  (1 row)
+  ```
+
+  抽样因子设置成0.01，意味着50000×0.01%=150条记录
+
+  ```postgresql
+  postgres=# explain analyze select * from test_sample tablesample system(0.01);
+                                                   QUERY PLAN
+  -------------------------------------------------------------------------------------------------------------
+   Sample Scan on test_sample  (cost=0.00..5.58 rows=158 width=44) (actual time=0.038..0.138 rows=321 loops=1)
+     Sampling: system ('0.01'::real)
+   Planning Time: 0.140 ms
+   Execution Time: 0.163 ms
+  (4 rows)
+  
+  ```
+
+  以上执行计划主要有两点，一方面进行了Sample Scan扫描(抽样的方式为SYSTEM)执行事件为0.019ms，性能，另一方面优化器预计访问5条记录，实际返回45
+
+  ```apl
+  postgres=# select relname,relpages from pg_class where relname='test_sample';
+     relname   | relpages
+  -------------+----------
+   test_sample |    14019
+  ```
+
+  表test_sample物理上占用了14019个数据块，也就是说每个数据块1000000/14019=158
+
+- 查看抽样数据的ctid
+
+  ```apl
+  postgres=# select ctid,* from test_sample tablesample system(0.01);
+      ctid     |   id    |             message              |        create_time
+  -------------+---------+----------------------------------+----------------------------
+   (9988,1)    | 1068717 | 9610359f37ce3188f4d6b6c2df5f258f | 2024-06-12 02:31:13.413036
+   (9988,2)    | 1068718 | a0454591f2f6f09ebd7f4d3fa98907cd | 2024-06-12 02:31:13.41306
+  ..............
+  ```
+
+  ctid是表的隐藏列，括号里第一位表示逻辑数据库编号，第二位表示逻辑块上的数据的逻辑编号，从以上看出，这107条记录都存储在逻辑编号为6646的数据块上，也就是抽样返回一个数据库上的所有数据，抽样因子固定为0.01，多次执行以下查询
+
+  ```apl
+  postgres=# select count(*) from test_sample tablesample system(0.01);
+   count
+  -------
+     214
+  (1 row)
+  
+  postgres=# select count(*) from test_sample tablesample system(0.01);
+   count
+  -------
+     107
+  (1 row)
+  ```
+
+---
+
+再次查询发现返回的记录为214或107，由于一个数据存储块107条记录，因此查询结果有时返回了两个数据块以上的所有数据，这是因为抽样因子设置成0.01，意味着返回样方式返回的数据块为单位，被抽样的块上所有数据被检索。
+
+### 4.5.2 BERNOULLI抽样方式
+
+- BERNOULLI抽样方式随机抽取表的数据，并返回指定百分比数据，基于数据行级别，BERNOULLI抽样方式抽取的数据相比SYSTEM方式有更好的随机性，但性能上相比SYSTEM抽样方式低很多。
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select * from test_sample tablesample bernoulli (0.01);
+                                                       QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  -------------------
+   Sample Scan on test_sample  (cost=0.00..14020.50 rows=150 width=45) (actual time=10.349..207.223
+   rows=167 loops=1)
+     Sampling: bernoulli ('0.01'::real)
+   Planning Time: 0.048 ms
+   Execution Time: 207.258 ms
+  (4 rows)
+  ```
+
+  从以上执行计划看出继续宁了Sample Scan扫描执行计划预计返回150条记录，实际返回167，从返回的记录数来看，非常接近150条(100000×0.01%)需要执行207毫秒，
+
+- 多次执行以下查询，查看返回记录数据的变化
+
+  ```apl
+  postgres@pghost1:1921=#select count(*) from test_sample tablesample bernoulli (0.01);
+   count
+  -------
+     166
+  (1 row)
+  
+  postgres@pghost1:1921=#select count(*) from test_sample tablesample bernoulli (0.01);
+   count
+  -------
+     132
+  ```
+
+- 由于BERNOULLI 抽样基于数据行级别，猜想返回的数据应该位于不同的数据块上，通过查询表的ctid进行验证
+
+  ```postgresql
+  postgres@pghost1:1921=#select ctid,id,message from test_sample tablesample bernoulli (0.01);
+      ctid     |   id    |             message
+  -------------+---------+----------------------------------
+   (127,28)    |   13617 | 29094764b4e8154f2bacb4257f960910
+   (206,25)    |   22067 | e35edc24436cc633bb4d7da0f97d65c9
+   (207,59)    |   22208 | ae9d8042bce53f1210ef45f24cb45c5f
+  ................
+  ```
+
+  从以上三条记录的ctid信息看出，三条数据分别位于数据库127，206，207上，因此BERNOULLI抽样方式随机性相比SYSTEM方式更好。
+
+  ## 4.6聚合函数
+
+  聚合函数可以对结果进行计算，常用聚合函数有 avg()、sum()、main()、max()、count()等
+
+  ![image-20240612094847305](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612094847305.png?raw=true)
+
+### 4.6.1 string_agg函数
+
+- 首先介绍string_agg函数，此函数语法如下所示
+
+  ```apl
+  string_agg(expression,delimiter)
+  ```
+
+- string_agg函数能将结果集某个字段的所有行连接成字符串，并指定delimiter分隔符分隔，expression处理字符类型数据，参数类型为(text,text)或(bytea,bytea)函数返回的类型同输入参数类型一直，bytea属于二进制类型，使用情况不多，我们主要介绍text类型输入参数，本节开头的场景正好可以用string_agg函数处理
+
+- 首先创建测试表并插入以下数据
+
+  ```apl
+  postgres@pghost1:1921=#create table city (country character varying(64),city character varying(64));
+  
+  insert into city values ('中国','台北');
+  insert into city values ('中国','香港');
+  insert into city values ('中国','上海');
+  insert into city values ('日本','东京');
+  insert into city values ('日本','大连');
+  
+  postgres@pghost1:1921=#select * from city ;
+   country | city
+  ---------+------
+   中国    | 台北
+   中国    | 香港
+   中国    | 上海
+   日本    | 东京
+   日本    | 大连
+  ```
+
+- 将city字段连接成字符串
+
+  ```apl
+  postgres@pghost1:1921=#select string_agg(city,'<>') from city ;
+            string_agg
+  ------------------------------
+   台北<>香港<>上海<>东京<>大连
+  ```
+
+- string_agg函数将输出结果集成了字符串，并用指定逗号分隔
+
+  ```apl
+  postgres@pghost1:1921=#select country,string_agg(city,',') from city group by country;
+   country |   string_agg
+  ---------+----------------
+   日本    | 东京,大连
+   中国    | 台北,香港,上海
+  ```
+
+### 4.6.2array_agg函数
+
+- array_agg函数和string_agg函数类似，主要的区别为返回类型为数组，数组数据类型同输入参数数据类型一直，array_agg函数支持两种语法
+
+  ```apl
+  array_agg(expressions)--输入参数为任何非数组类型
+  ```
+
+  输入参数可以是任何非数组类型，返回的结果是一组数组，array_agg函数将结束集某个字段女的所有行连接数组
+
+  ```apl
+  postgres@pghost1:1921=#select country,array_agg(city) from city group by country;
+   country |    array_agg
+  ---------+------------------
+   日本    | {东京,大连}
+   中国    | {台北,香港,上海}
+  ```
+
+  ---
+
+  arrar_agg函数输出的结果为字符类型数组，其他无明显区别，使用array_agg函数组要优点在于可以使用数组相关函数和操作符
+
+- 第二种array_agg(expression) --输入参数为任何数据类型
+
+  第一种array_agg函数的输入阐述为任何非数组类型，这里输入任何参数为数组类型
+
+  创建数组表
+
+  ```postgresql
+  postgres@pghost1:1921=#create table test_array3(id int4[]);
+  
+  postgres@pghost1:1921=#insert into test_array3(id) values ( array[1,2,3]);
+  
+  postgres@pghost1:1921=#insert into test_array3(id) values ( array[4,5,6]);
+  
+  postgres@pghost1:1921=#select * from test_array3 ;
+     id
+  ---------
+   {1,2,3}
+   {4,5,6}
+  (2 rows)
+  ```
+
+  使用array_agg函数
+
+  ```apl
+  postgres@pghost1:1921=#select array_agg(id) from test_array3 ;
+       array_agg
+  -------------------
+   {{1,2,3},{4,5,6}}
+  ```
+
+  也可以将array_agg函数输出类型转换成字符串，并用分隔符分隔`arrag_to_string`函数
+
+  ```postgresql
+  postgres@pghost1:1921=#select array_to_string (array_agg(id),',') from test_array3 ;
+   array_to_string
+  -----------------
+   1,2,3,4,5,6
+  ```
+
+## 4.7 窗口函数
+
+- 窗口函数也是基于结果集进行计算，与聚合函数不同的是窗口函数不会将结果集输出一行，二十合并到输出的结果集上，返回多行。
+
+### 4.7.1 窗口函数语法
+
+- postgresql提供内置的窗口函数，例如：row()、rank()、lan()等，除了内置的窗口函数外，聚合函数，自定义函数后接OVER属性也可以作为窗口函数。
+
+  窗口函数的调用语法稍微复杂
+
+  ![image-20240612104805041](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612104805041.png?raw=true)
+
+### 4.7.2 avg() OVER()
+
+- 聚合函数后接OVER属性的窗口函数，表示在一个查询结果集上应用聚合函数。
+
+1. 将此窗口函数用来计算分组后数据的平均值。
+
+- 创建一张成绩表并插入测试数据
+
+  ```apl
+  postgres@pghost1:1921=#create table score ( id serial primary key,
+  subject character varying (32),
+  stu_name varchar(32),
+  score numeric(3,0));
+  CREATE TABLE
+  
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'francs', 70);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'matiler', 70);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Chinese', 'tutu', 80);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'matiler', 75);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'francs', 90);
+  INSERT INTO score (subject, stu_name, score) VALUES ('English', 'tutu', 60);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'francs', 80);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'matiler', 99);
+  INSERT INTO score (subject, stu_name, score) VALUES ('Math', 'tutu', 65);
+  
+  ```
+
+- 查询每名学生学习成绩并且显示课程的平均分，通常是先计算出课程的平均分，然后用score表与平均分表关联查询
+
+  - **LEFT JOIN**：执行左连接操作，确保左边表`s`中的所有记录都被包括，即使右边的子查询`tmp`中没有对应的记录。
+
+    **(SELECT subject, avg(score) avgscore FROM score GROUP BY subject)**：这是一个子查询，用于计算每个学科的平均分数。
+
+    - **SELECT subject, avg(score)**：选择每个学科和对应的平均分数。
+    - **avg(score)**：计算每个学科的平均分数。
+    - **FROM score**：指定数据来源于`score`表。
+    - **GROUP BY subject**：按`subject`列分组，以计算每个学科的平均分数。
+
+    - **tmp**：给子查询结果起一个别名`tmp`，方便在主查询中引用。
+
+    - **ON**：指定连接条件。
+
+      **s.subject = tmp.subject**：连接条件为主查询表`s`中的`subject`列与子查询结果`tmp`中的`subject`列相等。
+
+  ```apl
+  LEFT JOIN (SELECT subject, avg(score) avgscore FROM score GROUP BY subject) tmp
+  ON s.subject = tmp.subject;
+   subject | stu_name | score |      avgscore
+  ---------+----------+-------+---------------------
+   Chinese | francs   |    70 | 73.3333333333333333
+   Chinese | matiler  |    70 | 73.3333333333333333
+   Chinese | tutu     |    80 | 73.3333333333333333
+   English | matiler  |    75 | 75.0000000000000000
+   English | francs   |    90 | 75.0000000000000000
+   English | tutu     |    60 | 75.0000000000000000
+   Math    | francs   |    80 | 81.3333333333333333
+   Math    | matiler  |    99 | 81.3333333333333333
+   Math    | tutu     |    65 | 81.3333333333333333
+  ```
+
+- 使用窗口函数很容易实现以上需求
+
+  - 查询前三列源于表socre，低撕裂表示课程的平均分，PARTITION BY subject
+
+  ```apl
+  postgres@pghost1:1921=#select subject,stu_name,score,avg(score) OVER(partition by subject) from score;
+   subject | stu_name | score |         avg
+  ---------+----------+-------+---------------------
+   Chinese | francs   |    70 | 73.3333333333333333
+   Chinese | matiler  |    70 | 73.3333333333333333
+   Chinese | tutu     |    80 | 73.3333333333333333
+   English | matiler  |    75 | 75.0000000000000000
+   English | francs   |    90 | 75.0000000000000000
+   English | tutu     |    60 | 75.0000000000000000
+   Math    | francs   |    80 | 81.3333333333333333
+   Math    | matiler  |    99 | 81.3333333333333333
+   Math    | tutu     |    65 | 81.3333333333333333
+  ```
+
+### 4.7.3 row_number()
+
+- row_number()窗口函数对结果及分组后的数据标注行号，从1开始
+
+  ```apl
+  postgres@pghost1:1921=#select row_number() OVER (PARTITION by subject ORDER by score desc),* from score;
+   row_number | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+            1 |  3 | Chinese | tutu     |    80
+            2 |  1 | Chinese | francs   |    70
+            3 |  2 | Chinese | matiler  |    70
+            1 |  5 | English | francs   |    90
+            2 |  4 | English | matiler  |    75
+            3 |  6 | English | tutu     |    60
+            1 |  8 | Math    | matiler  |    99
+            2 |  7 | Math    | francs   |    80
+            3 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+  以上row_number()窗口函数显示的是分组后记录的行号，如果不指定partition属性，row_number()窗口函数表示所有记录的行号。
+
+  ```apl
+  postgres@pghost1:1921=#select row_number() OVER(ORDER BY id) as rownum,* from score;
+   rownum | id | subject | stu_name | score
+  --------+----+---------+----------+-------
+        1 |  1 | Chinese | francs   |    70
+        2 |  2 | Chinese | matiler  |    70
+        3 |  3 | Chinese | tutu     |    80
+        4 |  4 | English | matiler  |    75
+        5 |  5 | English | francs   |    90
+        6 |  6 | English | tutu     |    60
+        7 |  7 | Math    | francs   |    80
+        8 |  8 | Math    | matiler  |    99
+        9 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+### 4.7.4 rank()
+
+- rank()窗口函数和row_number()窗口函数相似，主要区别为当组内某行字段值相同时，行号重复并且行号产生间隙，如下所示
+
+  ```apl
+  postgres@pghost1:1921=#select rank() OVER(partition by subject order by score),* from score;
+   rank | id | subject | stu_name | score
+  ------+----+---------+----------+-------
+      1 |  2 | Chinese | matiler  |    70
+      1 |  1 | Chinese | francs   |    70
+      3 |  3 | Chinese | tutu     |    80
+      1 |  6 | English | tutu     |    60
+      2 |  4 | English | matiler  |    75
+      3 |  5 | English | francs   |    90
+      1 |  9 | Math    | tutu     |    65
+      2 |  7 | Math    | francs   |    80
+      3 |  8 | Math    | matiler  |    99
+  (9 rows)
+  ```
+
+  以上示例中，Chinese课程前两条记录的score字段值为70，因此前两行的rank字段值为1，而三行的rank()字段值为3，产生了间隙。
+
+### dense_rank()
+
+- dense_rank()窗口函数和rank()窗口函数相似，主要区别当组内某行字段值相同时，虽然行号重复，但行号不产生间隙
+
+  ```apl
+  postgres@pghost1:1921=# select dense_rank() OVER(partition by subject order by score),* from score;
+   dense_rank | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+            1 |  2 | Chinese | matiler  |    70
+            1 |  1 | Chinese | francs   |    70
+            2 |  3 | Chinese | tutu     |    80
+            1 |  6 | English | tutu     |    60
+            2 |  4 | English | matiler  |    75
+            3 |  5 | English | francs   |    90
+            1 |  9 | Math    | tutu     |    65
+            2 |  7 | Math    | francs   |    80
+            3 |  8 | Math    | matiler  |    99
+  (9 rows)
+  ```
+
+  ---
+
+  Chinese课程前两行的rank字段值为1，而第三个字段为2，没有产生间隙。
+
+### 4.7.7 first_value()
+
+- first_value()窗口函数用来取结果集每一个分组的第一行数据的字段值。
+
+- 例如score表按课程分组后取分组的第一行的分数
+
+  ```apl
+  postgres@pghost1:1921=#select first_value (score) OVER(partition by subject),*from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            70 |  1 | Chinese | francs   |    70
+            70 |  2 | Chinese | matiler  |    70
+            70 |  3 | Chinese | tutu     |    80
+            75 |  4 | English | matiler  |    75
+            75 |  5 | English | francs   |    90
+            75 |  6 | English | tutu     |    60
+            80 |  7 | Math    | francs   |    80
+            80 |  8 | Math    | matiler  |    99
+            80 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+- 通过first_value()窗口函数很容易查询分组数据的最大值或最小值，例如score表按课程分组同时取每门课程的最高分
+
+  ```postgresql
+  ### 降序desc
+  postgres@pghost1:1921=#select first_value(score) OVER(partition by subject order by score desc),* from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            80 |  3 | Chinese | tutu     |    80
+            80 |  1 | Chinese | francs   |    70
+            80 |  2 | Chinese | matiler  |    70
+            90 |  5 | English | francs   |    90
+            90 |  4 | English | matiler  |    75
+            90 |  6 | English | tutu     |    60
+            99 |  8 | Math    | matiler  |    99
+            99 |  7 | Math    | francs   |    80
+            99 |  9 | Math    | tutu     |    65
+  (9 rows)
+  
+  ###升序ASC
+  postgres@pghost1:1921=#select first_value(score) OVER(partition by subject order by score asc),* from score;
+   first_value | id | subject | stu_name | score
+  -------------+----+---------+----------+-------
+            70 |  2 | Chinese | matiler  |    70
+            70 |  1 | Chinese | francs   |    70
+            70 |  3 | Chinese | tutu     |    80
+            60 |  6 | English | tutu     |    60
+            60 |  4 | English | matiler  |    75
+            60 |  5 | English | francs   |    90
+            65 |  9 | Math    | tutu     |    65
+            65 |  7 | Math    | francs   |    80
+            65 |  8 | Math    | matiler  |    99
+  (9 rows)
+  
+  ```
+
+### 4.7.8 last_value()
+
+- last_value()窗口函数用来取结果集每一个分组的最后一行数据的字段值
+
+  ```postgresql
+  postgres@pghost1:1921=#select last_value(score) OVER(partition by subject ),* from score;
+   last_value | id | subject | stu_name | score
+  ------------+----+---------+----------+-------
+           80 |  1 | Chinese | francs   |    70
+           80 |  2 | Chinese | matiler  |    70
+           80 |  3 | Chinese | tutu     |    80
+           60 |  4 | English | matiler  |    75
+           60 |  5 | English | francs   |    90
+           60 |  6 | English | tutu     |    60
+           65 |  7 | Math    | francs   |    80
+           65 |  8 | Math    | matiler  |    99
+           65 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+### 4.7.9 nth_value()
+
+- nth_value()窗口函数用来取结果集每一个分组的指定行数据的字段值
+
+  ```postgresql
+  nth_value(value any,nth integer)
+  ```
+
+  其中：
+
+  - value：指定表的字段
+  - nth：指定结果集分组数据中的第几行，如果不存在则返回空。
+
+  ```apl
+  postgres@pghost1:1921=#select nth_value(score,2) OVER(partition by subject),* from score;
+   nth_value | id | subject | stu_name | score
+  -----------+----+---------+----------+-------
+          70 |  1 | Chinese | francs   |    70
+          70 |  2 | Chinese | matiler  |    70
+          70 |  3 | Chinese | tutu     |    80
+          90 |  4 | English | matiler  |    75
+          90 |  5 | English | francs   |    90
+          90 |  6 | English | tutu     |    60
+          99 |  7 | Math    | francs   |    80
+          99 |  8 | Math    | matiler  |    99
+          99 |  9 | Math    | tutu     |    65
+  ```
+
+### 4.7.10窗口函数别名的使用
+
+- 如果SQL中需要多次使用窗口函数，可以使用窗口函数别名
+
+  ```postgresql
+  select....from....WINDOW window_name as (window_definition) {,...}
+  ```
+
+  WINDOW属性指定表的别名为window_name，可以给OVER属性应用
+
+  ```apl
+  postgres@pghost1:1921=#select avg(score) OVER(r),sum(score) OVER(r),* from score window r as (partition by subject);
+           avg         | sum | id | subject | stu_name | score
+  ---------------------+-----+----+---------+----------+-------
+   73.3333333333333333 | 220 |  1 | Chinese | francs   |    70
+   73.3333333333333333 | 220 |  2 | Chinese | matiler  |    70
+   73.3333333333333333 | 220 |  3 | Chinese | tutu     |    80
+   75.0000000000000000 | 225 |  4 | English | matiler  |    75
+   75.0000000000000000 | 225 |  5 | English | francs   |    90
+   75.0000000000000000 | 225 |  6 | English | tutu     |    60
+   81.3333333333333333 | 244 |  7 | Math    | francs   |    80
+   81.3333333333333333 | 244 |  8 | Math    | matiler  |    99
+   81.3333333333333333 | 244 |  9 | Math    | tutu     |    65
+  (9 rows)
+  ```
+
+# 核心篇
+
+# 第五章 体系结构
+
+
+
+# 第六章 并行查询
+
+- oracle支持并行查询，比如SELECT、UPDATE、DELETE大事物开启并行功能后能利用多核CPU，从而发挥硬件性能，提升大事物处理效率，并行索引查询，并行索引扫描，并行index-only扫描，并行bitmap heap扫描等。
+
+## 6.1 并行查询相关配置参数
+
+- 介绍并行查询之前先介绍并行查询几个重要参数。
+
+  1. **max_worker_processes(integer)**
+
+     设置系统支持的最大后台进程数，默认值为8，如果有备库，备库上此参数必须大于或等于主库上的此参数配置值，此参数调整后需重启数据库生效。
+
+  2. **max_parallel_workers(integer)**
+
+     设置系统支持的并行查询进程数，默认值为8，此参数受max_worker_processes参数限制，设置此参数的值比max_worker_processes值高将无效。
+
+     当调整这个参数时建议同时调整max_parallel_workers_per_gather参数值
+
+  3. **max_parallel_workers_per_gather（integer）**
+
+     设置允许启用并行进程的进数，默认值为2，设置成0表示禁用并行查询，此参数受max_worker_processes参数和max_parallel_workers参数限制，因此并行查询的实际进程数会少些，并行查询比非并行查询消耗更多CPU、IO、内存资源，对生产系统有一定影响，使用时需要考虑这方面的因素
+
+     ```apl
+     max_worker_processes > max_parallel_workers > max_parallel_workers_per_gather
+     ```
+
+  4. **parallel_setup_cost(floating point)**
+
+     设置优化器启动并行进程的成本，默认为1000
+
+  5. **parallel_tuple_cost(floating point)**
+
+     设置优化器通过并行进程处理一行数据的成本，默认0.1
+
+  6. **min_parallel_table_scan_size(integer)**
+
+     设置开启并行的条件之一，表占用空间小于此值将不会开启并行，并行顺序扫描场景下扫描的数据大小通常等于表大小，默认值为8MB
+
+  7. **min_parallel_index_scan_size(integer)**
+
+     设置开启并行的条件之一，实际上并行索引扫描不会扫描索引所有模块，只是扫描索引相关数据模块，默认值512kb。
+
+  8. **force_parallel_mode(enum)**
+
+     强制开启并行，一般作为测试目的，OLTP生产环境开启需要慎重，一般不建议开启。
+
+     本章中Postgresql.conf配置文件设置了一下参数
+
+     ```apl
+     max_worker_processes = 16 
+     max_parallel_workers_per_gather = 4
+     max_parallel_workers = 8
+     parallel_tuple_cost = 0.1
+     parallel_setup_cost = 1000.0 
+     min_parallel_table_scan_size = 8MB
+     min_parallel_index_scan_size = 512kB
+     force_parallel_mode = off //如果没有手动添加
+     ```
+
+---
+
+![image-20240612171647299](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240612171647299.png?raw=true)
+
+## 6.2 并行扫描
+
+- 扫描包括并行扫描、并行索引扫描，并行index-only扫描、并行bitmap heap扫描场景，测试过程中会对上一小节的部分参数进行设置，通过实验了解这些参数的含义。
+
+### 6.2.1 并行顺序扫描
+
+- 介绍并行顺序扫描前先介绍（sequential scan)，顺序扫描通常也称之为全表扫描，全表扫描会扫描整张表数据，当表很大时，全表扫描会占用大量CPU\内存\IO资源，对数据库性能影响大。
+
+1. 创建一张测试表，并插入5000万数据
+
+   ```postgresql
+   postgres@pghost1:1921=#create table test_big1(id int4,
+   postgres(# name varchar(32),
+   postgres(# craete_time timestamp without time zone default clock_timestamp());
+            
+   postgres@pghost1:1921=#insert into test_big1 (id,name)
+   select n,n||'_test' from generate_series(1,50000000)n;
+   ```
+
+2. 一个顺序扫描的示例
+
+   ```apl
+   postgres@pghost1:1921=#explain select * from test_big1 where name='1_test';
+                                     QUERY PLAN
+   ------------------------------------------------------------------------------
+    Gather  (cost=1000.00..523930.22 rows=1 width=25)
+      Workers Planned: 4
+      ->  Parallel Seq Scan on test_big1  (cost=0.00..522930.12 rows=1 width=25)
+            Filter: ((name)::text = '1_test'::text)
+   (4 rows)
+   ```
+
+   以上执行计划Seq Scan on test_big1说明表test_big1上继续宁了顺序扫描，并利用多个逻辑CPU并行全表扫描，一个并行顺序扫描的执行如下：
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select * from test_big1 where name='1_test';
+                                                            QUERY PLAN
+   
+   ---------------------------------------------------------------------------------------------
+   -------------------------------
+    Gather  (cost=1000.00..523930.22 rows=1 width=25) (actual time=0.971..875.605 rows=1 loops=1
+   )
+      Workers Planned: 4
+      Workers Launched: 4
+      ->  Parallel Seq Scan on test_big1  (cost=0.00..522930.12 rows=1 width=25) (actual time=67
+   9.975..854.734 rows=0 loops=5)
+            Filter: ((name)::text = '1_test'::text)
+            Rows Removed by Filter: 10000000
+    Planning Time: 0.067 ms
+    Execution Time: 875.624 ms
+   (8 rows)
+   ```
+
+   以上Woeker Planned表执行计划预估的并行进程数，Woker Launched表示查询实际获得的并行进程数，这里Woker Planned和Woker Launched值都为4，Parallel Seq on test_big1表示进行了并行顺序扫描, 从上可以看出，开启4个并行时，sql的执行时间为875毫秒
+
+3. 不开启worker_per_gather参数设置成了4，设置成0表示关闭并行。
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select * from test_big1 where name='1_test';
+                                                     QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   ------------------------
+    Seq Scan on test_big1  (cost=0.00..991728.50 rows=1 width=25) (actual time=878.832..2
+   439.526 rows=1 loops=1)
+      Filter: ((name)::text = '1_test'::text)
+      Rows Removed by Filter: 49999999
+    Planning Time: 0.041 ms
+    Execution Time: 2439.541 ms
+   (5 rows)
+   ```
+
+   不开启并行时此SQL执行时间为5329毫秒，比开启并行查询性能低了3倍左右。
+
+### 6.2.2并行索引扫描
+
+- 索引扫描(index scan) ，在表上创建索引后，进行索引扫描的执行如下：
+
+  ```apl
+  postgres@pghost1:1921=#explain select * from test_1 where id=1;
+                                  QUERY PLAN
+  ---------------------------------------------------------------------------
+   Index Scan using test_1_pkey on test_1  (cost=0.15..8.17 rows=1 width=40)
+     Index Cond: (id = 1)
+  (2 rows)
+  ```
+
+  Index Scan using 表示执行计划预计进行索引扫描，索引扫描也支持并行，称为并行索引扫描(Parallel index scan)，本节演示并行索引扫描，并在表test_big1上创建索引
+
+  ```apl
+  postgres@pghost1:1921=#create index idx_big1_id ON test_big1 USING btree (id);
+  CREATE INDEX
+  ```
+
+  执行以下SQL，统计ID小于1千万的记录数
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(name) from test_big1 where id<10000000;
+                                                                                QUERY PL
+  AN
+  --------------------------------------------------------------------------------------
+  --------------------------------------------------------------------------------
+   Finalize Aggregate  (cost=284884.55..284884.56 rows=1 width=8) (actual time=413.915..
+  424.356 rows=1 loops=1)
+     ->  Gather  (cost=284883.93..284884.54 rows=6 width=8) (actual time=413.753..424.34
+  8 rows=7 loops=1)
+           Workers Planned: 6
+           Workers Launched: 6
+           ->  Partial Aggregate  (cost=283883.93..283883.94 rows=1 width=8) (actual tim
+  e=402.149..402.150 rows=1 loops=7)
+                 ->  Parallel Index Scan using idx_big1_id on test_big1  (cost=0.56..279
+  642.04 rows=1696754 width=13) (actual time=0.053..294.569 rows=1428571 loops=7)
+                       Index Cond: (id < 10000000)
+   Planning Time: 0.139 ms
+   Execution Time: 424.380 ms
+  (9 rows)
+  ```
+
+  根据以上执行计划可以看出，进行了并行索引扫描，开启了4个并行进程，执行时间为424毫秒
+
+- 会话级别关闭进行查询
+
+  ```apl
+  max_parallel_workers_per_gather
+  ```
+
+  再次执行
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(name) from test_big1 where id<10000000;
+                                                                      QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Aggregate  (cost=389931.07..389931.08 rows=1 width=8) (actual time=1552.588..1552.590
+   rows=1 loops=1)
+     ->  Index Scan using idx_big1_id on test_big1  (cost=0.56..364479.75 rows=10180525
+  width=13) (actual time=0.065..1097.416 rows=9999999 loops=1)
+           Index Cond: (id < 10000000)
+   Planning Time: 0.060 ms
+   Execution Time: 1552.613 ms
+  (5 rows)
+  ```
+
+  从执行计划看出进行了索引扫描，并没有开启并行，执行时间为1552毫秒，比并行索引性能低很多。
+
+### 6.2.3并行index-only扫描
+
+- index-only扫描只需要扫描索引，也就是说SQL仅根据索引就能够获取所需要检索的数据，而不需要通过索引回表查询数据。
+
+- 会话级别关闭。
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;                         SET
+  ```
+
+1. 查看执行计划
+
+   ```apl
+   postgres@pghost1:1921=#explain select count(*) from test_big1 where id<10000000;
+                                                QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   --------------
+    Aggregate  (cost=315271.07..315271.08 rows=1 width=8)
+      ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..289819.75 rows=1018
+   0525 width=0)
+            Index Cond: (id < 10000000)
+   (3 rows)
+   ```
+
+   以上执行主要看Index Only Scan 这一行，由于ID字段上建立了索引，统计记录数不需要再回表查询其他信息，因此进行了index-only扫描
+
+2. EXPLAIN ANALYZE执行此SQL
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id<10000000;
+                                                                         QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   ----------------------------------------------------------------
+    Aggregate  (cost=315271.07..315271.08 rows=1 width=8) (actual time=863.722..863.723 r
+   ows=1 loops=1)
+      ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..289819.75 rows=1018
+   0525 width=0) (actual time=0.020..563.454 rows=9999999 loops=1)
+            Index Cond: (id < 10000000)
+            Heap Fetches: 0
+    Planning Time: 0.058 ms
+    Execution Time: 863.745 ms
+   (6 rows)
+   ```
+
+   执行时间为253毫秒，index-only扫描支持并行，称为并行index-only扫描
+
+- 开启并行index-only扫描
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather to default;
+  SET
+  ```
+
+- 再次执行以下查询
+
+  ```apl
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather to default;
+  
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id <10000000;
+                                                                                  QUERY
+  PLAN
+  --------------------------------------------------------------------------------------
+  ------------------------------------------------------------------------------------
+   Finalize Aggregate  (cost=220829.06..220829.07 rows=1 width=8) (actual time=348.532..
+  350.266 rows=1 loops=1)
+     ->  Gather  (cost=220828.64..220829.05 rows=4 width=8) (actual time=348.430..350.25
+  9 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=219828.64..219828.65 rows=1 width=8) (actual tim
+  e=337.799..337.800 rows=1 loops=5)
+                 ->  Parallel Index Only Scan using idx_big1_id on test_big1  (cost=0.56
+  ..213465.82 rows=2545131 width=0) (actual time=0.060..252.034 rows=2000000 loops=5)
+                       Index Cond: (id < 10000000)
+                       Heap Fetches: 0
+   Planning Time: 0.074 ms
+   Execution Time: 350.291 ms
+  (10 rows)
+  ```
+
+### 6.2.4 并行bitmap heap扫描
+
+- Bitmap Index和Bitmap Heap扫描，当SQL的where条件中出现or时很有可能出现Bitmap Index扫描
+
+  ```apl
+  postgres@pghost1:1921=#explain select * from test_big1 where id=1 or id=2;
+                                     QUERY PLAN
+  --------------------------------------------------------------------------------
+   Bitmap Heap Scan on test_big1  (cost=9.15..17.16 rows=2 width=25)
+     Recheck Cond: ((id = 1) OR (id = 2))
+     ->  BitmapOr  (cost=9.15..9.15 rows=2 width=0)
+           ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..4.57 rows=1 width=0)
+                 Index Cond: (id = 1)
+           ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..4.57 rows=1 width=0)
+                 Index Cond: (id = 2)
+  (7 rows)
+  ```
+
+  从以上执行计划看出，限制性两次Bitamp index扫描获取索引项，之后讲Bitmap index扫描获取的结果结合起来回表查询，再查询中讲ID的选择范围扩大。
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 where id <10000000 or id > 49000000;
+                                                                      QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Finalize Aggregate  (cost=562003.43..562003.44 rows=1 width=8) (actual time=896.896..
+  897.563 rows=1 loops=1)
+     ->  Gather  (cost=562003.01..562003.42 rows=4 width=8) (actual time=896.785..897.55
+  6 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=561003.01..561003.02 rows=1 width=8) (actual tim
+  e=893.790..893.791 rows=1 loops=5)
+                 ->  Parallel Seq Scan on test_big1  (cost=0.00..554164.00 rows=2735602
+  width=0) (actual time=256.298..801.286 rows=2200000 loops=5)
+                       Filter: ((id < 10000000) OR (id > 49000000))
+                       Rows Removed by Filter: 7800000
+   Planning Time: 0.191 ms
+   Execution Time: 897.595 ms
+  (10 rows)
+  ```
+
+2. 在会话级关闭并行查询
+
+   ```APL
+   postgres@pghost1:1921=#explain analyze select count (*) from test_big1 where id < 1000000 or id > 49000000;
+                                                                      QUERY PLAN
+   
+   --------------------------------------------------------------------------------------
+   -----------------------------------------------------------
+    Aggregate  (cost=1096345.81..1096345.82 rows=1 width=8) (actual time=183.203..183.206
+    rows=1 loops=1)
+      ->  Bitmap Heap Scan on test_big1  (cost=38885.60..1091272.21 rows=2029440 width=0)
+    (actual time=44.967..122.749 rows=1999999 loops=1)
+            Recheck Cond: ((id < 1000000) OR (id > 49000000))
+            Heap Blocks: exact=13724
+            ->  BitmapOr  (cost=38885.60..38885.60 rows=2050366 width=0) (actual time=43.
+   152..43.153 rows=0 loops=1)
+                  ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..20199.28 rows=1093696
+    width=0) (actual time=21.794..21.794 rows=999999 loops=1)
+                        Index Cond: (id < 1000000)
+                  ->  Bitmap Index Scan on idx_big1_id  (cost=0.00..17671.59 rows=956670
+   width=0) (actual time=21.357..21.357 rows=1000000 loops=1)
+                        Index Cond: (id > 49000000)
+    Planning Time: 0.086 ms
+    Execution Time: 183.229 ms
+   (11 rows)
+   ```
+
+   从以上执行计划看出进行了Bitmap Heap扫描，执行时间为183毫秒，不开启并行此开启并行性能低了不少。
+
+## 6.3 并行聚合
+
+- 并行聚合：count()、sum()等集合函数的SQL，以下执行count()函数统计表记录总数
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select count(*) from test_big1 ;                                                                                   QUERY PLAN
+  
+  --------------------------------------------------------------------------------------
+  -------------------------------------------------------------
+   Finalize Aggregate  (cost=523914.42..523914.43 rows=1 width=8) (actual time=1122.163.
+  .1122.678 rows=1 loops=1)
+     ->  Gather  (cost=523914.00..523914.41 rows=4 width=8) (actual time=1122.047..1122.
+  660 rows=5 loops=1)
+           Workers Planned: 4
+           Workers Launched: 4
+           ->  Partial Aggregate  (cost=522914.00..522914.01 rows=1 width=8) (actual tim
+  e=1109.915..1109.915 rows=1 loops=5)
+                 ->  Parallel Seq Scan on test_big1  (cost=0.00..491664.00 rows=12500000
+   width=0) (actual time=0.025..696.300 rows=10000000 loops=5)
+   Planning Time: 0.059 ms
+   Execution Time: 1122.701 ms
+  (8 rows)
+  ```
+
+  ![image-20240613174121480](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240613174121480.png?raw=true)
+
+  首先进行partial Aggregate，开启了四个并行进程，最后进行Finalize Aggregate，此SQL执行时间为2474毫秒，在操作系统层通过top命令看到 EXPLAIN ANLAYZE四个进程
+
+2. 尝试讲进程数更改为2
+
+   ```apl
+   postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;
+   
+   postgres@pghost1:1921=#explain analyze select count(*) from test_big1 ;
+                                                                        QUERY PLAN
+   ----------------------------------------------------------------------------------------------------------------------------------------------------
+    Finalize Aggregate  (cost=628080.88..628080.89 rows=1 width=8) (actual time=1658.148..1658.546 rows=1 loops=1)
+      ->  Gather  (cost=628080.67..628080.88 rows=2 width=8) (actual time=1658.059..1658.538 rows=3 loops=1)
+            Workers Planned: 2
+            Workers Launched: 2
+            ->  Partial Aggregate  (cost=627080.67..627080.68 rows=1 width=8) (actual time=1648.419..1648.420 rows=1 loops=3)
+                  ->  Parallel Seq Scan on test_big1  (cost=0.00..574997.33 rows=20833333 width=0) (actual time=0.050..1017.596 rows=16666667 loops=3)
+    Planning Time: 0.131 ms
+    Execution Time: 1658.579 ms
+   (8 rows)
+   ```
+
+   | 并行进程数 | Count（）执行时间 |
+   | ---------- | ----------------- |
+   | 0          | 4132毫秒          |
+   | 2          | 1598毫秒          |
+   | 4          | 1036毫秒          |
+   | 6          | 785毫秒           |
+
+3. sum()函数也能支持并行扫描
+
+   ```apl
+   postgres@pghost1:1921=#explain analyze select sum(hashtext (name)) from test_big1 ;
+                                                                       QUERY PLAN
+   --------------------------------------------------------------------------------------------------------------------------------------------------
+    Finalize Aggregate  (cost=492664.62..492664.63 rows=1 width=8) (actual time=1126.214..1126.902 rows=1 loops=1)
+      ->  Gather  (cost=492664.00..492664.61 rows=6 width=8) (actual time=1126.121..1126.895 rows=7 loops=1)
+            Workers Planned: 6
+            Workers Launched: 6
+            ->  Partial Aggregate  (cost=491664.00..491664.01 rows=1 width=8) (actual time=1122.389..1122.390 rows=1 loops=7)
+                  ->  Parallel Seq Scan on test_big1  (cost=0.00..449997.33 rows=8333333 width=13) (actual time=0.023..494.675 rows=7142857 loops=7)
+    Planning Time: 0.133 ms
+    Execution Time: 1126.938 ms
+   (8 rows)
+   ```
+
+   main()、max() 聚合函数也支持并行查询，这里不再测试。
+
+## 6.4 多表关联
+
+- 多表关联也能用到并行扫描，而是指多表关联涉及的表数据检索时能够使用并行处理
+
+### 6.4.1 Nested loop多表关联
+
+- 多表关联Nested loop是一个嵌套循环，伪代码
+
+  ```
+  for(i=0;i<length(outer);i++)
+  for(j=0;j<length(inner);j++)
+  	if(outer[i]== inner[j])
+  	output(outerli],innerlj]);
+  ```
+
+- 接着测试Nested loop 多表关联场景下使用到并行扫描的情况，创建一张test_small小表。
+
+  ```apl
+  postgres@pghost1:1921=#create table test_small(id int4,name character varying(32));
+  CREATE TABLE
+  
+  postgres@pghost1:1921=#insert into test_small(id,name)
+  select n,n || '_small' from generate_series(1,8000000) n;
+  INSERT 0 8000000
+  ```
+
+- 创建索引并做表分析
+
+  ```apl
+  postgres@pghost1:1921=#create index idx_test_small_id ON test_small USING btree (id);
+  CREATE INDEX
+  postgres@pghost1:1921=#select * from test_small limit 1;
+   id |  name
+  ----+---------
+    1 | 1_small
+  (1 row)
+  
+  postgres@pghost1:1921=#analyze test_small;
+  ANALYZE
+  ```
+
+- ANALYZE命令用于收集表上的统计信息，使优化器能够获得更精准的执行计划
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 ,test_small where test_big1.id = test_small.id and test_small.id < 10000;
+                                                                   QUERY PLAN
+  ---------------------------------------------------------------------------------------------------------------------------------------------
+   Nested Loop  (cost=1.00..44018.87 rows=9804 width=13) (actual time=0.037..11.778 rows=9999 loops=1)
+     ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..346.00 rows=9804 width=17) (actual time=0.011..1.266 rows=9999 loops=1)
+           Index Cond: (id < 10000)
+     ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..4.44 rows=1 width=4) (actual time=0.001..0.001 rows=1 loops=9999)
+           Index Cond: (id = test_small.id)
+           Heap Fetches: 0
+   Planning Time: 0.811 ms
+   Execution Time: 12.044 ms
+  ```
+
+  首先在表test_big1上进行了Index Only扫描，用于检索id小于100000的记录，之后两表进行Nested loop关联同时在表test_small
+  
+  
+
+### 6.4.1 Merge join 多表关联
+
+- Merge join 多表关联首先讲两个表进行排序，之后进行关联字段匹配，Merge join
+
+  ```apl
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_small,test_big1 where test_big1.id = test_small.id and test_small.id < 200000;
+                                                                             QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ---------------------------------------------------------------
+   Gather  (cost=1001.74..176162.42 rows=204448 width=13) (actual time=0.750..70.396 rows=199999 lo
+  ops=1)
+     Workers Planned: 6
+     Workers Launched: 6
+     ->  Merge Join  (cost=1.74..154717.62 rows=34075 width=13) (actual time=4.650..52.878 rows=285
+  71 loops=7)
+           Merge Cond: (test_big1.id = test_small.id)
+           ->  Parallel Index Only Scan using idx_big1_id on test_big1  (cost=0.56..881729.90 rows=
+  8333333 width=4) (actual time=0.050..2.763 rows=28572 loops=7)
+                 Heap Fetches: 0
+           ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..7125.27 rows=204448 wi
+  dth=17) (actual time=0.026..32.533 rows=199999 loops=7)
+                 Index Cond: (id < 200000)
+   Planning Time: 0.246 ms
+   Execution Time: 76.992 ms
+  (11 rows)
+  ```
+
+- 开启6个并行，执行时间为76毫秒，下面关闭进行比较
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_small,test_big1 where test_big1.id = test_small.id and test_small.id < 200000;
+                                                                       QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ----------------------------------------------------
+   Merge Join  (cost=1.74..241099.09 rows=204448 width=13) (actual time=0.033..70.119 rows=199999 l
+  oops=1)
+     Merge Cond: (test_small.id = test_big1.id)
+     ->  Index Scan using idx_test_small_id on test_small  (cost=0.43..7125.27 rows=204448 width=17
+  ) (actual time=0.020..22.511 rows=199999 loops=1)
+           Index Cond: (id < 200000)
+     ->  Index Only Scan using idx_big1_id on test_big1  (cost=0.56..1298396.56 rows=50000000 width
+  =4) (actual time=0.009..13.382 rows=200000 loops=1)
+           Heap Fetches: 0
+   Planning Time: 0.218 ms
+   Execution Time: 175.200 ms
+  (8 rows)
+  ```
+
+### 6.4.3 Hash join 多表关联
+
+- PostgreSQL多表关联也支持 Hash join，当关联字段没有索引情况下两表关联通常会进行Hash join接下来查看Hash join 的执行计划，先将两表上的索引删除，同时关闭并行。
+
+  ```postgresql
+  postgres@pghost1:1921=#SET enable_nestloop TO off;
+  SET
+  postgres@pghost1:1921=#SET enable_mergejoin TO off;
+  SET
+  postgres@pghost1:1921=#drop index idx_test_big1_id;  
+  postgres@pghost1:1921=#drop index idx_test_small_id;
+  DROP INDEX
+  postgres@pghost1:1921=#set max_parallel_workers_per_gather=0;                  
+  
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 join test_small ON ( test_big1.id =test_small.id) and test_small.id < 100;
+                                                            QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  ------------------------------
+   Hash Join  (cost=150870.85..1205042.85 rows=800 width=13) (actual time=5264.722..6393.665 rows=9
+  9 loops=1)
+     Hash Cond: (test_big1.id = test_small.id)
+     ->  Seq Scan on test_big1  (cost=0.00..866664.00 rows=50000000 width=4) (actual time=0.012..31
+  83.107 rows=50000000 loops=1)
+     ->  Hash  (cost=150860.85..150860.85 rows=800 width=17) (actual time=459.848..459.849 rows=99
+  loops=1)
+           Buckets: 1024  Batches: 1  Memory Usage: 13kB
+           ->  Seq Scan on test_small  (cost=0.00..150860.85 rows=800 width=17) (actual time=0.008.
+  .459.832 rows=99 loops=1)
+                 Filter: (id < 100)
+                 Rows Removed by Filter: 7999901
+   Planning Time: 0.123 ms
+   Execution Time: 6393.693 ms
+  
+  ```
+
+- 开启4个并行
+
+  ```postgresql
+  postgres@pghost1:1921=#explain analyze select test_small.name from test_big1 join test_small ON ( test_big1.id =test_small.id) and test_small.id < 100;
+                                                                   QUERY PLAN
+  
+  -------------------------------------------------------------------------------------------------
+  --------------------------------------------
+   Gather  (cost=76862.71..615482.21 rows=800 width=13) (actual time=1504.987..1505.477 rows=99 loo
+  ps=1)
+     Workers Planned: 4
+     Workers Launched: 4
+     ->  Parallel Hash Join  (cost=75862.71..614402.21 rows=200 width=13) (actual time=1439.674..14
+  94.355 rows=20 loops=5)
+           Hash Cond: (test_big1.id = test_small.id)
+           ->  Parallel Seq Scan on test_big1  (cost=0.00..491664.00 rows=12500000 width=4) (actual
+   time=0.019..680.644 rows=10000000 loops=5)
+           ->  Parallel Hash  (cost=75860.21..75860.21 rows=200 width=17) (actual time=99.912..99.9
+  12 rows=20 loops=5)
+                 Buckets: 1024  Batches: 1  Memory Usage: 40kB
+                 ->  Parallel Seq Scan on test_small  (cost=0.00..75860.21 rows=200 width=17) (actu
+  al time=77.773..99.748 rows=20 loops=5)
+                       Filter: (id < 100)
+                       Rows Removed by Filter: 1599980
+   Planning Time: 0.185 ms
+   Execution Time: 1505.509 ms
+  ```
+
+# 第七章事物与并发控制
+
+## 7.1 事物和并发控制的概念
+
+- 事物有四个重要的特性
+  - 原子性
+    - 一个事物的所有操作，要么全部执行，要么全不执行
+  - 一致性
+    - 执行事物时保持数据库从一个一致的状态变更到另一个一致的状态。
+  - 隔离性
+    - 即使每个事物都能确保一致性和原子性，如果并发执行时，不希望的方式交叉运行，就会导致不一致的情况发生。
+  - 持久性
+    - 一个事物完成之后，即使数据库发生故障，他对数据库的更变也永久保存在数据库中。
+
+### 7.1.2 并发引发的现象
+
+- 事务都按照顺序执行，所有事物的执行时间没有重叠就不会存在事物并发性。Postgresql可以把这些非预期的现象总结为：脏读、不可重复读、幻读、和序列化异常
+
+1. 脏读
+
+   - 当第一个事物读取了第二个事物中已经修改但还未提交的数据，包括INSERT UPDATE、DELETE当第二个事务不提交并执行ROLLBACK后，第一个事务所读取到的数据是不正常的，这种读取现象称作脏读。
+   - 首先创建一张测试表并插入测试数据，如下所示
+
+   ```postgresql
+   postgres@pghost1:1921=#CREATE TABLE tbl_mvcc (
+       id SERIAL NOT NULL,
+       ival INT,
+       PRIMARY KEY (id)
+   );
+   
+   postgres@pghost1:1921=#INSERT INTO tb1_mvcc (ival) VALUES (1);
+   INSERT 0 1
+   ```
+
+   | T1                                                           | T2                                                           |
+   | ------------------------------------------------------------ | ------------------------------------------------------------ |
+   | set session transaction isolation level read uncommitted; start transaction; | start transaction;<br />update tb1_mvcc set ival = 10 where id =1; |
+   |                                                              |                                                              |
+   | select * from tb1_mvcc where id =1;                          |                                                              |
+   |                                                              | rollback;                                                    |
+   |                                                              |                                                              |
+
+   
+
+![image-20240618230951775](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618230951775.png?raw=true)
+
+- 事物T1在tb1_mvcc表中查询数据，得到id=1，ival=1的行，这时时间T2更新表中id=1，ival=10，此时事务T1查询tb1_mvcc表，而事务T2此时并未提交，ival预期的值应当是1，但是T1却得到ival=10，事务T2最终进行了ROLLBACK操作，显然，事务T1将得到错误的值，引发了脏读现象
+
+2. 不可重复读
+
+   当一个事务第一次读取数据之后，被读取的数据已经被另一个已提交的事务进行了修改，事务再次读取这些数据已经被另一个事务修改，两次查询的结果不一致，这种称为不可重复读。
+
+   - 创建一张测试表插入数据
+
+     ```postgresql
+     postgres@pghost1:1921=#create table tb2_mvcc (
+     id serial primary key,
+     ival int
+     );
+     postgres@pghost1:1921=#insert into tb2_mvcc (ival) values (1);
+     ```
+
+     | T1                                                           | T2                                                      |
+     | ------------------------------------------------------------ | ------------------------------------------------------- |
+     | begin transaction isolation level read committed;            |                                                         |
+     | select id,ival from tb2_mvcc where id =1;                    |                                                         |
+     | ![image-20240618232045706](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232045706.png?raw=true) |                                                         |
+     |                                                              | begin;<br />update tb2_mvcc set ival = 10 where id =1 ; |
+     | select id,ival from tb2_mvcc where id =1;                    |                                                         |
+
+![image-20240618232601911](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232601911.png?raw=true)
+
+![image-20240618232651718](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618232651718.png?raw=true)
+
+3. 幻读
+
+- 指一个事务的两次查询的结果集 记录数不一致。例如第一次查询的数据和第二次再次插入或删除了所查询的数据不一致。或则第一次查询的结果数据不存在，两次查询结果不同
+
+  | T1                                                           | T2                                                       |
+  | ------------------------------------------------------------ | -------------------------------------------------------- |
+  | begin transaction isolation level read committed;<br />select id,ival from tb2_mvcc where id > 3 and id < 10; |                                                          |
+  | select id,ival from tb2_mvcc where id =1;                    |                                                          |
+  |                                                              | begin;<br />insert into tb2_mvcc (id,ival) values (6,6); |
+  | select id,ival from tb2_mvcc where id > 3 and id < 10;       |                                                          |
+  |                                                              |                                                          |
+
+![image-20240618234052221](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234052221.png?raw=true)
+
+![image-20240618234245199](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234245199.png?raw=true)
+
+### 7.1.3 ANSI SQL 标准事务隔离级别
+
+- 为避免事务与事务之间发生执行引发的副作用，最简单的方法是窜行化地逐个执行事务。
+- ANSI SQL标准定义了四类隔离级别，每个隔离级别都包括了一些具体规则，也就是允许或不允许出现脏读、不可重复读，幻读的现象
+  - **Read Uncommitted(读未提交)|**
+    - 所有事物都可以看到其他未提交事物的执行结果，在多用户数据库中，脏读非常危险。所以未提交 这一事物隔离级别很少用于实际应用。
+  - **Read Committed（读已提交)**
+    - 默认隔离级别，满足一个事物只能看已经提交事物对关联数据所做的改变的隔离需求
+  - **Serializable(可序列化)**
+    - 最高隔离级别，通过强制事物排序，不能相互冲突，从而解决幻读问题。
+
+![image-20240618234956844](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618234956844.png?raw=true)
+
+![image-20240618235021729](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618235021729.png?raw=true)
+
+## 7.2 事物隔离级别
+
+![image-20240618235701353](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240618235701353.png?raw=true)
+
+| T1                                                           | T2                                               |
+| ------------------------------------------------------------ | ------------------------------------------------ |
+| begin transaction isolation level repeatable read;<br />select id,ival from tb2_mvcc where id =1; |                                                  |
+|                                                              |                                                  |
+|                                                              | update tb2_mvcc set ival= ival * 10 where id =1; |
+| update tb2_mvcc set ival= ival + 1 where id =1;              |                                                  |
+| ROLLBACK                                                     |                                                  |
+
+![image-20240619000155858](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619000155858.png?raw=true)
+
+![image-20240619000527215](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619000527215.png?raw=true)
+
+- Repeatable 事物隔离级别不能出现幻读
+
+  | T1                                                           | T2                                                           |
+  | ------------------------------------------------------------ | ------------------------------------------------------------ |
+  | begin transaction isolation level repeatable read;<br />select id,ival from tb2_mvcc where id > 3 and id < 10; |                                                              |
+  |                                                              |                                                              |
+  |                                                              | begin;<br />insert into tb1_mvcc (id,ival) values (6,6);end; |
+  | select id,ival from tb2_mvcc where id > 3 and id < 10;       |                                                              |
+  | end;                                                         |                                                              |
+
+![image-20240619002217458](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619002217458.png?raw=true)
+
+### 7.2.1 查看和设置数据库的事务隔离级别
+
+- 默认的事务隔离级别是Read Committed。
+
+  ```postgresql
+  postgres@pghost1:1921=#select name,setting from pg_settings where name ='default_transaction_isolation';
+               name              |    setting
+  -------------------------------+----------------
+   default_transaction_isolation | read committed
+   
+   postgres@pghost1:1921=#select current_setting('default_transaction_isolation');
+   current_setting
+  -----------------
+   read committed
+  ```
+
+### 7.2.2 修改全局的事务隔离级别
+
+- 方法1：通过修改Postgresql.conf文件中的 **default_transaction_isolation**参数修改全局事务隔离级别，修改之后reload
+
+- 方法2：通过ALTER SYSTEM 命令修改全局事务隔离级别
+
+  ```postgresql
+  postgres@pghost1:1921=#alter system set default_transaction_isolation TO 'REPEATABLE READ';
+  ALTER SYSTEM
+  
+  postgres@pghost1:1921=#select pg_reload_conf();
+   pg_reload_conf
+  ----------------
+   t
+  ```
+
+### 7.2.3 查看当前会话的事务隔离级别
+
+- 会话级别
+
+  ```apl
+  postgres@pghost1:1921=#show transaction_isolation;
+   transaction_isolation
+  -----------------------
+   repeatable read
+  
+  postgres@pghost1:1921=#select current_setting('transaction_isolation');
+   current_setting
+  -----------------
+   repeatable read
+  
+  ```
+
+### 7.2.4 设置当前会话的事务隔离级别
+
+- 设置会话级别
+
+  ```apl
+  postgres@pghost1:1921=#set session characteristics as transaction isolation level read uncommitted;
+  SET
+  postgres@pghost1:1921=#show transaction_isolation;
+   transaction_isolation
+  -----------------------
+   read uncommitted
+  ```
+
+
+### 7.2.5 设置当前事务的事务隔离级别
+
+- 启动事务的同时设置事务隔离级别
+
+  ```postgresql
+  postgres@pghost1:1921=#start transaction isolation level read uncommitted;
+  postgres@pghost1:1921=#end;
+  COMMIT
+  
+  postgres@pghost1:1921=#begin isolation level read uncommitted read write;
+  BEGIN
+  postgres@pghost1:1921=#end;
+  COMMIT
+  ```
+
+## 7.3 并发控制
+
+- 允许多人同时和修改数据，为了保持事务的隔离性，系统必须对并发事务之间的相互作用加以控制。
+- 这次情况下既要确保用户一致读取和修改数据，还要争取尽量多的并发数，这是数据库并发控制器需要做的事情。
+- 数据库管理系统中并发控制的任务便是确保在多个事务同时存取数据库中同一数据时不破坏事务的隔离性、数据的一致性、以及数据库一致性，也就是解决丢失更新、脏读、不可重复读、幻读、序列化异常的问题
+- 并发控制模型有`基于的并发控制`和`基于多版本的并发控制`封锁、时间戳、乐观并发控制(OCC)和悲观并发控制是并发控制采用的主要技术手段。
+
+### 7.3.1 基于锁的并发控制
+
+- 数据库引入了“锁” 的概念。基本的封锁类型有两种：
+  - `排它锁`
+  - `共享锁`
+- **`排它锁`**：被加锁的对象可以被持锁事务读取和修改，其他事务无法在该对象上加其他锁，也不能读取和改该对象。
+- **`共享锁`**：被加锁的对象可以被持锁事务读取，但是不能被修改，其他事务也可以在上面再加共享锁。
+
+![image-20240619105135037](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619105135037.png?raw=true)
+
+### 7.3.2 基于多版本的并发控制
+
+- 如果每一数据项的旧值副本保存在系统中，这些问题就可以避免。集中基于多个旧值版本的并发控制即MVCC。
+- 一般把基于锁的并发控制机制成为悲观机制，而MVCC机制称为乐观机制。这是因为锁机制是一种预防的机制，读会阻塞，写也会阻塞，当封锁隔离度较大，时间较长时，并发性能就可以能不会太好；而MVCC是一种后验性的机制，读不阻塞写，写也不阻塞读，等到提交的时候才验证是否有冲突，由于没有锁，所以读写不会相互阻塞，避免了大颗粒度和长时间的锁定，能更好适应对读的响应速度和并发性要求高的场景，大大提升了并发性能
+- 在MVCC中，每个写操作创建一个新的版本。当事物发出一个读操作时，并发控制管理器选择一个版本进行读取。也就是为数据增加一个关于版本的标识，在读取数据时，连同版本号一起读除，在更新时对此版本号加一。
+
+- MVCC通过保存数据在某个时间点的快照，并控制元组的可见性来实现。
+
+![image-20240619111814715](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619111814715.png?raw=true)
+
+```apl
+postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =1;
+ xmin | xmax | cmin | cmax | id | ival
+------+------+------+------+----+------
+  956 |    0 |    1 |    1 |  1 |   11
+(1 row)
+```
+
+- 其中xmin保存了创建该行数据的事物的xid，xmax保存的是删除该行的xid，PostgreSQL在不同事物时间使用xmin和xmax控制事物对其他事物的可见性。
+
+1. 通过xmin决定事物的可见性
+
+   当插入一行数据时，PG会将插入这行数据的事物的xid存储在xmin中。通过xmin值判断事物中插入的行记录对其他事物的可见性有两种情况。
+
+   - 由由于回滚的事物或未提交的事物创建的行对于任何其他事物都是不可见的。开启一个新的事物
+
+   ```postgresql
+   postgres@pghost1:1921=#begin;
+   BEGIN
+   postgres@pghost1:1921=#select txid_current();
+    txid_current
+   --------------
+             961
+   
+   postgres@pghost1:1921=#insert into tb1_mvcc (id,ival) values (7,7);
+   
+   postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =7;
+    xmin | xmax | cmin | cmax | id | ival
+   ------+------+------+------+----+------
+     961 |    0 |    0 |    0 |  7 |    7
+   
+   ```
+
+   - 通过SELECT txid_current()语句我们查询到当前的事物xid是961，插入这行数据事物的id等于7的数据，查询这个数据的隐藏列可以看到xmin的值等于961，也就是插入这行数据的事物的xid。
+
+2. 无论提交成功或回滚的事务，xid都会递增，如果它的xid小于另一个事务的xid，也就是元组的xmin小于另一个事务的xmin，那么另一个事务对这个事务是不可用见的
+
+   ```apl
+   postgres@pghost1:1921=#begin transaction isolation level repeatable read;
+   BEGIN
+   postgres@pghost1:1921=#select txid_current();
+    txid_current
+   --------------
+             973
+   ```
+
+   以上语句开启了一个事务，这个事务的xid是973。在开启另一个事务
+
+   ```apl
+   postgres@pghost1:1921=#insert into tb1_mvcc (id,ival) values (7,7)
+   postgres-*# ;
+   INSERT 0 1
+   postgres@pghost1:1921=#select xmin,xmax,cmin,cmax,id,ival from tb1_mvcc where id =7;
+    xmin | xmax | cmin | cmax | id | ival
+   ------+------+------+------+----+------
+     974 |    0 |    0 |    0 |  7 |    7
+   
+   postgres@pghost1:1921=#commit
+   ```
+
+- 第二个事务的xid是974并且这个事务在表中插入一条新的数据，xmin记录了第二个事务的xid，第二个事务提交成功。
+
+![image-20240619145721418](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619145721418.png?raw=true)
+
+- 尽管第二个事务提交成功，但在第一个事务中并未能查询到第二个事务插入的数据，因为第一个事务的XID是973，第二个事务插入的数据的xmin值是974，小于第二个事务的xmin，所以插入的id等于7的数据对第一个事务是不可见的。
+
+2. 通过xmax决定事务的可见性
+
+   通过xmax值判断事务的更新操作和删除操作对其他事务的可见性有这几种情况：
+
+   - 如果没有设置xmax值，该行对其他事务总是可见的
+   - 如果他被设置为回滚事务的xid，该行对其他事务也是可以见的
+   - 如果他被设置为一个正在运行，没有commit和rollback的事务的xid，改行对其他事务是可见的
+   - 如果它被设置为一个已提交的事务的xid，该行对这个已经提交事务之后发起的所有事务都是不可见的。
+
+### 7.3.3 通过pageinspect观察MVCC
+
+- 通过PostgreSQL文件系统的存储格式可以理解的更清晰。
+
+  ```apl
+  postgres@pghost1:1921=#\dx+ pageinspect
+                  Objects in extension "pageinspect"
+                          Object description
+  -------------------------------------------------------------------
+   function brin_metapage_info(bytea)
+   function brin_page_items(bytea,regclass)
+   function brin_page_type(bytea)
+   function brin_revmap_data(bytea)
+   function bt_metap(text)
+   function bt_page_items(bytea)
+   function bt_page_items(text,bigint)
+   function bt_page_stats(text,bigint)
+   function fsm_page_contents(bytea)
+   function get_raw_page(text,bigint)
+   function get_raw_page(text,text,bigint)
+   function gin_leafpage_items(bytea)
+   function gin_metapage_info(bytea)
+   function gin_page_opaque_info(bytea)
+   function gist_page_items_bytea(bytea)
+   function gist_page_items(bytea,regclass)
+   function gist_page_opaque_info(bytea)
+   function hash_bitmap_info(regclass,bigint)
+   function hash_metapage_info(bytea)
+   function hash_page_items(bytea)
+  postgres@pghost1:1921=#
+  ```
+
+- 下面介绍两个会调用的函数。get_raw_page 它的一个重载get_raw_page，用于读取relation中指定的块的值，其中relname是relation name参数fork可以有main、vm、fsm、init这几个值，
+
+  - fork默认值是main、main表示数据文件的主文件，
+  - vm是可见性映射的块文件
+  - fsm为free space map的块文件
+  - init 是初始化的块
+  - get_raw_page以一个bytea值的形式返回一个拷贝。
+
+- heap_page_items  显示一个堆页面上所有的行指针。对那些使用中的行指针，元组头部和尾部显示元组，原始数据也会被显示。不管元组对于拷贝原始页面时的MVCC快照是否可见，他们都会被显示。一般使用get_raw_page函数获得堆页面映射作为参数传递给heap_page_items.
+
+- 创建如下视图以便清晰地观察PG的MVCC是如何控制并发时的多版本
+
+  ```apl
+  CREATE VIEW v_pageinspect AS
+  SELECT
+      '(0,' || lp || ')' AS ctid,
+      CASE lp_flags
+          WHEN 0 THEN 'Unused'
+          WHEN 1 THEN 'Normal'
+          WHEN 2 THEN 'redirect to ' || lp_off
+          WHEN 3 THEN 'Dead'
+      END AS status,
+      t_xmin::text::int8 AS xmin,
+      t_xmax::text::int8 AS xmax,
+      t_ctid
+  FROM heap_page_items(get_raw_page('tb1_mvcc', 0))
+  ORDER BY lp;
+  ```
+
+- 当INSERT 数据时，事务会将INSERT的数据的xmin的值设置为当前事务的xid，xmax设置为NULL
+
+  ```apl
+  postgres@pghost1:1921=#insert into tb1_mvcc (ival) values (10);
+  INSERT 0 1
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    0 | (0,21)
+  
+  postgres@pghost1:1921=#end;
+  COMMIT
+  ```
+
+  当DELETE数据时，将xmax的值设置为当前事务的xid
+
+  ```postgresql
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+            998
+  
+  postgres@pghost1:1921=#delete from tb1_mvcc where id =1;
+  DELETE 1
+  
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    0 | (0,21)
+  
+  postgres@pghost1:1921=#end;
+  ```
+
+- 当Update数据时，对于每个更新的行，首先DELETE原先的行，再执行INSERT
+
+  ```apl
+  postgres@pghost1:1921=#insert into tb1_mvcc (ival) values (2);
+  INSERT 0 1
+  
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+           1002
+  postgres@pghost1:1921=#select * from tb1_mvcc;
+   id | ival
+  ----+------
+    6 |    6
+    7 |    7
+    2 |   10
+    3 |    2
+  postgres@pghost1:1921=#select txid_current();
+   txid_current
+  --------------
+            998
+  postgres@pghost1:1921=#update tb1_mvcc set ival =20 where id =2;
+  postgres@pghost1:1921=#select * from v_pageinspect;
+   ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,23) | Normal | 1002 |    0 | (0,23)
+   
+   end;
+  ```
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from v_pageinspect;
+    ctid  | status | xmin | xmax | t_ctid
+  --------+--------+------+------+--------
+   (0,21) | Normal |  995 |    1002 | (0,23)
+   (0,23) | Normal | 1002 |    0    | (0,23)
+  ```
+
+- 通过pageinspect查看page的内部，可以看到UPDATE实际上先是DELETE先前的数据，再INSERT一行新的数据，前面插入这条数据事务的xid为995，可以看到ctid(0.21)的这条记录的xmin567，xmax等于当前事务的xid：1002,另外在这个page中多了一条ctid(0.23)的记录，它的xmin等于当前事务的xid：1002.这是数据库中就存在两个版本，一个是被UPDATE之前的那条数据，另外一个就是被重新插入的那条数据。
+
+### 7.3.4 使用pg_repack解决膨胀问题
+
+- 尽管 MVCC读不阻塞写，写不阻塞读，实现了高性能和高吞吐量，但也有不足的地方，PG中数据采用堆表保存。并且MVCC的旧版本和新版本存储在同一个地方，如果更新大量数据，将会导致数据表的膨胀。
+  - 例如一张一万条数据的表，如果对它进行一次全量的更新，根据PG的MVCC实现方式，在数据文件中每条数据实际会有两个版本存在，一个版本是更新之前的旧版本，一个版本是更新之后的新版本，这两个版本必然会导致磁盘的使用率是实际数据的一倍，对性能也有影响。
+- pg_repack是一个可以在线重建表和索引的扩展。他会在数据库中建立一个和需要清理的目标表一样的临时表，将目标表中数据COPY到临时表，并在临时表上建立于目标表一样的索引，然后通过从命名的方式用临时表替换目标表。
+  - 可以下载源码编译安装，也可以通过yum源安装，这里通过
+
+![image-20240619181022630](https://github.com/liuzhenhua1223/Image/blob/master//PGSQL/image-20240619181022630.png?raw=true)
+
+### 7.3.5 支撑事务的DDL
+
+- PG事务的一个高级功能就是它能够通过预写日志涉及来执行事务性的DDL也就是把DDL语句放在一个事务中，比如创建表，truncate
+
+  ```apl
+  postgres@pghost1:1921=#drop table if exists tb1_test;
+  NOTICE:  table "tb1_test" does not exist, skipping
+  DROP TABLE
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#create table tb1_test (ival int);
+  CREATE TABLE
+  postgres@pghost1:1921=#insert into tb1_test values (1);
+  INSERT 0 1
+  postgres@pghost1:1921=#select * from tb1_test;
+   ival
+  ------
+      1
+  (1 row)
+  
+  postgres@pghost1:1921=#rollback ;
+  ROLLBACK
+  postgres@pghost1:1921=#select * from tb1_test;
+  2024-06-19 18:12:47.640 CST [40082] ERROR:  relation "tb1_test" does not exist at character 15
+  2024-06-19 18:12:47.640 CST [40082] STATEMENT:  select * from tb1_test;
+  ERROR:  relation "tb1_test" does not exist
+  LINE 1: select * from tb1_test;
+                        ^
+  ```
+
+  再举个TRUNCATE
+
+  ```apl
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       4
+  (1 row)
+  
+  postgres@pghost1:1921=#begin;
+  BEGIN
+  postgres@pghost1:1921=#truncate tb1_mvcc;
+  TRUNCATE TABLE
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       0
+  (1 row)
+  
+  postgres@pghost1:1921=#select * from tb1_mvcc;
+   id | ival
+  ----+------
+  (0 rows)
+  
+  postgres@pghost1:1921=#rollback ;
+  ROLLBACK
+  postgres@pghost1:1921=#select count(*) from tb1_mvcc;
+   count
+  -------
+       4
+  (1 row)
+  ```
+
+# 第八章分区表
+
+## 8.1 分区表的意义
+
+**分区表的定义**
+
+- 当查询或更新一个分区上的大部分数据时，对分区进行索引扫描代价很大，然而在分区上使用顺序扫描能提升性能。
+- 当需要删除一个分区数据时，通过DROP TABLE删除一个分区，远比DELETE 删除数据高效，特别适用于日志数据场景
+- 由于一个表只能存储在一个表空间上，使用分区表，可以将分区放到不同的表空间上。
+
+**分区表的优势主要体现在降低大表管理成本和某些场景的性能提升，相比普通表性能有何差异？**
+
+## 8.2 传统分区表
+
+- 传统分区是通过继承和触发器方式实现的，其实现过程步骤多，非常复杂，需要定义父表，定义子表，定义子表约束，创建子表索引，创建分区插入，删除，修改函数和触发器，可以说是普通表基础上手工实现的分区表。
+
+### 8.2.1 继承表
+
+PG提供继承表，简单地说就是首先定义一张父表，之后可以创建子表并继承父表
+
+- 创建一张日志模型表tb1_log
+
+  ```apl
+  postgres@pghost1:1921=#create table tb1_log(id int4,create_date date,log_type text);
+  CREATE TABLE
+  ```
+
+- 之后创建一张子表tb1_log_sql用于存储SQL日志
+
+  ```postgresql
+  postgres@pghost1:1921=#create table tb1_log_sql(sql text) INHERITS(tb1_log);
+  ```
+
+- 通过INHERITS(tb1_log)表示表tb1_log_sql继承表tb1_log，子表可以定义额外的字段以上定义了`sql`为额外字段，其他字段则继承父表tb1_log，查看tb1_log_sql表结构
+
+  ```postgresql
+  postgres@pghost1:1921=#\d tb1_log_sql ;
+                 Table "public.tb1_log_sql"
+     Column    |  Type   | Collation | Nullable | Default
+  -------------+---------+-----------+----------+---------
+   id          | integer |           |          |
+   create_date | date    |           |          |
+   log_type    | text    |           |          |
+   sql         | text    |           |          |
+  Inherits: tb1_log
+  ```
+
+  - 从上可以看出tb1_log_sql表有四个字段，前三个字段和附表tb1_log_sql一样，第四个字段 `sql`为自定义字段，以上inherits：tb1_log信息表示继承了表tb1_log.
+
+- 父表和子表都可以插入数据，接着分别在附表和子表中插入一条数据
+
+  ```postgresql
+  postgres@pghost1:1921=#insert into tb1_log values (1,'2024-6-19',null);
+  INSERT 0 1
+  postgres@pghost1:1921=#insert into tb1_log_sql values ( 2,'2024-6-19',null,'select 2');
+  INSERT 0 1
+  ```
+
+- 这时查询父表tb1_log会显示两表记录
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from tb1_log;
+   id | create_date | log_type
+  ----+-------------+----------
+    1 | 2024-06-19  |
+    2 | 2024-06-19  |
+  (2 rows)
+  ```
+
+- 尽管查询父表会将子表的记录数也列出，但子表自定义字段没有显示，如果想确定数据来源于那张表，可以通过 **SQL查看表的OID**
+
+  ```postgresql
+  postgres@pghost1:1921=#select tableoid,* from tb1_log;
+   tableoid | id | create_date | log_type
+  ----------+----+-------------+----------
+      49299 |  1 | 2024-06-19  |
+      49304 |  2 | 2024-06-19  |
+  ```
+
+- tableoid是表的隐藏字段，表示表的OID，可以通过`pg_class系统表关联找到表名`
+
+  ```postgresql
+  postgres@pghost1:1921=#select p.relname,c.* from tb1_log c,pg_class p where c.tableoid = p.oid;
+     relname   | id | create_date | log_type
+  -------------+----+-------------+----------
+   tb1_log     |  1 | 2024-06-19  |
+   tb1_log_sql |  2 | 2024-06-19  |
+  ```
+
+- 如果**只想查询父表的数据**，需要在父表名称前加上关键字`ONLY`
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from ONLY tb1_log;
+   id | create_date | log_type
+  ----+-------------+----------
+    1 | 2024-06-19  |
+  (1 row)
+  ```
+
+- 因此，对于UPDATE、DELETE、SELECT操作，如果父表名称前没有加ONLY，则会对父表和所有子表进行DML操作
+
+  ```postgresql
+  postgres@pghost1:1921=#delete from tb1_log;
+  DELETE 2
+  postgres@pghost1:1921=#select count(*) from tb1_log;
+   count
+  -------
+       0
+  ```
+
+### 8.2.2 创建分区表
+
+- 步骤1：创建父表，如果父表上定义了约束，子表会继承，因此除非是全局约束，否则不因该在附表上定义约束，另外，父表不应该写入数据。
+- 步骤2：通过INHERITS方式创建继承表，也称之为子表或分区，子表的字段定义应该和父表保持一致。
+- 步骤3：给所有子表创建约束，只有满足约束条件的数据才能写入对应分区，注意分区约束值范围不要有重叠。
+- 步骤4：给所有子表创建索引，由于继承操作不会继承父表上的索引，因此索引需要手工创建。
+- 步骤5：在父表上定义INSERT、DELETE、UPDATE 触发器，将SOL分发到对应分区这步可选，因为应用可以根据分区规则定位到对应分区进行 DML操作。
+- 步骤6：启用  constraint_exclusion 参数，如果这个参数设置成off，则父表上的 SQL 性能会降低，后面会通过示例解释这个参数。
+
+**以上六个步骤是创建传统分区的主要步骤，接下来通过一个实例演示**
+
+1. 创建父表
+
+   ```postgresql
+   postgres@pghost1:1921=#create table log_ins(id serial,
+   user_id int4,
+   create_time timestamp(0) without time zone);
+   ```
+
+2. 创建13张子表
+
+   ```postgresql
+   CREATE TABLE log_ins_history (
+       CHECK (create_time < '2017-01-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201701 (
+       CHECK (create_time >= '2017-01-01' AND create_time < '2017-02-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201702 (
+       CHECK (create_time >= '2017-02-01' AND create_time < '2017-03-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201703 (
+       CHECK (create_time >= '2017-03-01' AND create_time < '2017-04-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201704 (
+       CHECK (create_time >= '2017-04-01' AND create_time < '2017-05-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201705 (
+       CHECK (create_time >= '2017-05-01' AND create_time < '2017-06-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201706 (
+       CHECK (create_time >= '2017-06-01' AND create_time < '2017-07-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201707 (
+       CHECK (create_time >= '2017-07-01' AND create_time < '2017-08-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201708 (
+       CHECK (create_time >= '2017-08-01' AND create_time < '2017-09-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201709 (
+       CHECK (create_time >= '2017-09-01' AND create_time < '2017-10-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201710 (
+       CHECK (create_time >= '2017-10-01' AND create_time < '2017-11-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201711 (
+       CHECK (create_time >= '2017-11-01' AND create_time < '2017-12-01')
+   ) INHERITS (log_ins);
+   
+   CREATE TABLE log_ins_201712 (
+       CHECK (create_time >= '2017-12-01' AND create_time < '2018-01-01')
+   ) INHERITS (log_ins);
+   ```
+
+   **给子表创建索引：**
+
+   ```postgresql
+   CREATE INDEX idx_his_ctime ON log_ins_history USING btree (create_time);
+   CREATE INDEX idx_log_ins_201701_ctime ON log_ins_201701 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201702_ctime ON log_ins_201702 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201703_ctime ON log_ins_201703 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201704_ctime ON log_ins_201704 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201705_ctime ON log_ins_201705 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201706_ctime ON log_ins_201706 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201707_ctime ON log_ins_201707 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201708_ctime ON log_ins_201708 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201709_ctime ON log_ins_201709 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201710_ctime ON log_ins_201710 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201711_ctime ON log_ins_201711 USING btree (create_time);
+   CREATE INDEX idx_log_ins_201712_ctime ON log_ins_201712 USING btree (create_time);
+   ```
+
+- 由于父表上不存储数据，可以不用在父表上创建索引。
+
+  创建触发器，设置插入表时的路由规则
+
+```postgresql
+CREATE OR REPLACE FUNCTION log_ins_insert_trigger()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $function$
+BEGIN
+    IF (NEW.create_time < '2017-01-01') THEN
+        INSERT INTO log_ins_history VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-01-01' AND NEW.create_time < '2017-02-01') THEN
+        INSERT INTO log_ins_201701 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-02-01' AND NEW.create_time < '2017-03-01') THEN
+        INSERT INTO log_ins_201702 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-03-01' AND NEW.create_time < '2017-04-01') THEN
+        INSERT INTO log_ins_201703 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-04-01' AND NEW.create_time < '2017-05-01') THEN
+        INSERT INTO log_ins_201704 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-05-01' AND NEW.create_time < '2017-06-01') THEN
+        INSERT INTO log_ins_201705 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-06-01' AND NEW.create_time < '2017-07-01') THEN
+        INSERT INTO log_ins_201706 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-07-01' AND NEW.create_time < '2017-08-01') THEN
+        INSERT INTO log_ins_201707 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-08-01' AND NEW.create_time < '2017-09-01') THEN
+        INSERT INTO log_ins_201708 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-09-01' AND NEW.create_time < '2017-10-01') THEN
+        INSERT INTO log_ins_201709 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-10-01' AND NEW.create_time < '2017-11-01') THEN
+        INSERT INTO log_ins_201710 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-11-01' AND NEW.create_time < '2017-12-01') THEN
+        INSERT INTO log_ins_201711 VALUES (NEW.*);
+    ELSIF (NEW.create_time >= '2017-12-01' AND NEW.create_time < '2018-01-01') THEN
+        INSERT INTO log_ins_201712 VALUES (NEW.*);
+    ELSE
+        RAISE EXCEPTION 'create_time out of range. Fix the log_ins_insert_trigger() function!';
+    END IF;
+    RETURN NULL;
+END;
+$function$;
+
+```
+
+- 函数忠的new.*是指要插入的数据行，在父表中定义插入触发器
+
+  ```postgresql
+  CREATE TRIGGER insert_log_ins_trigger
+  BEFORE INSERT ON log_ins
+  FOR EACH ROW EXECUTE FUNCTION log_ins_insert_trigger();
+  ```
+
+- 触发器创建完之后，往父表log_ins插入数据时，会执行触发器函数log_ins_insert_trgger()将表数据插入到行营分区中。DELETE、UPDATE触发器和函数创建过程和INSERT方式类似，这里不再列出，这步完成之后，传统分区表的创建步骤就已经完成。
+
+### 8.2.3使用分区表
+
+- 往父表log_ins插入测试数据，并验证是否插入对应分区表
+
+  ```postgresql
+  postgres@pghost1:1921=#insert into log_ins(user_id,create_time)
+  postgres-# select round(100000000*random()),generate_series('2016-12-01'::date,
+  postgres(# '2017-12-01'::date,'1 minute');
+  INSERT 0 0
+  ```
+
+- 这里通过round(100000000*random())随机生成8位整数，generate_series函数生成时间书记
+
+  ```postgresql
+  postgres@pghost1:1921=#select * from log_ins limit 2;
+   id | user_id  |     create_time
+  ----+----------+---------------------
+    1 | 89824011 | 2016-12-01 00:00:00
+    2 | 57496353 | 2016-12-01 00:01:00
+  ```
+
+- 查看父表书记,还想父表没有书记
+
+  ```postgresql
+  postgres@pghost1:1921=#select count(*) from ONLY log_ins;
+   count
+  -------
+       0
+  (1 row)
+  
+  postgres@pghost1:1921=#select count(*) from  log_ins;
+   count
+  --------
+   525601
+  (1 row)
+  ```
+
+- 查看子表数据
+
+  ```postgresql
+  postgres@pghost1:1921=#select min(create_time),max(create_time) from log_ins_201701 ;
+           min         |         max
+  ---------------------+---------------------
+   2017-01-01 00:00:00 | 2017-01-31 23:59:00
+  (1 row)
+  
+  postgres@pghost1:1921=#select min(create_time),max(create_time) from log_ins_201712 ;
+           min         |         max
+  ---------------------+---------------------
+   2017-12-01 00:00:00 | 2017-12-01 00:00:00
+  (1 row)
+  ```
+
+- 查看子表大小
+
+  ```postgresql
+  postgres@pghost1:1921=#\dt+ log_ins*
+                                            List of relations
+   Schema |      Name       | Type  |  Owner   | Persistence | Access method |    Size    | Descrip
+  tion
+  --------+-----------------+-------+----------+-------------+---------------+------------+--------
+  -----
+   public | log_ins         | table | postgres | permanent   | heap          | 0 bytes    |
+   public | log_ins_201701  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201702  | table | postgres | permanent   | heap          | 1776 kB    |
+   public | log_ins_201703  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201704  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201705  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201706  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201707  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201708  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201709  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201710  | table | postgres | permanent   | heap          | 1968 kB    |
+   public | log_ins_201711  | table | postgres | permanent   | heap          | 1904 kB    |
+   public | log_ins_201712  | table | postgres | permanent   | heap          | 8192 bytes |
+   public | log_ins_history | table | postgres | permanent   | heap          | 1968 kB    |
+  (14 rows)
+  ```
+
+### 8.2.4查询父表还是子表
+
+- 假如检索2017-01-01这一天的数据，我们可以查询父表，也可以直接查询子表
+
+1. 查询父表
+
+   ```postgresql
+   postgres@pghost1:1921=#explain analyze select * from log_ins where create_time > '2017-01-01' and create_time < '2017-01-02';
+                                                                              QUERY PLAN
+   
+   -------------------------------------------------------------------------------------------------
+   ----------------------------------------------------------------
+    Append  (cost=0.00..69.27 rows=1480 width=16) (actual time=0.009..0.192 rows=1439 loops=1)
+      ->  Seq Scan on log_ins log_ins_1  (cost=0.00..0.00 rows=1 width=16) (actual time=0.002..0.002
+    rows=0 loops=1)
+            Filter: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (create_
+   time < '2017-01-02 00:00:00'::timestamp without time zone))
+      ->  Index Scan using idx_log_ins_201701_ctime on log_ins_201701 log_ins_2  (cost=0.29..61.87 r
+   ows=1479 width=16) (actual time=0.007..0.138 rows=1439 loops=1)
+            Index Cond: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (cre
+   ate_time < '2017-01-02 00:00:00'::timestamp without time zone))
+    Planning Time: 0.307 ms
+    Execution Time: 0.229 ms
+   (7 rows)
+   ```
+
+   从上执行计划看出log_ings_2017-01-01进行了索引扫描，执行时间为0.22毫秒
+
+2. 直接查询子表log_ins_2017-01-01的执行计划
+
+   ```postgresql
+   postgres@pghost1:1921=#explain analyze select * from log_ins_201701 where create_time > '2017-01-01' and create_time < '2017-01-02';
+                                                                           QUERY PLAN
+   
+   -------------------------------------------------------------------------------------------------
+   ----------------------------------------------------------
+    Index Scan using idx_log_ins_201701_ctime on log_ins_201701  (cost=0.29..61.87 rows=1479 width=1
+   6) (actual time=0.013..0.146 rows=1439 loops=1)
+      Index Cond: ((create_time > '2017-01-01 00:00:00'::timestamp without time zone) AND (create_ti
+   me < '2017-01-02 00:00:00'::timestamp without time zone))
+    Planning Time: 0.077 ms
+    Execution Time: 0.208 ms
+   (4 rows)
+   ```
+
+   从上执行计划看出，直接查询子表需要0.208毫秒，性能上有一定提升，如果并发上去的话，这个差异更加明显
+
+### 8.2.5 constraint_exclusion参数
+
+- 该参数用来控制优化器是否根据表示表上的约束来优化查询，参数值为
+
+  - on：所有表都通过约束优化查询
+  - off：所有表都不通过约束优化查询
+  - partition：只对继承表和USION ALL子表查询过检索约束来优化查询
+
+- 检索那些子表，而不需要扫描所有子表，从而提升查询性能
+
+  将constraint_exclusion设置为off进行测试：
+
+  ```
+  
+  ```
+
+  
