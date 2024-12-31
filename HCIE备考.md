@@ -671,9 +671,31 @@
 
 ![image-20241231155314519](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155314519.png?raw=true)
 
+![image-20241231155433098](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155433098.png?raw=true)
 
+![image-20241231155457111](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155457111.png?raw=true)
+![image-20241231155444042](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155444042.png?raw=true)
 
+![image-20241231155447328](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155447328.png?raw=true)
 
+![image-20241231155609291](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155609291.png?raw=true)
+
+![image-20241231160147457](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160147457.png?raw=ture)
+![image-20241231160136363](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160136363.png?raw=true)
+
+![image-20241231160205882](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160205882.png?raw=true)
+
+![image-20241231160221858](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160221858.png?raw=true)
+
+![image-20241231160233221](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160233221.png?raw=true)
+
+![image-20241231160250446](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160250446.png?raw=true)
+
+![image-20241231160336609](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160336609.png?raw=true)
+
+![image-20241231160343241](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160343241.png?raw=true)
+
+![image-20241231160402429](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231160402429.png?raw=true)
 
 
 
