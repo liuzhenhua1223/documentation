@@ -909,3 +909,399 @@
 
 ![image-20250103111511397](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103111511397.png?raw=true)
 
+## 四大题
+
+![image-20250103143929906](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103143929906.png?raw=true)
+
+![image-20250103153848612](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153848612.png?raw=true)
+
+![image-20250103153905158](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153905158.png?raw=true)
+
+![image-20250103153933672](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153933672.png?raw=true)
+
+![image-20250103153948283](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153948283.png?raw=true)
+
+![image-20250103154001648](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154001648.png?raw=true)
+
+![image-20250103154017873](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154017873.png?raw=true)
+
+![image-20250103154032841](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154032841.png?raw=true)
+
+![image-20250103154037940](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154037940.png?raw=true)
+
+![image-20250103154042786](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154042786.png?raw=true)
+
+![image-20250103154107821](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154107821.png?raw=true)
+
+![image-20250103154123782](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154123782.png?raw=true)
+
+![image-20250103154154201](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154154201.png?raw=true)
+
+![image-20250103154336787](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154336787.png?raw=true)
+
+![image-20250103154342020](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154342020.png?raw=true)
+
+![image-20250103154436241](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154436241.png?raw=true)
+
+
+
+![image-20250103154556078](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154556078.png?raw=true)
+
+![image-20250103154606590](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154606590.png?raw=true)
+
+![image-20250103154810922](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154810922.png?raw=true)
+
+![image-20250103154840611](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154840611.png?raw=true)
+
+![image-20250103154905026](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154905026.png?raw=true)
+
+![](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155009024.png?raw=true)
+
+![image-20250103155037859](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155037859.png?raw=true)
+
+![image-20250103155120185](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155120185.png?raw=true)
+
+![image-20250103155154729](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155154729.png?raw=true)
+
+![image-20250103155644682](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155644682.png?raw=true)
+![image-20250103155419812](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155419812.png?raw=true)
+
+![image-20250103155507530](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155507530.png?raw=true)
+
+![image-20250103155620305](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155620305.png?raw=true)
+
+![image-20250103161322815](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161322815.png?raw=true)
+
+![image-20250103161336246](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161336246.png?raw=true)
+
+![image-20250103161342734](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161342734.png?raw=true)
+
+![image-20250103161359527](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161359527.png?raw=true)
+
+![image-20250103162214894](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103162214894.png?raw=true)
+
+![image-20250103162224154](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103162224154.png?raw=true)
+
+![image-20250103164213570](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103164213570.png?raw=true)
+
+![image-20250103164249289](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103164249289.png?raw=true)
+
+![image-20250103164301675](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103164301675.png?raw=true)
+
+![image-20250103164315789](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103164315789.png?raw=true)
+
+![image-20250103173206934](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173206934.png?raw=true)
+
+![image-20250103173214244](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173214244.png?raw=true)
+
+![image-20250103173217695](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173217695.png?raw=true)
+
+![image-20250103173220666](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173220666.png?raw=true)
+
+![image-20250103173227688](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173227688.png?raw=true)
+
+![image-20250103173231927](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173231927.png?raw=true)
+
+![image-20250103173236403](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173236403.png?raw=true)
+
+![image-20250103173240189](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173240189.png?raw=true)
+
+![image-20250103173244005](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173244005.png?raw=true)
+
+![image-20250103173248009](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173248009.png?raw=true)
+
+![image-20250103173340400](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173340400.png?raw=true)
+
+![image-20250103173345762](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173345762.png?raw=true)
+
+![image-20250103173350732](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173350732.png?raw=true)
+
+![image-20250103173354614](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173354614.png?raw=true)
+
+![image-20250103173416179](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173416179.png?raw=true)
+
+![image-20250103173420328](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173420328.png?raw=true)
+
+- 创建节点池
+
+![image-20250103173424319](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173424319.png?raw=true)
+
+![image-20250106112256969](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112256969.png?raw=true)
+
+![image-20250106112348108](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112348108.png?raw=true)
+
+![image-20250106112457697](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112457697.png?raw=true)
+
+![image-20250106112531161](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112531161.png?raw=true)
+
+![image-20250106112605251](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112605251.png?raw=true)
+
+![image-20250106112752870](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112752870.png?raw=true)
+
+![image-20250106112819108](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112819108.png?raw=true)
+
+![image-20250106112852660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112852660.png?raw=true)
+
+![image-20250106112914578](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112914578.png?raw=true)
+
+![image-20250106113047634](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113047634.png?raw=true)
+
+![image-20250106113131641](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113131641.png?raw=true)
+
+![image-20250106113206316](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113206316.png?raw=true)
+
+![image-20250106113325207](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113325207.png?raw=true)
+
+![image-20250106113440866](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113440866.png?raw=true)
+
+![image-20250106113508915](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113508915.png?raw=true)
+
+![image-20250106154908993](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106154908993.png?raw=true)
+
+- 安装插件
+
+![image-20250106113547435](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113547435.png?raw=true)
+
+![image-20250106150054104](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150054104.png?raw=true)
+
+![image-20250106150120579](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150120579.png?raw=true)
+
+![image-20250106150205588](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150205588.png?raw=true)
+
+![image-20250106150224668](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150224668.png?raw=true)
+
+![image-20250106150252837](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150252837.png?raw=true)
+
+![image-20250106150316399](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150316399.png?raw=true)
+
+![image-20250106150337896](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106150337896.png?raw=true)
+
+![image-20250106155019180](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106155019180.png?raw=true)
+
+![image-20250106155050189](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106155050189.png?raw=true)
+
+![image-20250106155111786](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106155111786.png?raw=true)
+
+![image-20250106155141440](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106155141440.png?raw=true)
+
+# 题目四安全和规划
+
+![image-20250106171705097](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106171705097.png?raw=true)
+
+- 练习环境
+  - 练习环境只有一套，大家需要排队使用，一次时间约一小时
+  - 考前2周以外
+    - 搭配DBAS02的租户来练习
+
+  - 考前2周以内
+    - 可以自己申请租户来练习该实验
+
+  - 云专线网络规划
+    - 在环境安排表有详细规划配置，需要按照规划的配置来使用，才能保证VPC网络互通
+
+- **考试环境说明：**
+  - **申请DBAS实例在总部用户**
+    - 对应的PVC要看参数表使用，不能自定义使用
+    - 申请云专线
+      - 专线接入点已经创建并分配，直接使用
+      - 物理专线
+      - 虚拟网关
+      - 虚拟接口
+  - **Mysql的实例是迁移之后的ECS**
+    - 对应的PVC要看参数表使用，不能自定义使用
+    - 分支到总部的DC地址规划--local_cidrs网段是创建VPC的网段
+    - 申请云专线
+      - 专线接入点已经创建并分配，直接使用
+        - OM界面申请接入点
+        - SC界面使用超管账号分配专线接入点
+      - 物理专线
+      - 虚拟网关
+      - 虚拟接口
+  - 对Mysql主机安装代理，配置审核规则
+
+![image-20250106172653341](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106172653341.png?raw=true)
+
+![image-20250106221624833](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221624833.png?raw=true)
+
+- 创建VPC
+
+![image-20250106221747686](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221747686.png?raw=true)
+
+- 创建Mysql ECS
+
+![image-20250106221901467](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221901467.png?raw=true)
+
+![image-20250106221927317](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221927317.png?raw=true)
+
+![image-20250106221956444](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221956444.png?raw=true)
+
+- 配置安全组
+
+![image-20250106222013681](../../../../liuzh/AppData/Roaming/Typora/typora-user-images/image-20250106222013681.png)
+
+- 创建弹性IP
+
+![image-20250106222034858](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222034858.png?raw=true)
+
+![image-20250106222046966](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222046966.png?raw=true)
+
+- Mysql-ECS绑定弹性公网IP
+
+![image-20250106222103301](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222103301.png?raw=true)
+
+- OC运维面创建专线接入
+
+![image-20250106222425801](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222425801.png?raw=true)
+
+![image-20250106222512773](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222512773.png?raw=true)
+
+![image-20250106222813062](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222813062.png?raw=true)
+
+![image-20250106222827386](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222827386.png?raw=true)
+
+- 分配专线
+
+![image-20250106222912518](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106222912518.png?raw=true)
+
+![image-20250106222949259](../../../../liuzh/AppData/Roaming/Typora/typora-user-images/image-20250106222949259.png)
+
+- 申请专线
+
+![image-20250106223017732](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223017732.png?raw=true)
+
+![image-20250106223029742](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223029742.png?raw=true)
+
+![image-20250106223127144](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223127144.png?raw=true)
+
+![image-20250106223202546](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223202546.png?raw=true)
+
+![image-20250106223213224](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223213224.png?raw=true)
+
+- SC运营面
+
+![image-20250106223528671](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106223528671.png?raw=true)
+
+![image-20250106230730696](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106230730696.png?raw=true)
+
+![image-20250106230802787](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106230802787.png?raw=true)
+
+![image-20250106230820891](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106230820891.png?raw=true)
+
+![image-20250106230858290](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106230858290.png?raw=true)
+
+![image-20250106230946484](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106230946484.png?raw=true)
+
+![image-20250106231028953](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231028953.png?raw=true)
+
+![image-20250106231107284](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231107284.png?raw=true)
+
+![image-20250106231128219](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231128219.png?raw=true)
+
+![image-20250106231204511](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231204511.png?raw=true)
+
+![image-20250106231236521](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231236521.png?raw=true)
+
+![image-20250106231251978](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231251978.png?raw=true)
+
+![image-20250106231331973](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231331973.png?raw=true)
+
+![image-20250106231358176](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231358176.png?raw=true)
+
+![image-20250106231554995](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231554995.png?raw=true)
+
+![image-20250106231634681](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231634681.png?raw=true)
+
+![image-20250106231816660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231816660.png?raw=true)
+
+- 查看agent日志
+
+![image-20250106231906059](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231906059.png?raw=true)
+
+- 查看端口组
+
+![image-20250106231925512](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231925512.png?raw=true)
+
+![image-20250106232006969](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232006969.png?raw=true)
+
+![image-20250106232025430](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232025430.png?raw=true)
+
+![image-20250106232038332](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232038332.png?raw=true)
+
+![image-20250106232110325](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232110325.png?raw=true)
+
+![image-20250106232122799](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232122799.png?raw=true)
+
+![image-20250106232140629](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232140629.png?raw=true)
+
+- 软件包上传错误报错
+
+![image-20250106233944525](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106233944525.png?raw=true)
+
+![image-20250106233959859](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106233959859.png?raw=true)
+
+- 安装agent错误，删除错误的agent,使用脚本uninstall.sh
+
+![image-20250106234014520](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106234014520.png?raw=true)
+
+![image-20250106234143193](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106234143193.png?raw=true)
+
+![image-20250106234152138](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106234152138.png?raw=true)
+
+![image-20250106234228462](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106234228462.png?raw=true)
+
+---
+
+- 注意事项
+  - 云专线的配置
+    - 必须和规划好的网络对应上
+  - 安装agent代理
+    - 确保添加的agent的ID一致，有可能会出现用错ID的情况
+  - 安全组，防火墙，网络ACL
+    - 可能会造成网络不通，需要检查相关配置
+
+---
+
+- ie_vdcadmin04部署ECS运行solo
+
+![image-20250107172526278](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172526278.png?raw=true)
+
+![image-20250107172554404](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172554404.png?raw=true)
+
+![image-20250107172608822](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172608822.png?raw=true)
+
+![image-20250107172648969](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172648969.png?raw=true)
+
+![image-20250107172724647](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172724647.png?raw=true)
+
+![image-20250107172740772](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172740772.png?raw=true)
+
+![image-20250107172834900](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107172834900.png?raw=true)
+
+![image-20250107173008664](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173008664.png?raw=true)
+
+![image-20250107173031219](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173031219.png?raw=true)
+
+![image-20250107173042924](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173042924.png?raw=true)
+
+![image-20250107173053326](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173053326.png?raw=true)
+
+![image-20250107173101381](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173101381.png?raw=true)
+
+![image-20250107173108944](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173108944.png?raw=true)
+
+![image-20250107173129362](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173129362.png?raw=true)
+
+![image-20250107173139185](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173139185.png?raw=true)
+
+![image-20250107173148167](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173148167.png?raw=true)
+
+![image-20250107173156729](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173156729.png?raw=true)
+
+![image-20250107173210228](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173210228.png?raw=true)
+
+![image-20250107173228880](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173228880.png?raw=true)
+
+![image-20250107173237538](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173237538.png?raw=true)
+
+![image-20250107173249107](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173249107.png?raw=true)
+
