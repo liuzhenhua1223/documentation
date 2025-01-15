@@ -91,6 +91,10 @@
     - HCIETEST/HCIETEST-03
       - 查看远程用户HCIE09-13是否在线
       - 当HCIEOX账号黑屏，可以临时使用
+      
+        ![image-20250109112904979](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250109112904979.png?raw=true)
+      
+  
 - 时间观念
   - 合理安排练习环境
     - 预留清理环境的时间
@@ -106,12 +110,6 @@
       - 第一阶段-考前4周的同学
       - 第二阶段考前4周外的同学
 
-# 题目一迁移
-
-![9d89f042569a4133b813e621bd4e429f](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/9d89f042569a4133b813e621bd4e429f.jpeg?raw=true)
-
-![image-20241229220852316](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229220852316.png?raw=true)
-
 ## 确定登录用户
 
 - HCIE01-17都可以排队使用8103环境
@@ -124,18 +122,23 @@
 远程桌面推荐注销用户下线，而不是直接关闭窗口
 ```
 
-## 版本一
+![image-20250110142229187](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110142229187.png?raw=true?raw=true)
 
-### 第一小题
+# 题目一迁移
+
+![9d89f042569a4133b813e621bd4e429f](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/9d89f042569a4133b813e621bd4e429f.jpeg?raw=true)
+
+![image-20241229220852316](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229220852316.png?raw=true)
+
+## 完成迁移前分支华为云Stack的相关配置
 
 ![image-20241228135027830](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241228135027830.png?raw=true)
 
-#### 在HCS环境操作，不需要排队
+### OC运维面
 
-- OC运维面
-  - 迁移前准备资源：为目的ECS创建镜像、规格、外部网络
-  - https://oc-yt.yutian.com:31943
-  - 登录用户：admin/Huawei12#$%
+- **迁移前准备资源：为目的ECS创建镜像、规格、外部网络**
+- https://oc-yt.yutian.com:31943
+- 登录用户：admin/Huawei12#$%
 
 ![image-20241228135900119](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241228135900119.png?raw=true)
 
@@ -147,57 +150,47 @@
 
 ![image-20241228142022026](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241228142022026.png?raw=true)
 
-##### 注册镜像
+#### 注册镜像
 
 ![image-20241228142131313](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241228142131313.png?raw=true)
 
+- 注册镜像
+  - 操作系统：Centos 7.6
+
 ![image-20241229215917501](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229215917501.png?raw=true)
 
+- 查看本地Rainbow迁移镜像
+
 ![image-20241229215935896](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229215935896.png?raw=true)
+![image-20250109144849444](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250109144849444.png?raw=true)
 
 ![image-20241229215954412](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229215954412.png?raw=true)
-
-#### 进入KVM主机查看solo博客和mysql
-
-![image-20241229221755369](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229221755369.png?raw=true)
-
-![image-20241231092507656](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231092507656.png?raw=true)
-
-![image-20241229221819404](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229221819404.png?raw=true)
-
-##### 启动solo博客
-
-![image-20241229222055893](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222055893.png?raw=true)
-
-![image-20241229222114895](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222114895.png?raw=true)
-
-- **启动solo应用**
-
-![](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222157176.png?raw=true)
-
-- **查看博客**
-
-![image-20241229222310772](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222310772.png?raw=true)
 
 #### 查看镜像资源
 
 ![image-20241229222425872](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222425872.png?raw=true)
 
-#### 创建外部网路，子网
+#### 创建规格
 
-![image-20241230143625504](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143625504.png?raw=true)
+![image-20250110100548029](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110100548029.png?raw=true)
 
-![image-20241230143635157](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143635157.png?raw=true)
+![image-20250110100940409](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110100940409.png?raw=true)
 
+![image-20250110101005438](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101005438.png?raw=true)
 
+![image-20250110101026456](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101026456.png?raw=true)
 
-#### SC运营面
+![image-20250110101102183](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101102183.png?raw=true)
+
+![image-20250110101128284](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101128284.png?raw=true)
+
+### SC运营面
 
 - 迁移前准备资源：申请迁移目的的ECS
 - https://ytedu.extenal.com
 - 登录用户：个人租户姓名全拼/默认密码：Yutian12#$
 
-##### 有超管的账户
+#### 有超管的账户
 
 ![image-20241230142649478](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230142649478.png?raw=true)
 
@@ -207,9 +200,25 @@
 
 ![image-20241230142816886](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230142816886.png?raw=true)
 
+
+
+![image-20250110101157381](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101157381.png?raw=true)
+
+![image-20250110101221762](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101221762.png?raw=true)
+
+![image-20250110101245179](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110101245179.png?raw=true)
+
+#### 创建外部网路，子网
+
+- 实际考试中会给网络平面的地址IP
+
+![image-20241230143625504](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143625504.png?raw=true)
+
+![image-20241230143635157](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143635157.png?raw=true)
+
 ![image-20241230143650677](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143650677.png?raw=true)
 
-![](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230143650677.png?raw=true)
+
 
 ##### 没有超管的账户
 
@@ -253,15 +262,9 @@
 
 ![image-20241229224451894](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229224451894.png?raw=true)
 
+### Rainbow迁移
 
-
-### 第二小题
-
-- 在迁移8103环境操作，需要排队申请 （大概1小时以内）前提，第一小题已经完成
-
-#### Rainbow迁移
-
-- 实施迁移任务
+- 由于没有足够的License，需要实施迁移任务-进入FusionCompute，将Rainbo集群进行快照恢复（考试没有该环境）
 - 恢复Rainbo快照
 
 ![image-20241230153435488](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230153435488.png?raw=true)
@@ -278,12 +281,11 @@
 
 ![image-20241230153707148](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230153707148.png?raw=true)
 
-##### 配置迁移任务
-
-![image-20241230154043757](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154043757.png?raw=true)
+#### 配置迁移任务
 
 ![](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154043757.png?raw=ture)
 
+![image-20250109165340687](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250109165340687.png?raw=true)
 ![image-20241230154116423](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154116423.png?raw=true)
 
 ![image-20241230154129029](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154129029.png?raw=true)
@@ -298,9 +300,45 @@
 
 ![image-20241230154402383](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154402383.png?raw=true)
 
-##### 部署Agent
+#### 部署Agen8t
 
 ![image-20241230154441645](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154441645.png?raw=true)
+
+## 将MySQL使用块迁移至分支的华为云Stack中
+
+- 在迁移8103环境操作，需要排队申请 （大概1小时以内）前提，第一小题已经完成
+
+### 进入KVM主机查看solo博客和mysql
+
+#### 进入Mysql数据库将防火墙进行关闭
+
+![image-20241231092507656](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231092507656.png?raw=true)
+
+![image-20241229221819404](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229221819404.png?raw=true)
+
+#### 配置solo连接数据库
+
+![image-20250109151501406](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250109151501406.png?raw=true)
+
+#### 启动solo博客
+
+![image-20241229222055893](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222055893.png?raw=true)
+
+![image-20241229222114895](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222114895.png?raw=true)
+
+- **启动solo应用**
+
+```apl
+java -cp lib/*:. org.b3log.solo.Server
+```
+
+![](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222157176.png?raw=true)
+
+#### **查看博客**
+
+![image-20241229222310772](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241229222310772.png?raw=true)
+
+### 配置Rainbo按照Agent
 
 ![image-20241230154427606](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154427606.png?raw=true)
 
@@ -316,13 +354,33 @@
 
 ![image-20241230154639580](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230154639580.png?raw=true)
 
-##### 启动同步任务
+#### 启动同步任务
 
 ![image-20241230155604417](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230155604417.png?raw=true)
 
-### 第三小题
+### 为迁移后的Mysql按照Cloud-init及UVP-Tools
+
+- UVP-Tools上传到CPS上
 
 #### 安装Cloud Init
+
+```apl
+ssh root@目标端机器
+mkdir /mnt/img
+mount image-tools.iso /mnt/img
+cd /mnt/img/
+mkdir /opt/img
+cp -r linux /opt/img
+
+cd /opt/img/linux
+chmod a+x *.sh
+
+cd cloud-init/cloudinit_depend
+cp /root/cloud-init-18.2.tar.gz ./
+cd /opt/img/linux
+sh install-cloud-init.sh
+
+```
 
 ![image-20241230165124691](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230165124691.png?raw=true)
 
@@ -332,15 +390,13 @@
 
 ![image-20241230170108532](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230170108532.png?raw=true)
 
-
-
 #### 安装Tools
 
 ![image-20241230170027992](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230170027992.png?raw=true)
 
 ![image-20241230170137153](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230170137153.png?raw=true)
 
-### 第四小题
+### 迁移完成使用浏览器打开测试页面
 
 - 进入Mysql主机
 
@@ -377,7 +433,17 @@
 
 ![image-20241230202526116](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230202526116.png?raw=true)
 
-## 创建资源
+## 一小题
+
+### 创建CCE集群，命名为test
+
+- 制作容器镜像创建必要的CCE集群(命名为test)、节点池几测试节点(节点密码设置成Huawei@1234)
+
+![image-20250110155325690](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110155325690.png?raw=true)
+
+创建资源
+
+- 进入ManageOne OM 运维面
 
 ![image-20241230205223752](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230205223752.png?raw=true)
 
@@ -395,7 +461,7 @@
 
 ![image-20241230210034155](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230210034155.png?raw=true)
 
-### 查看对等连接信息
+#### 查看对等连接信息
 
 **登录Ie_vdcadmin02查看**
 
@@ -431,7 +497,7 @@
 
 ![image-20241230213123257](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230213123257.png?raw=true)
 
-### 从节点绑定弹性公网IP
+#### 从节点绑定弹性公网IP
 
 ![image-20241230214737581](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230214737581.png?raw=true)
 
@@ -447,7 +513,7 @@
 
 ![image-20241230214945689](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230214945689.png?raw=true)
 
-### 连接从节点
+#### 连接从节点
 
 ![image-20241230215015565](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230215015565.png?raw=true)
 
@@ -459,7 +525,7 @@
 
 ![image-20241230215127415](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230215127415.png?raw=true)
 
-### 从节点配置Yum源上传软件包
+#### 从节点配置Yum源上传软件包
 
 ![image-20241230215225409](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230215225409.png?raw=true)
 
@@ -467,7 +533,7 @@
 
 ![image-20241230215250480](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230215250480.png?raw=true)
 
-### 创建镜像仓库
+### 创建的镜像能够支持后续的测试(编写dockerfile)
 
 ![image-20241230231041327](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231041327.png?raw=true)
 
@@ -475,19 +541,35 @@
 
 ![image-20241230231107601](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231107601.png?raw=true)
 
+- 上传镜像
+
 ![image-20241230231142125](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231142125.png?raw=true)
 
 ![image-20241230231202790](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231202790.png?raw=true)
 
+
+
 ![image-20241230231253491](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231253491.png?raw=true)
 
-- 编写dockerfile
+### 必须要在容器中解压solo的程序包和环境依赖包
 
-![image-20241230231336286](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231336286.png?raw=true)
-
-![image-20241230231323660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231323660.png?raw=true)
+![image-20250110160331801](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110160331801.png?raw=true)
 
 ![image-20241230231436737](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231436737.png?raw=true)
+
+### 基于当前租户SWR中镜像创建
+
+![image-20250110161149350](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110161149350.png?raw=true)
+
+![image-20250110161209417](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110161209417.png?raw=true)
+
+### 使用Dockerfile创建
+
+### 制作的镜像上传SWR后大小不超过500M
+
+![image-20250110160453697](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110160453697.png?raw=true)
+
+![image-20241230231323660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231323660.png?raw=true)
 
 ![image-20241230231456009](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231456009.png?raw=true)
 
@@ -503,15 +585,23 @@
 
 ![image-20241230231734074](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231734074.png?raw=true)
 
+### Dockerfile的行数不超过10行
+
+![image-20241230231323660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231323660.png?raw=true)
+
+### 下载Dockerfile保存到桌面文件夹
+
+- 文件夹 HCIE-Cloud-Design中，命名为2.2-Dockerfile
+
 ![image-20241230231824687](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231824687.png?raw=true)
 
 ![image-20241230231807877](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241230231807877.png?raw=true)
 
-## 小题三
+## 小题二
 
 ![image-20241231112209895](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231112209895.png?raw=true)
 
-### 新建CCE集群，安装插件
+### 新建CCE集群solo，安装插件
 
 - 插件就按照默认的两个就行
 
@@ -523,7 +613,7 @@
 
 ![image-20241231110713419](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231110713419.png?raw=true)
 
-### 创建工作负载
+### 创建工作负载solo  3副本
 
 ![image-20241231110809935](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231110809935.png?raw=true)
 
@@ -537,7 +627,7 @@
 
 ### 设置资源限制
 
-![image-20241231111105093](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111105093.png)
+![image-20241231111105093](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111105093.png?raw=true)
 
 ![image-20241231111147778](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111147778.png?raw=true)
 
@@ -561,7 +651,7 @@
 
 ![image-20241231111754049](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111754049.png?raw=true)
 
-![image-20241231111806523](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111806523.png?raw=true)****
+![image-20241231111806523](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111806523.png?raw=true)
 
 ### 合理配置容器健康检查
 
@@ -579,15 +669,19 @@
 
 ![image-20241231113429974](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231113429974.png?raw=true)
 
+
+
 ![image-20241231113437189](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231113437189.png?raw=true)
 
 ![image-20241231113445838](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231113445838.png?raw=true)
 
 ![image-20241231113453035](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231113453035.png?raw=true)
 
-## 小题四
+## 小题三
 
-### 基于solo1.0创建solo2.0，后续基于solo2.0进行
+![image-20250110170241217](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250110170241217.png?raw=true)
+
+### 保留镜像solo:1.0，并基于solo：1.0创建solo:2.0
 
 #### 编写Dockerfile
 
@@ -1304,4 +1398,149 @@
 ![image-20250107173237538](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173237538.png?raw=true)
 
 ![image-20250107173249107](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107173249107.png?raw=true)
+
+![image-20250107220950286](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107220950286.png?raw=true)
+
+![image-20250107221007853](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107221007853.png?raw=true)
+
+![image-20250107221104335](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107221104335.png?raw=true)
+
+![image-20250107221114883](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107221114883.png?raw=true)
+
+![image-20250107221123813](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107221123813.png?raw=true)
+
+![image-20250107222352529](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107222352529.png?raw=true)
+
+![image-20250107222415852](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107222415852.png?raw=true)
+
+- 第一条必须加，下面四条无所谓
+
+![image-20250107222718336](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107222718336.png?raw=true)
+
+## WAF 
+
+- 申请实例报错
+
+- WAF.00013009:未导入产品或云服务许可
+
+  - 是因为可用license用完了
+  - 进入waf01/02/03/04里面，如果有存在的实例，可以直接使用或则把他删除，释放资源了在申请
+
+  ![image-20250107231452518](C:/Users/liuzh/AppData/Roaming/Typora/typora-user-images/image-20250107231452518.png)
+
+  ![image-20250107231514612](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231514612.png?raw=true)
+
+  ![image-20250107231527350](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231527350.png?raw=true)
+
+  ![image-20250107231614042](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231614042.png?raw=true)
+
+  ![image-20250107231640307](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231640307.png?raw=true)
+
+  ![image-20250107231647830](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231647830.png?raw=true)
+
+  ![image-20250107231707402](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231707402.png?raw=true)
+
+  ![image-20250107231727132](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107231727132.png?raw=true)
+
+  ![image-20250107231852040](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107231852040.png?raw=true)
+
+  ![image-20250107231907543](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107231907543.png?raw=true)
+
+  ![image-20250107231913002](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107231913002.png?raw=true)
+
+![image-20250107231940470](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107231940470.png?raw=true)
+
+![image-20250107232005942](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232005942.png?raw=true)
+
+![image-20250107232014250](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232014250.png?raw=true)
+
+![image-20250107232019787](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232019787.png?raw=true)
+
+![image-20250107232024738](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232024738.png?raw=true)
+
+![image-20250107232034650](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232034650.png?raw=true)
+
+![image-20250107232126657](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232126657.png?raw=true)
+
+![image-20250107232515708](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232515708.png?raw=true)
+
+![image-20250107232528001](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232528001.png?raw=true)
+
+![image-20250107232539893](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232539893.png?raw=true)
+
+![image-20250107232618827](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232618827.png?raw=true)
+
+![image-20250107232629056](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232629056.png?raw=true)
+
+![image-20250107232643639](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232643639.png?raw=true)
+
+![image-20250107232659041](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232659041.png?raw=true)
+
+![image-20250107232706925](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232706925.png?raw=true)
+
+![image-20250107232723028](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232723028.png?raw=true)
+
+![image-20250107232738483](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232738483.png?raw=true)
+
+![image-20250107232746699](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232746699.png?raw=true)
+
+![image-20250107232752156](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232752156.png?raw=true)
+
+![image-20250107232803262](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232803262.png?raw=true)
+
+![image-20250107232810078](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232810078.png?raw=true)
+
+![image-20250107232822906](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232822906.png?raw=true)
+
+![image-20250107232834119](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232834119.png?raw=true)
+
+![image-20250107232935002](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232935002.png?raw=true)
+
+![image-20250107232940255](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107232940255.png?raw=true)
+
+![image-20250107233129672](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233129672.png?raw=true)
+
+![image-20250107233139918](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233139918.png?raw=true)
+
+![image-20250107233151796](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233151796.png?raw=true)
+
+![image-20250107233157321](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233157321.png?raw=true)
+
+![image-20250107233211162](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233211162.png?raw=true)
+
+![image-20250107233217573](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233217573.png?raw=true)
+
+![image-20250107233228601](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233228601.png?raw=true)
+
+![image-20250107233234556](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233234556.png?raw=true)
+
+![image-20250107233240477](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233240477.png?raw=true)
+
+![image-20250107233332538](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250107233332538.png?raw=true)
+
+![image-20250108152733761](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152733761.png?raw=true)
+
+![image-20250108152752467](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152752467.png?raw=true)
+
+![image-20250108152801706](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152801706.png?raw=true)
+
+![image-20250108152816766](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152816766.png?raw=true)
+
+![image-20250108152837278](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152837278.png?raw=true)
+
+![image-20250108152911732](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108152911732.png?raw=true)
+
+![image-20250108153000686](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153000686.png?raw=true)
+
+![image-20250108153011002](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153011002.png?raw=true)
+
+![image-20250108153016628](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153016628.png?raw=ture)
+
+![image-20250108153026039](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153026039.png?raw=true)
+
+![image-20250108153035501](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153035501.png?raw=true)
+
+![image-20250108153044612](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108153044612.png?raw=true)
+
+![image-20250108154154315](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108154154315.png?raw=true)
 
