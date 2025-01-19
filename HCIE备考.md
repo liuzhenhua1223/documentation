@@ -114,7 +114,7 @@
 
 - HCIE01-17都可以排队使用8103环境
 - HCIE01-03不需要排队，可以直接使用迁移800环境
-- HCIE14-17-使用迁移800可以在HCIE09-13选择空闲的账号使用
+- HCIE14-17-使用迁移800可以在HCIE09-13选择空闲的账号使用、
 
 ```apl
 考前2周以外推荐使用HCIE09-13的环境练习迁移，把安排环境尽量练习CCE题目
@@ -133,6 +133,8 @@
 ## 完成迁移前分支华为云Stack的相关配置
 
 ![image-20241228135027830](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241228135027830.png?raw=true)
+
+![image-20250116112728478](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250116112728478.png?raw=true)
 
 ### OC运维面
 
@@ -422,11 +424,10 @@ sh install-cloud-init.sh
   - 可以节约时间
 
 - **个人租户申请CCE集群（可能会失败）**
-
   - 考前2周以外是1个CCE集群配额
-
+  
   - 考前2周以内是2个CCE集群配额
-
+  
 - **申请VPC网段**
   - 练习环境可以自定义网段
   - `考试环境必须用参数表的网段`
@@ -643,7 +644,7 @@ sh install-cloud-init.sh
 
 ![image-20241231111657627](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111657627.png?raw=true)
 
-![image-20241231111710869](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111710869.png?raw=true)
+![image-20250116172442699](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250116172442699.png?raw=true)
 
 ![image-20241231111728358](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231111728358.png?raw=true)
 
@@ -660,6 +661,8 @@ sh install-cloud-init.sh
 #### 如果发现业务1秒后无响应，访问流量将不会传至该容器，3秒内如果恢复响应，访问流量将继续发至该容器
 
 #### 如果发现业务3秒后无响应，杀死对应容器，并进行重启
+
+![image-20250116173816343](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250116173816343.png?raw=true)
 
 ### 合理配置Service和Ingress
 
@@ -757,6 +760,7 @@ sh install-cloud-init.sh
 
 ![image-20241231154952838](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231154952838.png?raw=true)
 
+![image-20250117105241051](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117105241051.png?raw=true)
 ![image-20241231155017075](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155017075.png?raw=true)
 
 ![image-20241231155158432](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155158432.png?raw=true)
@@ -765,7 +769,7 @@ sh install-cloud-init.sh
 
 ![image-20241231155314519](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155314519.png?raw=true)
 
-![image-20241231155433098](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155433098.png?raw=true)
+![image-20250117104721723](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117104721723.png?raw=true)
 
 ![image-20241231155457111](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155457111.png?raw=true)
 ![image-20241231155444042](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231155444042.png?raw=true)
@@ -799,8 +803,9 @@ sh install-cloud-init.sh
 
 **请按照以下要求完成运行配置文件的创建**
 
-1. **创建ConfigMaps,通过其配置JAVA所设计环境变量**
-2. **创建Secret，通过其配置Mysql登录密码**
+#### 创建ConfigMaps,通过其配置JAVA所设计环境变量
+
+#### 创建Secret，通过其配置Mysql登录密码
 
 **请按照一下要求完成节点负载的调度配置**
 
@@ -809,15 +814,15 @@ sh install-cloud-init.sh
 
 ![image-20241231172815319](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231172815319.png?raw=true)
 
-![image-20241231172943841](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231172943841.png?rraw=true)
+![image-20241231172943841](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231172943841.png?raw=true)
 
-![image-20241231172948768](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231172948768.png?rraw=true)
+![image-20241231172948768](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231172948768.png?raw=true)
 
 ![image-20241231173047979](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231173047979.png?raw=true)
 
 ![image-20241231173059585](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231173059585.png?raw=true)
 
-![image-20241231173118089](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231173118089.png?ra=true)
+![image-20241231173118089](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231173118089.png?raw=true)
 
 ![image-20241231173157159](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20241231173157159.png?raw=true)
 
@@ -859,9 +864,17 @@ sh install-cloud-init.sh
 
 # 题目三CCEv2
 
-![image-20250102110601750](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102110601750.png?raw=true)
 
-## 配置云连接
+
+##  一小题
+
+![image-20250117144318090](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117144318090.png?raw=true)
+
+###  创建CCE集群，命名为test
+
+![image-20250102154520903](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154520903.png?raw=true)
+
+### 配置云连接
 
 ![image-20250102110808833](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102110808833.png?raw=true)
 
@@ -887,47 +900,85 @@ sh install-cloud-init.sh
 
 ![image-20250102111342669](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102111342669.png?raw=true)
 
-##  一小题：CCE集群信息
-
-![image-20250102154520903](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154520903.png?raw=true)
-
 ![image-20250102154552708](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154552708.png?raw=true)
 
 ![image-20250102154745704](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154745704.png?raw=true)
 
+### 创建镜像支持后续的测试
+
+- 配置YUM源
+
 ![image-20250102154802202](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154802202.png?raw=true)
+
+- 修改后端对接Mysql的地址
 
 ![image-20250102154812122](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154812122.png?raw=true)
 
 ![image-20250102154919928](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154919928.png?raw=true)
 
-![image-20250102154947562](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154947562.png?raw=true)
-
-![image-20250102155021025](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155021025.png?raw=true)
-
-![image-20250102155042765](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155042765.png?raw=true)
-
 ![image-20250102155102946](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155102946.png?raw=true)
 
+- 修改监听端口为8090端口
+
 ![image-20250102155516253](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155516253.png?raw=true)
+
+### 必须在容器中解压solo程序包和依赖包，创建网络Netsolo
+
+- 登录镜像配置Dockerfile
 
 ![image-20250102155545585](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155545585.png?raw=true)
 
 ![image-20250102155600972](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155600972.png?raw=true)
 
+- 创建网络Netsolo
+
+![image-20250117162210415](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117162210415.png?raw=true)
+
+### 基于当前用户SWR后大小不超过500MB
+
+创建镜像仓库
+
+![image-20250102154947562](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154947562.png?raw=true)
+
+- 上传镜像
+
+![image-20250102155021025](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155021025.png?raw=true)
+
+复制镜像仓库的登录地址
+
+![image-20250102155042765](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155042765.png?raw=true)
+
+### 创建镜像
+
 ![image-20250102155636144](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155636144.png?raw=)
 
-![image-20250102162028094](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102162028094.png?raw=true)
+### 制作的镜像上传SWR后大小不能超过500M
 
 ![image-20250102162237940](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102162237940.png?raw=true)
 
+### Dockerfile的行数不超过9行
+
+![image-20250102155600972](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155600972.png?raw=true)
+
+### 下周Dockerfile文件并保存桌面，命名为2.2-Dockerfile
+
 ![image-20250102162432379](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102162432379.png?raw=true)
 
+- 运行容器
 
+![image-20250117163630267](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117163630267.png?raw=true)
+
+![image-20250117164422325](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117164422325.png?raw=true)
 
 ![image-20250102154235326](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102154235326.png?raw=true)
 
-## 一小题：创建CCE，按照插件
+
+
+## 二小题：
+
+### 新创建CCE集群，命名solo，并安装需要的插件
+
+![image-20250117165408602](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117165408602.png?raw=true)
 
 ![image-20250102171255947](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102171255947.png?raw=true)
 
@@ -937,7 +988,7 @@ sh install-cloud-init.sh
 
 
 
-## 二小题：创建命名空间solo，后续基于该命名空间
+### 创建命名空间solo，后续4.2.4的所有操作都基于此命名空间。
 
 ![image-20250102173145036](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102173145036.png?raw=true)
 
@@ -946,6 +997,8 @@ sh install-cloud-init.sh
 ![image-20250102173229748](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102173229748.png?raw=true)
 
 ![image-20250102173234753](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102173234753.png?raw=true)
+
+### 容器资源不得小于0.25Core和512MB，同时不能超过Node节点主机CPU资源的15%及内存资源的50%
 
 ![image-20250102173256890](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102173256890.png?raw=true)
 
@@ -985,9 +1038,15 @@ sh install-cloud-init.sh
 
 ![image-20250103110840701](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103110840701.png?raw=true)
 
+### 合理配置Service名为Service-1和Ingress并命名为Ingress-1
+
+![image-20250117170204411](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250117170204411.png?raw=true)
+
 ![image-20250103110859060](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103110859060.png?raw=true)
 
 ![image-20250103110950964](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103110950964.png?raw=true)
+
+### 完成业务割接，并能正常访问测试页面
 
 ![image-20250103111238411](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103111238411.png?raw=true)
 
@@ -1003,7 +1062,7 @@ sh install-cloud-init.sh
 
 ![image-20250103111511397](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103111511397.png?raw=true)
 
-## 四大题
+## 三大题
 
 ![image-20250103143929906](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103143929906.png?raw=true)
 
