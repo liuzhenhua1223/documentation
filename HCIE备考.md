@@ -2,6 +2,16 @@
 
 ## 环境说明：
 
+06：
+
+liuzhenhua/Huawei12#$%
+
+34:
+
+HCIE34/Huawei12#$%
+
+hcie34/Huawei12#$%
+
 - **备考六周**
   - 前两周
   - 中两周
@@ -876,6 +886,17 @@ sh install-cloud-init.sh
 
 ### 配置云连接
 
+```
+配置云链接，在管理端，进入云链接之后选择其他项目
+如：
+liuzhenhua
+vpc：1
+项目ID：个人住户查看
+hcie
+vpc：2
+项目ID：个人住户查看
+```
+
 ![image-20250102110808833](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102110808833.png?raw=true)
 
 ![image-20250102110816832](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102110816832.png?raw=true)
@@ -929,6 +950,21 @@ sh install-cloud-init.sh
 ![image-20250102155545585](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155545585.png?raw=true)
 
 ![image-20250102155600972](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250102155600972.png?raw=true)
+
+```apl
+FROM swr.tedu-bj-1.external.com/cce/centos:7.6.1810 AS builder
+COPY http.repo /etc/yum.repos.d/
+WORKDIR /opt/solo/
+ADD openjdk-12.0.2_linux-x64_bin.tar.gz /opt/
+COPY solo-v4.4.0.zip /opt/solo/
+RUN echo "192.168.55.232 www.hcie.com" > /etc/hosts && rm -rf /etc/yum.repos.d/C* && yum -y install unzip && unzip solo-v4.4.0.zip -d /opt/solo/ && rm -rf /opt/solo/solo-v4.4.0.zip
+
+FROM swr.tedu-bj-1.external.com/cce/debian:latest
+COPY --from=builder /opt /opt
+COPY local.properties /opt/solo
+```
+
+
 
 - 创建网络Netsolo
 
@@ -1062,9 +1098,11 @@ sh install-cloud-init.sh
 
 ![image-20250103111511397](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103111511397.png?raw=true)
 
-## 三大题
+## 三小题
 
 ![image-20250103143929906](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103143929906.png?raw=true)
+
+### 保留solo:1.0创建新镜像，命名为solo:2.0，后续操作基于solo:2.0进行
 
 ![image-20250103153848612](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153848612.png?raw=true)
 
@@ -1074,11 +1112,26 @@ sh install-cloud-init.sh
 
 ![image-20250103153948283](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103153948283.png?raw=true)
 
+```apl
+FROM swr.tedu-bj-1.external.com/cce/centos:7.6.1810 AS builder
+COPY http.repo /etc/yum.repos.d/
+WORKDIR /opt/solo/
+COPY solo-v4.4.0.zip /opt/solo/
+RUN "echo yun-nfs-ip www.hcie.com" > /etc/hosts && yum -y install unzip && unzip -d /opt/solo/solo-v4.4.0.zip /opt/solo/ && rm -rf /opt/solo/solo-v4.4.0.zip
+
+FROM swr.tedu-bj-1.external.com/cce/debian:latest
+COPY --from=builder /opt /opt
+COPY local.properties /opt/solo/
+```
+
+
 ![image-20250103154001648](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154001648.png?raw=true)
 
 ![image-20250103154017873](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154017873.png?raw=true)
 
 ![image-20250103154032841](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154032841.png?raw=true)
+
+### 使用PV/PVC将路径为99.0.0.100：/home/nfs的nfs创建为持久存储并挂载给工作负载
 
 ![image-20250103154037940](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154037940.png?raw=true)
 
@@ -1096,7 +1149,7 @@ sh install-cloud-init.sh
 
 ![image-20250103154436241](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154436241.png?raw=true)
 
-
+### 创建新的工作负载，命名为solo-2，并能正常访问测试页面
 
 ![image-20250103154556078](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103154556078.png?raw=true)
 
@@ -1114,16 +1167,22 @@ sh install-cloud-init.sh
 
 ![image-20250103155120185](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155120185.png?raw=true)
 
+### 创建ConfigMap通过其配置JAVA所涉及环境变量
+
 ![image-20250103155154729](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155154729.png?raw=true)
 
 ![image-20250103155644682](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155644682.png?raw=true)
 ![image-20250103155419812](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155419812.png?raw=true)
+
+### 创建Secret，通过其配置Mysql登录密码
 
 ![image-20250103155507530](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155507530.png?raw=true)
 
 ![image-20250103155620305](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103155620305.png?raw=true)
 
 ![image-20250103161322815](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161322815.png?raw=true)
+
+### 修改Dockerfile，更新solo:2.0镜像，新的镜像命名为solo:3.0并进行测试
 
 ![image-20250103161336246](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103161336246.png?raw=true)
 
@@ -1153,6 +1212,12 @@ sh install-cloud-init.sh
 
 ![image-20250103173227688](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173227688.png?raw=true)
 
+### 创建一个15G的云硬盘，挂载目录为/mnt,创建文件并测试可用性，并将创建的云硬盘挂载到solo-3，能正常访问测试界面。
+
+
+
+### 创建新的工作负载，命名solo-3
+
 ![image-20250103173231927](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173231927.png?raw=true)
 
 ![image-20250103173236403](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173236403.png?raw=true)
@@ -1175,7 +1240,7 @@ sh install-cloud-init.sh
 
 ![image-20250103173420328](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173420328.png?raw=true)
 
-- 创建节点池
+### 新增一个节点，并使用工作负载尽可能的调度到该节点上
 
 ![image-20250103173424319](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250103173424319.png?raw=true)
 
@@ -1187,6 +1252,8 @@ sh install-cloud-init.sh
 
 ![image-20250106112531161](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112531161.png?raw=true)
 
+### 从节点绑定公网IP
+
 ![image-20250106112605251](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112605251.png?raw=true)
 
 ![image-20250106112752870](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112752870.png?raw=true)
@@ -1194,6 +1261,8 @@ sh install-cloud-init.sh
 ![image-20250106112819108](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112819108.png?raw=true)
 
 ![image-20250106112852660](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112852660.png?raw=true)
+
+### solo-3工作配置调度策略
 
 ![image-20250106112914578](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106112914578.png?raw=true)
 
@@ -1211,7 +1280,9 @@ sh install-cloud-init.sh
 
 ![image-20250106154908993](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106154908993.png?raw=true)
 
-- 安装插件
+### 配置节点伸缩策略，当CPU资源占用超过85%或者内存资源占用超过80%，自动增加一个节点。
+
+#### 安装插件
 
 ![image-20250106113547435](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106113547435.png?raw=true)
 
