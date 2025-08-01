@@ -1343,6 +1343,8 @@ COPY local.properties /opt/solo/
       - 虚拟接口
   - 对Mysql主机安装代理，配置审核规则
 
+### 使用DBAS对迁移后的数据库提供保护，并将前端业务对数据库执行"DELETE"的操作统计为高风险（如果要删除实例，请务必先关闭实例在删除）
+
 ![image-20250106172653341](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106172653341.png?raw=true)
 
 ![image-20250106221624833](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106221624833.png?raw=true)
@@ -1421,6 +1423,8 @@ COPY local.properties /opt/solo/
 
 ![image-20250106231128219](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231128219.png?raw=true)
 
+### 使用云防火墙对Mysql进行保护，仅允许前端业务solo通过指定端口对其进行访问
+
 ![image-20250106231204511](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231204511.png?raw=true)
 
 ![image-20250106231236521](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106231236521.png?raw=true)
@@ -1450,6 +1454,8 @@ COPY local.properties /opt/solo/
 ![image-20250106232025430](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232025430.png?raw=true)
 
 ![image-20250106232038332](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232038332.png?raw=true)
+
+### 申请安全指数服务，对全部云服务进行检查，并通过合理方法对高风险进行处理（说明仅允许：10.101.0.0/24访问）
 
 ![image-20250106232110325](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250106232110325.png?raw=true)
 
@@ -1548,6 +1554,8 @@ COPY local.properties /opt/solo/
 ![image-20250107222718336](https://github.com/liuzhenhua1223/2024-12-image/blob/master//computernetworks/image-20250107222718336.png?raw=true)
 
 ## WAF 
+
+### 将总部资源的网站进行安全防护，域名为www.discuz.com,地址为xx.xx.xx.xx/24进行主机应用级保护，并对考生桌面网段的所有主机对应访问进行记录
 
 - 申请实例报错
 
@@ -1674,3 +1682,18 @@ COPY local.properties /opt/solo/
 
 ![image-20250108154154315](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250108154154315.png?raw=true)
 
+# 规划题目
+
+![image-20250207173145930](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173145930.png)
+
+![image-20250207173153979](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173153979.png)
+
+![image-20250207173205592](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173205592.png)
+
+![image-20250207173215737](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173215737.png)
+
+![image-20250207173224348](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173224348.png)
+
+![image-20250207173229235](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173229235.png)
+
+![image-20250207173235971](https://github.com/liuzhenhua1223/2024-12-image/blob/master/computernetworks/image-20250207173235971.png)
